@@ -16,7 +16,7 @@ import {
   REGEX_LINK,
 } from '@flyerhq/react-native-link-preview';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import {styles} from './styles';
 import {MarkdownView} from '../MarkdownView';

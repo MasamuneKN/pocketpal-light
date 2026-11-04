@@ -19,7 +19,9 @@ import {
 import {Menu} from '../Menu';
 import {styles} from './styles';
 
-import {chatSessionStore, modelStore, uiStore} from '../../store';
+import {chatSessionStore} from '../../store/ChatSessionStore';
+import {modelStore} from '../../store/ModelStore';
+import {uiStore} from '../../store/UIStore';
 
 import {L10nContext} from '../../utils';
 import {Model, ModelOrigin} from '../../utils/types';
@@ -31,8 +33,9 @@ import {
   exportAllChatSessions,
 } from '../../utils/exportUtils';
 
-import {RenameModal, UsageStats} from '..';
-import {ChatGenerationSettingsSheet} from '..';
+import {RenameModal} from '../RenameModal';
+import {UsageStats} from '../UsageStats';
+import {ChatGenerationSettingsSheet} from '../ChatGenerationSettingsSheet';
 
 export const HeaderRight: React.FC = observer(() => {
   const theme = useTheme();

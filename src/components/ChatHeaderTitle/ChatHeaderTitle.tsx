@@ -4,7 +4,8 @@ import {observer} from 'mobx-react';
 import {Text} from 'react-native-paper';
 
 import {styles} from './styles';
-import {chatSessionStore, modelStore} from '../../store';
+import {chatSessionStore} from '../../store/ChatSessionStore';
+import {modelStore} from '../../store/ModelStore';
 import {L10nContext} from '../../utils';
 
 export const ChatHeaderTitle: React.FC = observer(() => {
