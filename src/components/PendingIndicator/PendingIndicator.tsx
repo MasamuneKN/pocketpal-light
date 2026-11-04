@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Animated, Text, View} from 'react-native';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 import {L10nContext} from '../../utils';
 import {t} from '../../locales';
 

@@ -5,20 +5,18 @@ import {oneOf} from '@flyerhq/react-native-link-preview';
 import {observer} from 'mobx-react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import styles, {turnBlockStyles} from './styles';
-import {
-  AssistantTurnFooter,
-  Avatar,
-  StatusIcon,
-  FileMessage,
-  ImageMessage,
-  ReasoningBlock,
-  TalentSurface,
-  TextMessage,
-  TextMessageTopLevelProps,
-} from '..';
+import {AssistantTurnFooter} from '../AssistantTurnFooter';
+import {Avatar} from '../Avatar';
+import {StatusIcon} from '../StatusIcon';
+import {FileMessage} from '../FileMessage';
+import {ImageMessage} from '../ImageMessage';
+import {ReasoningBlock} from '../ReasoningBlock';
+import {TalentSurface} from '../TalentSurface';
+import {TextMessage} from '../TextMessage';
+import type {TextMessageTopLevelProps} from '../TextMessage';
 
 import {MessageType} from '../../utils/types';
 import {excludeDerivedMessageProps, UserContext} from '../../utils';
