@@ -1,5 +1,5 @@
 import React, {useRef, useContext, useEffect} from 'react';
-import {Alert, Dimensions, View, Pressable, Keyboard} from 'react-native';
+import {Dimensions, View, Keyboard} from 'react-native';
 import {observer} from 'mobx-react';
 import {Text} from 'react-native-paper';
 import BottomSheet, {
@@ -10,24 +10,20 @@ import BottomSheet, {
 
 import {useTheme} from '../../hooks';
 import {createStyles} from './styles';
-import {modelStore, palStore, chatSessionStore} from '../../store';
+import {modelStore} from '../../store';
 import {CustomBackdrop} from '../Sheet/CustomBackdrop';
 import {SheetBackground} from '../Sheet/SheetBackground';
 import {getModelSkills, L10nContext, Model} from '../../utils';
 import {t} from '../../locales';
-import type {Pal} from '../../types/pal';
-import {CloseIcon, SettingsIcon} from '../../assets/icons';
 import {SkillsDisplay} from '../SkillsDisplay';
 
-type Tab = 'models' | 'pals';
+type Tab = 'models';
 
 interface ChatPalModelPickerSheetProps {
   isVisible: boolean;
   chatInputHeight: number;
   onClose: () => void;
   onModelSelect?: (modelId: string) => void;
-  onPalSelect?: (palId: string | undefined) => void;
-  onPalSettingsSelect?: (pal: Pal) => void;
 }
 
 const ObservedSkillsDisplay = observer(({model}) => {
@@ -72,8 +68,6 @@ export const ChatPalModelPickerSheet = observer(
     isVisible,
     onClose,
     onModelSelect,
-    onPalSelect,
-    onPalSettingsSelect,
     chatInputHeight,
   }: ChatPalModelPickerSheetProps) => {
     const [activeTab, setActiveTab] = React.useState<Tab>('models');
@@ -86,18 +80,11 @@ export const ChatPalModelPickerSheet = observer(
     const TABS = React.useMemo(
       () => [
         {
-          id: 'pals' as Tab,
-          label: l10n.components.chatPalModelPickerSheet.palsTab,
-        },
-        {
           id: 'models' as Tab,
           label: l10n.components.chatPalModelPickerSheet.modelsTab,
         },
       ],
-      [
-        l10n.components.chatPalModelPickerSheet.palsTab,
-        l10n.components.chatPalModelPickerSheet.modelsTab,
-      ],
+      [l10n.components.chatPalModelPickerSheet.modelsTab],
     );
 
     // Dismiss keyboard when sheet becomes visible
@@ -157,73 +144,6 @@ export const ChatPalModelPickerSheet = observer(
       [onModelSelect, onClose],
     );
 
-    const handlePalSelect = React.useCallback(
-      async (pal: (typeof palStore.pals)[0] | undefined) => {
-        await chatSessionStore.setActivePal(pal?.id);
-        if (
-          pal?.defaultModel &&
-          modelStore.activeModel &&
-          pal.defaultModel?.id !== modelStore.activeModelId
-        ) {
-          const palDefaultModel = modelStore.availableModels.find(
-            m => m.id === pal.defaultModel?.id,
-          );
-          if (palDefaultModel) {
-            Alert.alert(
-              l10n.components.chatPalModelPickerSheet.confirmationTitle,
-              t(l10n.components.chatPalModelPickerSheet.modelSwitchMessage, {
-                modelName: palDefaultModel.name,
-              }),
-              [
-                {
-                  text: l10n.components.chatPalModelPickerSheet.keepButton,
-                  style: 'cancel',
-                },
-                {
-                  text: l10n.components.chatPalModelPickerSheet.switchButton,
-                  onPress: () => {
-                    modelStore.selectModel(palDefaultModel);
-                  },
-                },
-              ],
-            );
-          }
-        }
-        onPalSelect?.(pal?.id);
-        onClose();
-      },
-      [onPalSelect, onClose, l10n.components.chatPalModelPickerSheet],
-    );
-
-    const renderDisablePalItem = React.useCallback(() => {
-      const noActivePal = !chatSessionStore.activePalId;
-      if (noActivePal) {
-        return null;
-      }
-      return (
-        <Pressable
-          key="disable-pal"
-          style={styles.listItem}
-          onPress={() => handlePalSelect(undefined)}>
-          <CloseIcon stroke={theme.colors.onSurface} />
-          <View style={styles.itemContent}>
-            <Text style={styles.itemTitle}>
-              {l10n.components.chatPalModelPickerSheet.noPal}
-            </Text>
-            <Text style={styles.itemSubtitle}>
-              {l10n.components.chatPalModelPickerSheet.disablePal}
-            </Text>
-          </View>
-        </Pressable>
-      );
-    }, [
-      styles,
-      theme.colors.onSurface,
-      l10n.components.chatPalModelPickerSheet.noPal,
-      l10n.components.chatPalModelPickerSheet.disablePal,
-      handlePalSelect,
-    ]);
-
     const renderModelItem = React.useCallback(
       (model: Model) => {
         const isActiveModel = model.id === modelStore.activeModelId;
@@ -251,90 +171,12 @@ export const ChatPalModelPickerSheet = observer(
       [styles, handleModelSelect],
     );
 
-    const getCapabilityText = React.useCallback(
-      (pal: Pal): string => {
-        if (pal.capabilities?.video) {
-          return l10n.components.chatPalModelPickerSheet.videoType;
-        }
-
-        // TODO: Add support for other capabilities
-        // Use assistant for now.
-        return l10n.components.chatPalModelPickerSheet.assistantType;
-      },
-      [l10n.components.chatPalModelPickerSheet],
-    );
-
-    const renderPalItem = React.useCallback(
-      (pal: (typeof palStore.pals)[0]) => {
-        const isActivePal = pal.id === chatSessionStore.activePalId;
-        return (
-          <Pressable
-            key={pal.id}
-            style={[styles.listItem, isActivePal && styles.activeListItem]}
-            onPress={() => handlePalSelect(pal)}>
-            <View style={styles.itemContent}>
-              <View style={styles.itemTextContent}>
-                <Text
-                  style={[
-                    styles.itemTitle,
-                    isActivePal && styles.activeItemTitle,
-                  ]}>
-                  {pal.name}
-                </Text>
-                <Text
-                  style={[
-                    styles.itemSubtitle,
-                    isActivePal && styles.activeItemSubtitle,
-                  ]}>
-                  {getCapabilityText(pal)}
-                </Text>
-              </View>
-              {isActivePal && pal.type === 'local' && onPalSettingsSelect && (
-                <Pressable
-                  style={styles.settingsButton}
-                  onPress={e => {
-                    e.stopPropagation();
-                    onPalSettingsSelect(pal);
-                  }}>
-                  <SettingsIcon
-                    width={16}
-                    height={16}
-                    stroke={
-                      isActivePal
-                        ? styles.activeItemTitle.color
-                        : styles.itemSubtitle.color
-                    }
-                  />
-                </Pressable>
-              )}
-            </View>
-          </Pressable>
-        );
-      },
-      [
-        styles.listItem,
-        styles.activeListItem,
-        styles.itemContent,
-        styles.itemTextContent,
-        styles.settingsButton,
-        styles.itemTitle,
-        styles.activeItemTitle,
-        styles.itemSubtitle,
-        styles.activeItemSubtitle,
-        getCapabilityText,
-        handlePalSelect,
-        onPalSettingsSelect,
-      ],
-    );
-
     const renderContent = React.useCallback(
       ({item}: {item: (typeof TABS)[0]}) => (
         <View style={{width: Dimensions.get('window').width}}>
           <BottomSheetScrollView
             contentContainerStyle={{paddingBottom: chatInputHeight + 66}}>
-            {item.id === 'models'
-              ? modelStore.availableModels.map(renderModelItem)
-              : [renderDisablePalItem(), ...palStore.pals.map(renderPalItem)]}
+            {modelStore.availableModels.map(renderModelItem)}
           </BottomSheetScrollView>
         </View>
       ),
@@ -382,9 +224,6 @@ export const ChatPalModelPickerSheet = observer(
         // children from the accessibility tree. Same fix as Sheet.tsx.
         // See: https://github.com/gorhom/react-native-bottom-sheet/issues/1141
         accessible={false}>
-        <View style={styles.tabs}>
-          {TABS.map((tab, index) => renderTab(tab.id, tab.label, index))}
-        </View>
         <BottomSheetFlatList
           ref={flatListRef}
           data={TABS}
