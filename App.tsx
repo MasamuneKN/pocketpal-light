@@ -61,7 +61,6 @@ import {
   DevToolsScreen,
 } from './src/screens';
 import PalsScreen from './src/screens/PalsScreen';
-import {OnboardingStack} from './src/screens/OnboardingScreens';
 
 // Check if app is in debug mode
 const isDebugMode = __DEV__;
@@ -93,9 +92,6 @@ type SwitchPointProps = {drawer: React.ReactNode};
 const SwitchPoint: React.FC<SwitchPointProps> = observer(({drawer}) => {
   if (!isHydrated(uiStore)) {
     return null;
-  }
-  if (!uiStore.hasCompletedOnboarding) {
-    return <OnboardingStack />;
   }
   return <>{drawer}</>;
 });
