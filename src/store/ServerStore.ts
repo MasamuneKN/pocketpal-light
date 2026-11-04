@@ -118,7 +118,6 @@ class ServerStore {
       this.afterHydration();
     });
 
-    this.setupAppStateListener();
   }
 
   /**
@@ -132,7 +131,6 @@ class ServerStore {
         server.serverType = toServerType(server.serverType);
       }
     }
-    await this.fetchAllRemoteModels();
   }
 
   /** Counts every list read at its start, store-wide. */
