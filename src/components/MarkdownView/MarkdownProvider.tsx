@@ -6,7 +6,7 @@ import {
   defaultSystemFonts,
 } from 'react-native-render-html';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import {CodeRenderer} from './CodeRenderer';
 import {createTagsStyles} from './styles';

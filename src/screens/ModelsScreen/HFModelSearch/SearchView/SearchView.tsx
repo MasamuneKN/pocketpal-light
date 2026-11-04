@@ -13,11 +13,11 @@ import {
   Sheet,
 } from '../../../../components';
 
-import {useTheme} from '../../../../hooks';
+import {useTheme} from '../../../../hooks/useTheme';
 
 import {createStyles} from './styles';
 
-import {hfStore} from '../../../../store';
+import {hfStore} from '../../../../store/HFStore';
 
 import {HuggingFaceModel} from '../../../../utils/types';
 import {
