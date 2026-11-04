@@ -1,4 +1,4 @@
-import React, {useRef, useContext, useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {Dimensions, View, Keyboard} from 'react-native';
 import {observer} from 'mobx-react';
 import {Text} from 'react-native-paper';
