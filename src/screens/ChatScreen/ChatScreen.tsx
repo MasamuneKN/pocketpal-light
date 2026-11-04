@@ -266,7 +266,6 @@ export const ChatScreen: React.FC = observer(() => {
 
   // Otherwise, show the regular chat view
   return (
-    <VoiceModeControlsContext.Provider value={voiceControls}>
       <View
         style={styles.chat}
         importantForAccessibility={chatCovered ? 'no-hide-descendants' : 'auto'}
@@ -329,7 +328,6 @@ export const ChatScreen: React.FC = observer(() => {
           pal={activePal}
         />
       )}
-    </VoiceModeControlsContext.Provider>
   );
 });
 
