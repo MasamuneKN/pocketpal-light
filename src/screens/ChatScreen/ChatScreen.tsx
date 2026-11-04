@@ -12,12 +12,10 @@ import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 import {useChatSession} from '../../hooks/useChatSession';
 import {usePendingMessage} from '../../hooks/useDeepLinking';
 
-import {
-  modelStore,
-  chatSessionStore,
-  palStore,
-  uiStore,
-} from '../../store';
+import {modelStore} from '../../store/ModelStore';
+import {chatSessionStore} from '../../store/ChatSessionStore';
+import {palStore} from '../../store/PalStore';
+import {uiStore} from '../../store/UIStore';
 
 import {L10nContext} from '../../utils';
 import {
