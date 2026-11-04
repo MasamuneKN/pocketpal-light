@@ -45,11 +45,9 @@ import {createStyles} from './styles';
 import {CacheTypeMenuRow} from './CacheTypeMenuRow';
 import {useMenuAnchor} from './useMenuAnchor';
 
-import {
-  modelStore,
-  uiStore,
-  hfStore,
-} from '../../store';
+import {modelStore} from '../../store/ModelStore';
+import {uiStore} from '../../store/UIStore';
+import {hfStore} from '../../store/HFStore';
 
 import {CacheType, ModelType} from '../../utils/types';
 import {
