@@ -20,8 +20,8 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 
-import {uiStore} from './src/store';
-import {useTheme} from './src/hooks';
+import {uiStore} from './src/store/UIStore';
+import {useTheme} from './src/hooks/useTheme';
 import {useDeepLinking} from './src/hooks/useDeepLinking';
 import {useNavigationBarAppearance} from './src/hooks/useNavigationBarAppearance';
 import {Theme} from './src/utils/types';
@@ -30,14 +30,12 @@ import {l10n, initLocale} from './src/locales';
 import {L10nContext} from './src/utils';
 import {ROUTES} from './src/utils/navigationConstants';
 
-import {
-  SidebarContent,
-  ModelsHeaderRight,
-  HeaderLeft,
-  AppWithMigration,
-  DownloadOverlay,
-  HubRunSheetHost,
-} from './src/components';
+import {SidebarContent} from './src/components/SidebarContent';
+import {ModelsHeaderRight} from './src/components/ModelsHeaderRight';
+import {HeaderLeft} from './src/components/HeaderLeft';
+import {AppWithMigration} from './src/components/AppWithMigration';
+import {DownloadOverlay} from './src/components/DownloadOverlay';
+import {HubRunSheetHost} from './src/components/HubRunSheetHost';
 import {MarkdownProvider} from './src/components/MarkdownView';
 import {
   AutomationBridge,
