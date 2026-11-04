@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pocketpal-lite-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Detect if changes are translation-only (src/locales/ files)
   detect-changes:
