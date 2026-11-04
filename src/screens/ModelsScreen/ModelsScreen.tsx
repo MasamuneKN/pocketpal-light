@@ -9,19 +9,17 @@ import * as RNFS from '@dr.pogodin/react-native-fs';
 import {pick, types} from '@react-native-documents/picker';
 import {Portal, Snackbar} from 'react-native-paper';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import {FABGroup} from './FABGroup';
 import {ModelCard} from './ModelCard';
 import {createStyles} from './styles';
 import {HFModelSearch} from './HFModelSearch';
 import {ModelAccordion} from './ModelAccordion';
-import {
-  DownloadErrorDialog,
-  ErrorSnackbar,
-  ModelSettingsSheet,
-  ModelErrorReportSheet,
-} from '../../components';
+import {DownloadErrorDialog} from '../../components/DownloadErrorDialog';
+import {ErrorSnackbar} from '../../components/ErrorSnackbar';
+import {ModelSettingsSheet} from '../../components/ModelSettingsSheet';
+import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 
 import {uiStore, modelStore, hfStore, UIStore} from '../../store';
 
