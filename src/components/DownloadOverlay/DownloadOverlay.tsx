@@ -4,10 +4,11 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {observer} from 'mobx-react';
 import {reaction} from 'mobx';
 
-import {modelStore, uiStore} from '../../store';
+import {modelStore} from '../../store/ModelStore';
+import {uiStore} from '../../store/UIStore';
 import {DownloadBanner} from './DownloadBanner';
 import {overlayStyles as createStyles} from './styles';
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 /**
  * Mounts the DownloadBanner over the navigator. Persists across navigation

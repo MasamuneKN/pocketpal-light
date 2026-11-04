@@ -11,8 +11,8 @@ import {observer} from 'mobx-react';
 import {Text, Button, ActivityIndicator} from 'react-native-paper';
 
 import {Sheet} from '../Sheet';
-import {useTheme} from '../../hooks';
-import {hfStore} from '../../store';
+import {useTheme} from '../../hooks/useTheme';
+import {hfStore} from '../../store/HFStore';
 import {useHubRunSheet} from '../../hooks/useDeepLinking';
 import {
   L10nContext,

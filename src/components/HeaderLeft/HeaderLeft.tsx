@@ -1,25 +1,16 @@
-import React, {useCallback, useRef} from 'react';
+import React, {useRef} from 'react';
 import {TouchableOpacity, type HostInstance} from 'react-native';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
 import {styles} from './styles';
-import {claimPlusReturnFocus, releasePlusReturnFocus} from './plusReturnFocus';
 import {MenuIcon} from '../../assets/icons';
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 export const HeaderLeft: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const buttonRef = useRef<HostInstance>(null);
-
-  useFocusEffect(
-    useCallback(() => {
-      const node = buttonRef.current;
-      claimPlusReturnFocus(node);
-      return () => releasePlusReturnFocus(node);
-    }, []),
-  );
 
   return (
     <TouchableOpacity

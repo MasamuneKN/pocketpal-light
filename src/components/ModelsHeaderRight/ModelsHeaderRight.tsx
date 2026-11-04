@@ -10,11 +10,12 @@ import iconHFLight from '../../assets/icon-hf-light.png';
 import {createStyles} from './styles';
 import {ModelsResetDialog} from '../ModelsResetDialog';
 
-import {modelStore, uiStore} from '../../store';
+import {modelStore} from '../../store/ModelStore';
+import {uiStore} from '../../store/UIStore';
 
 import {L10nContext} from '../../utils';
 
-import {Menu} from '..';
+import {Menu} from '../Menu';
 
 export const ModelsHeaderRight = observer(() => {
   const [menuVisible, setMenuVisible] = useState(false);
