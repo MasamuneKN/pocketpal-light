@@ -32,7 +32,6 @@ import {createStyles} from './styles';
 import {
   chatSessionStore,
   modelStore,
-  palStore,
   uiStore,
 } from '../../store';
 
@@ -54,7 +53,7 @@ export interface ChatInputTopLevelProps {
   onSendPress: (message: MessageType.PartialText) => void;
   onStopPress?: () => void;
   onCancelEdit?: () => void;
-  onPalBtnPress?: () => void;
+  onModelPickerPress?: () => void;
   isStopVisible?: boolean;
   /** Controls the visibility behavior of the {@link SendButton} based on the
    * `TextInput` state. Defaults to `editing`. */
@@ -131,7 +130,7 @@ export const ChatInput = observer(
     onSendPress,
     onStopPress,
     onCancelEdit,
-    onPalBtnPress,
+    onModelPickerPress,
     isStopVisible,
     sendButtonVisibilityMode,
     textInputProps,
@@ -160,8 +159,6 @@ export const ChatInput = observer(
     const focusInput = React.useCallback(() => inputRef.current?.focus(), []);
     const editBarHeight = React.useRef(new Animated.Value(0)).current;
     const iconRotation = React.useRef(new Animated.Value(0)).current;
-    const activePalId = chatSessionStore.activePalId;
-    const currentActivePal = palStore.pals.find(pal => pal.id === activePalId);
 
     const hasActiveModel = !!modelStore.activeModelId;
 
@@ -184,8 +181,7 @@ export const ChatInput = observer(
     const styles = createStyles({theme, isEditMode});
 
     // For camera input, use promptText if provided
-    const isVideoCapable =
-      currentActivePal && hasVideoCapability(currentActivePal);
+    const isVideoCapable = false;
     const value =
       isVideoCapable && promptText !== undefined
         ? promptText
@@ -325,7 +321,7 @@ export const ChatInput = observer(
       outputRange: ['0deg', '180deg'],
     });
 
-    const onSurfaceColor = currentActivePal?.color?.[0] || theme.colors.text;
+    const onSurfaceColor = theme.colors.text;
     const onSurfaceColorVariant = onSurfaceColor + '55'; // for disabled state or placeholder text
     // // Plus button state
     const isPlusButtonEnabled = !isStreaming && isVisionEnabled;
@@ -483,8 +479,8 @@ export const ChatInput = observer(
                   </Menu>
                 )}
 
-                {/* Pal Selector */}
-                <View testID="pal-selector" style={styles.palSelector}>
+                {/* Model picker */}
+                <View testID="model-selector" style={styles.palSelector}>
                   <TouchableOpacity
                     style={[
                       styles.palBtn,
@@ -494,12 +490,9 @@ export const ChatInput = observer(
                             ? theme.colors.inverseOnSurface
                             : theme.colors.inverseSurface,
                       },
-                      currentActivePal?.color && {
-                        backgroundColor: currentActivePal?.color?.[0],
-                      },
                     ]}
-                    onPress={onPalBtnPress}
-                    accessibilityLabel="Select Pal"
+                    onPress={onModelPickerPress}
+                    accessibilityLabel="Select model"
                     accessibilityRole="button">
                     <Animated.View
                       style={{
@@ -509,29 +502,7 @@ export const ChatInput = observer(
                     </Animated.View>
                   </TouchableOpacity>
 
-                  {/* Pal Name Display */}
-                  {currentActivePal?.name && hasActiveModel && (
-                    <Text
-                      testID="active-pal-name"
-                      numberOfLines={1}
-                      style={[
-                        styles.palNameCompact,
-                        {
-                          color: onSurfaceColor,
-                        },
-                      ]}>
-                      Pal:{' '}
-                      <Text
-                        style={[
-                          styles.palNameValueCompact,
-                          {
-                            color: onSurfaceColor,
-                          },
-                        ]}>
-                        {currentActivePal?.name}
-                      </Text>
-                    </Text>
-                  )}
+
                 </View>
 
                 {/* Thinking Toggle Button. Graded models (axis-2) cycle
