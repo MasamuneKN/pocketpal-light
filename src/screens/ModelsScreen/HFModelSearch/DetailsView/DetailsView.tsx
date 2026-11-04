@@ -7,7 +7,7 @@ import {BottomSheetFlatList} from '@gorhom/bottom-sheet';
 import {ModelTypeTag, Sheet} from '../../../../components';
 
 import {urls} from '../../../../config';
-import {useTheme} from '../../../../hooks';
+import {useTheme} from '../../../../hooks/useTheme';
 
 import {createStyles} from './styles';
 import {ModelFileCard} from './ModelFileCard';

@@ -12,9 +12,10 @@ import {
   Chip,
 } from 'react-native-paper';
 
-import {useTheme, useMemoryCheck} from '../../../../../hooks';
+import {useTheme} from '../../../../../hooks/useTheme';
+import {useMemoryCheck} from '../../../../../hooks/useMemoryCheck';
 import {createStyles} from './styles';
-import {modelStore} from '../../../../../store';
+import {modelStore} from '../../../../../store/ModelStore';
 import {
   formatBytes,
   hfAsModel,
