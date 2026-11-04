@@ -37,11 +37,9 @@ import {MessageType} from '../../utils/types';
 import {L10nContext, UserContext} from '../../utils';
 import {t} from '../../locales';
 
-import {
-  SendButton,
-  StopButton,
-  Menu,
-} from '..';
+import {SendButton} from '../SendButton';
+import {StopButton} from '../StopButton';
+import {Menu} from '../Menu';
 
 export interface ChatInputTopLevelProps {
   /** Whether the AI is currently streaming tokens */
