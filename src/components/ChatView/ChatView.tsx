@@ -1175,10 +1175,8 @@ export const ChatView = observer(
                     onDefaultImagesChange: setInputImages,
                     textInputProps: {
                       ...textInputProps,
-                      ...(!composerShowsPromptText && {
-                        value: inputText,
-                        onChangeText: setInputText,
-                      }),
+                      value: inputText,
+                      onChangeText: setInputText,
                     },
                   }}
               />
