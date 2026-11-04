@@ -13,11 +13,6 @@ import {isHubLink, parseHubRunURL} from '../services/hubRunLink';
 import {deepLinkStore} from '../store/DeepLinkStore';
 import {uiStore} from '../store/UIStore';
 import {ROUTES} from '../utils/navigationConstants';
-import {
-  isBenchmarkRunnerUrl,
-  parseBenchmarkAutostart,
-} from '../__automation__/benchmarkRoute';
-import {isPlusFeatureUrl} from '../__automation__/plusFeatureRoute';
 
 /**
  * Hook for handling deep link navigation
@@ -91,57 +86,6 @@ export const useDeepLinking = () => {
     },
     [handleChatDeepLink, handleHubRunLink, navigation],
   );
-
-  // E2E-only routing for the benchmark runner and the Plus test feature.
-  // Two paths:
-  //   1. Cold launch — Linking.getInitialURL() reads the launching intent's
-  //      data URI; no MainActivity onNewIntent override needed.
-  //   2. Warm launch — WDIO's `mobile: deepLink` driver command delivers the
-  //      URL after the app has already started (fullReset re-installs the
-  //      APK but the activity is launched before the test sends the deep
-  //      link), so Android routes it as a warm 'url' event. Without the
-  //      addEventListener path, the spec's `bench-run-button` wait would
-  //      hang because the runner screen never mounts.
-  // The whole effect is gated by __E2E__; in prod, the body is unreachable
-  // and DCE-stripped by Hermes.
-  useEffect(() => {
-    if (!__E2E__) {
-      return;
-    }
-    const routeE2eScreen = (url: string | null | undefined) => {
-      if (isBenchmarkRunnerUrl(url)) {
-        // Resolve autostart from the same raw URL the gate matched, via the
-        // shared helper, so cold-launch (getInitialURL) and warm-launch
-        // ('url' event) deliveries — and the iOS dispatchAutomationDeepLink
-        // path — cannot diverge in truthiness. A bare bench URL resolves
-        // false, so the screen stays idle exactly as before.
-        (navigation as any).navigate(ROUTES.BENCHMARK_RUNNER, {
-          autostart: parseBenchmarkAutostart(url),
-        });
-      } else if (isPlusFeatureUrl(url)) {
-        (navigation as any).navigate(ROUTES.PLUS_TEST_FEATURE);
-      }
-    };
-    Linking.getInitialURL()
-      .then(routeE2eScreen)
-      .catch(() => {
-        // getInitialURL rejects on some surfaces; warm-state listener still
-        // covers WDIO's deepLink command.
-      });
-    // Defensive: addEventListener is at the RN native bridge edge. If it
-    // ever throws synchronously the cold-launch path above already ran, so
-    // we contain the error and skip the cleanup return rather than tearing
-    // down the rest of the hook's lifecycle.
-    let sub: {remove: () => void} | null = null;
-    try {
-      sub = Linking.addEventListener('url', ({url}) => routeE2eScreen(url));
-    } catch {
-      sub = null;
-    }
-    return () => {
-      sub?.remove();
-    };
-  }, [navigation]);
 
   useEffect(() => {
     // Initialize deep link service
