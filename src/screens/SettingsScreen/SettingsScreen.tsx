@@ -33,15 +33,13 @@ import {
   LinkExternalIcon,
 } from '../../assets/icons';
 
-import {
-  TextInput,
-  Menu,
-  Divider,
-  HFTokenSheet,
-  InputSlider,
-} from '../../components';
+import {TextInput} from '../../components/TextInput';
+import {Menu} from '../../components/Menu';
+import {Divider} from '../../components/Divider';
+import {HFTokenSheet} from '../../components/HFTokenSheet';
+import {InputSlider} from '../../components/InputSlider';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import {createStyles} from './styles';
 import {CacheTypeMenuRow} from './CacheTypeMenuRow';
