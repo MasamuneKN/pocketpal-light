@@ -7,13 +7,14 @@ import {Text, Button, Checkbox, ActivityIndicator} from 'react-native-paper';
 
 import {submitModelLoadErrorReport} from '../../api/feedback';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import {createStyles} from './styles';
 
 import {ErrorState, L10nContext, formatBytes} from '../../utils';
 
-import {Sheet, TextInput} from '..';
+import {Sheet} from '../Sheet';
+import {TextInput} from '../TextInput';
 
 interface ModelErrorReportSheetProps {
   isVisible: boolean;

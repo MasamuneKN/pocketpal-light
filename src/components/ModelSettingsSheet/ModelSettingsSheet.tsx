@@ -5,7 +5,8 @@ import {ModelSettings} from '../../screens/ModelsScreen/ModelSettings';
 import {Sheet} from '../Sheet';
 import {ProjectionModelSelector} from '../ProjectionModelSelector';
 import {Model, ModelOrigin} from '../../utils/types';
-import {modelStore, serverStore} from '../../store';
+import {modelStore} from '../../store/ModelStore';
+import {serverStore} from '../../store/ServerStore';
 import {chatTemplates} from '../../utils/chat';
 import {
   resolveReasoningCapability,

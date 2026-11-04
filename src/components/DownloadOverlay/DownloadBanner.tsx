@@ -4,8 +4,9 @@ import {observer} from 'mobx-react';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 
 import {XIcon} from '../../assets/icons';
-import {useTheme} from '../../hooks';
-import {modelStore, palStore, uiStore} from '../../store';
+import {useTheme} from '../../hooks/useTheme';
+import {modelStore} from '../../store/ModelStore';
+import {uiStore} from '../../store/UIStore';
 import {L10nContext} from '../../utils';
 import {ROUTES} from '../../utils/navigationConstants';
 import {bannerStyles as createStyles} from './styles';
@@ -22,13 +23,9 @@ const formatSize = (bytes: number): string => {
 };
 
 // Users think "Pip is downloading", not the filename.
-const ownerOf = (modelId: string, modelName: string) => {
-  const pal = palStore.pals.find(
-    p =>
-      p.source === 'local' && p.defaultModel && p.defaultModel.id === modelId,
-  );
-  return {pal, subject: pal ? pal.name : modelName};
-};
+const ownerOf = (_modelId: string, modelName: string) => ({
+  subject: modelName,
+});
 
 /**
  * Sticky single-row banner showing the first non-dismissed active download.
@@ -55,7 +52,7 @@ export const DownloadBanner: React.FC = observer(() => {
       : undefined;
   if (failedModel) {
     const failedTitle = l10n.downloadBanner.failedTitle;
-    const {pal: failedPal, subject: failedSubject} = ownerOf(
+    const {subject: failedSubject} = ownerOf(
       failedModel.id,
       failedModel.name,
     );
@@ -143,9 +140,9 @@ export const DownloadBanner: React.FC = observer(() => {
     return null;
   }
 
-  const {pal, subject} = ownerOf(visible.modelId, visible.model.name);
+  const {subject} = ownerOf(visible.modelId, visible.model.name);
   const title = (
-    pal ? l10n.downloadBanner.titleByPal : l10n.downloadBanner.titleByModel
+    l10n.downloadBanner.titleByModel
   ).replace('{{name}}', subject);
   const eta = visible.etaLabel || formatSize(visible.bytesTotal);
   const clamped = Math.max(0, Math.min(100, visible.progress));
@@ -172,7 +169,7 @@ export const DownloadBanner: React.FC = observer(() => {
           importantForAccessibility="no-hide-descendants"
           style={[
             styles.avatar,
-            pal?.color?.[0] ? {backgroundColor: pal.color[0]} : null,
+            null,
           ]}
         />
         <View style={styles.content}>
