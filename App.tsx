@@ -20,7 +20,7 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 
-import {asrStore, purchaseStore, ttsStore, uiStore} from './src/store';
+import {uiStore} from './src/store';
 import {useTheme} from './src/hooks';
 import {useDeepLinking} from './src/hooks/useDeepLinking';
 import {useNavigationBarAppearance} from './src/hooks/useNavigationBarAppearance';
@@ -35,11 +35,8 @@ import {
   ModelsHeaderRight,
   HeaderLeft,
   AppWithMigration,
-  TTSSetupSheet,
   DownloadOverlay,
   HubRunSheetHost,
-  PlusA11yScope,
-  PlusHost,
 } from './src/components';
 import {MarkdownProvider} from './src/components/MarkdownView';
 import {
@@ -104,23 +101,6 @@ const App = observer(() => {
     initLocale(uiStore.language);
   }, []);
 
-  // Initialize TTS store (memory gate + AppState/session listeners).
-  // Fire-and-forget: `init()` is idempotent and swallows its own errors.
-  React.useEffect(() => {
-    ttsStore.init().catch(() => {
-      // init() swallows its own errors; catch to satisfy no-floating-promises.
-    });
-    asrStore.init().catch(() => {
-      // init() swallows its own errors; catch to satisfy no-floating-promises.
-    });
-  }, []);
-
-  React.useEffect(() => {
-    purchaseStore
-      .start(__E2E__ ? {store: fakeStore, beforeInit: fakeStore.restore} : {})
-      .catch(error => console.warn('Purchase recovery failed:', error));
-  }, []);
-
   return (
     <GestureHandlerRootView style={styles.root}>
       <StatusBar barStyle={theme.dark ? 'light-content' : 'dark-content'} />
@@ -132,7 +112,6 @@ const App = observer(() => {
               <MarkdownProvider>
                 <NavigationContainer>
                   <DeepLinkHandler />
-                  <PlusA11yScope>
                     <BottomSheetModalProvider>
                       <SwitchPoint
                         drawer={
@@ -236,12 +215,9 @@ const App = observer(() => {
                           </Drawer.Navigator>
                         }
                       />
-                      <TTSSetupSheet />
                       <DownloadOverlay />
                       <HubRunSheetHost />
                     </BottomSheetModalProvider>
-                  </PlusA11yScope>
-                  <PlusHost />
                 </NavigationContainer>
               </MarkdownProvider>
             </L10nContext.Provider>
