@@ -27,7 +27,6 @@ import {
 } from 'react-native-paper';
 
 import {
-  GlobeIcon,
   MoonIcon,
   CpuChipIcon,
   ShareIcon,
@@ -42,7 +41,6 @@ import {
   Menu,
   Divider,
   HFTokenSheet,
-  LanguageSelector,
   SearchProviderKeySheet,
   InputSlider,
 } from '../../components';
@@ -1041,25 +1039,6 @@ export const SettingsScreen: React.FC = observer(() => {
             <Card.Title title={l10n.settings.appSettings} />
             <Card.Content>
               <View style={styles.settingItemContainer}>
-                {/* Language Selection */}
-                <View style={styles.switchContainer}>
-                  <View style={styles.textContainer}>
-                    <View style={styles.labelWithIconContainer}>
-                      <GlobeIcon
-                        width={20}
-                        height={20}
-                        style={styles.settingIcon}
-                        stroke={theme.colors.onSurface}
-                      />
-                      <Text variant="titleMedium" style={styles.textLabel}>
-                        {l10n.settings.language}
-                      </Text>
-                    </View>
-                  </View>
-                  <LanguageSelector />
-                </View>
-                <Divider />
-
                 {/* Dark Mode */}
                 <View style={styles.switchContainer}>
                   <View style={styles.textContainer}>
