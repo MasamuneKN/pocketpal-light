@@ -7,12 +7,12 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {CopyIcon} from '../../assets/icons';
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 import {PlayButton} from '../TextMessage/PlayButton';
 
 import {styles} from './styles';
 
-import {chatSessionStore} from '../../store';
+import {chatSessionStore} from '../../store/ChatSessionStore';
 import {L10nContext} from '../../utils';
 import {derivedText} from '../../utils/chat';
 import type {PersistedTurnTimings} from '../../utils/completionTypes';
