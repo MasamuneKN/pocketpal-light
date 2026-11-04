@@ -6,10 +6,12 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {DrawerContentComponentProps} from '@react-navigation/drawer';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 import {createStyles} from './styles';
-import {chatSessionStore, SessionMetaData} from '../../store';
-import {Menu, RenameModal, Checkbox} from '..';
+import {chatSessionStore, SessionMetaData} from '../../store/ChatSessionStore';
+import {Menu} from '../Menu';
+import {RenameModal} from '../RenameModal';
+import {Checkbox} from '../Checkbox';
 import {
   ChatIcon,
   EditIcon,

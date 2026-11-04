@@ -62,22 +62,22 @@ import {
   L10nContext,
 } from '../../utils';
 
-import {
-  Message,
-  MessageTopLevelProps,
-  CircularActivityIndicator,
-  ChatInput,
+import {Message} from '../Message';
+import type {MessageTopLevelProps} from '../Message';
+import {CircularActivityIndicator} from '../CircularActivityIndicator';
+import {ChatInput} from '../ChatInput';
+import type {
   ChatInputAdditionalProps,
   ChatInputTopLevelProps,
-  Menu,
-  PendingIndicator,
-  ChatPalModelPickerSheet,
-  ChatHeader,
-  ChatEmptyPlaceholder,
-  ContentReportSheet,
-  GreetingBubble,
-  SuggestedPromptsRow,
-} from '..';
+} from '../ChatInput';
+import {Menu} from '../Menu';
+import {PendingIndicator} from '../PendingIndicator';
+import {ChatPalModelPickerSheet} from '../ChatPalModelPickerSheet';
+import {ChatHeader} from '../ChatHeader';
+import {ChatEmptyPlaceholder} from '../ChatEmptyPlaceholder';
+import {ContentReportSheet} from '../ContentReportSheet';
+import {GreetingBubble} from '../GreetingBubble';
+import {SuggestedPromptsRow} from '../SuggestedPromptsRow';
 import {
   AlertIcon,
   CopyIcon,

@@ -25,13 +25,18 @@ import {
   HelperText,
 } from 'react-native-paper';
 
-import {ProjectionModelSelector, MemoryRequirement} from '../../../components';
+import {ProjectionModelSelector} from '../../../components/ProjectionModelSelector';
+import {MemoryRequirement} from '../../../components/MemoryRequirement';
 
-import {useTheme, useMemoryCheck, useStorageCheck} from '../../../hooks';
+import {useTheme} from '../../../hooks/useTheme';
+import {useMemoryCheck} from '../../../hooks/useMemoryCheck';
+import {useStorageCheck} from '../../../hooks/useStorageCheck';
 
 import {createStyles} from './styles';
 
-import {uiStore, modelStore, serverStore} from '../../../store';
+import {uiStore} from '../../../store/UIStore';
+import {modelStore} from '../../../store/ModelStore';
+import {serverStore} from '../../../store/ServerStore';
 import {t} from '../../../locales';
 
 import {

@@ -7,9 +7,9 @@ import BottomSheet, {
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 import {createStyles} from './styles';
-import {modelStore} from '../../store';
+import {modelStore} from '../../store/ModelStore';
 import {CustomBackdrop} from '../Sheet/CustomBackdrop';
 import {SheetBackground} from '../Sheet/SheetBackground';
 import {getModelSkills, L10nContext, Model} from '../../utils';
