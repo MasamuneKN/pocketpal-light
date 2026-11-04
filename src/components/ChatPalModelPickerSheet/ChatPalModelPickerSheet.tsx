@@ -4,7 +4,6 @@ import {observer} from 'mobx-react';
 import {Text} from 'react-native-paper';
 import BottomSheet, {
   BottomSheetFlatList,
-  BottomSheetFlatListMethods,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 
@@ -16,8 +15,6 @@ import {SheetBackground} from '../Sheet/SheetBackground';
 import {getModelSkills, L10nContext, Model} from '../../utils';
 import {t} from '../../locales';
 import {SkillsDisplay} from '../SkillsDisplay';
-
-type Tab = 'models';
 
 interface ChatPalModelPickerSheetProps {
   isVisible: boolean;
@@ -70,21 +67,13 @@ export const ChatPalModelPickerSheet = observer(
     onModelSelect,
     chatInputHeight,
   }: ChatPalModelPickerSheetProps) => {
-    const [activeTab, setActiveTab] = React.useState<Tab>('models');
-    const theme = useTheme();
+      const theme = useTheme();
     const l10n = useContext(L10nContext);
     const styles = createStyles({theme});
-    const bottomSheetRef = useRef<BottomSheet>(null);
-    const flatListRef = useRef<BottomSheetFlatListMethods>(null);
 
     const TABS = React.useMemo(
-      () => [
-        {
-          id: 'models' as Tab,
-          label: l10n.components.chatPalModelPickerSheet.modelsTab,
-        },
-      ],
-      [l10n.components.chatPalModelPickerSheet.modelsTab],
+      () => [{id: 'models' as const}],
+      [],
     );
 
     // Dismiss keyboard when sheet becomes visible
@@ -109,27 +98,6 @@ export const ChatPalModelPickerSheet = observer(
         keyboardDidShowListener.remove();
       };
     }, [isVisible, onClose]);
-
-    const handleTabPress = (tab: Tab, index: number) => {
-      setActiveTab(tab);
-      flatListRef.current?.scrollToIndex({
-        index,
-        animated: true,
-      });
-    };
-
-    const renderTab = (tab: Tab, label: string, index: number) => (
-      <Pressable
-        key={tab}
-        testID={`chat-pal-model-picker-tab-${tab}`}
-        style={[styles.tab, activeTab === tab && styles.activeTab]}
-        onPress={() => handleTabPress(tab, index)}>
-        <Text
-          style={[styles.tabText, activeTab === tab && styles.activeTabText]}>
-          {label}
-        </Text>
-      </Pressable>
-    );
 
     const handleModelSelect = React.useCallback(
       async (model: (typeof modelStore.availableModels)[0]) => {
@@ -180,29 +148,14 @@ export const ChatPalModelPickerSheet = observer(
           </BottomSheetScrollView>
         </View>
       ),
-      [chatInputHeight, renderDisablePalItem, renderModelItem, renderPalItem],
+      [chatInputHeight, renderModelItem],
     );
-
-    const onViewableItemsChanged = React.useCallback(
-      ({viewableItems}: {viewableItems: any[]}) => {
-        if (viewableItems[0]) {
-          setActiveTab(viewableItems[0].item.id);
-        }
-      },
-      [],
-    );
-
-    const viewabilityConfig = React.useRef({
-      itemVisiblePercentThreshold: 90,
-      minimumViewTime: 100,
-    }).current;
 
     // If the snapPoints not memoized, the sheet gets closed when the tab is changed for the first time.
     const snapPoints = React.useMemo(() => ['70%'], []);
 
     return (
       <BottomSheet
-        ref={bottomSheetRef}
         // index={-1} // remove this line to make it visible by default
         onClose={onClose}
         enablePanDownToClose
@@ -225,17 +178,12 @@ export const ChatPalModelPickerSheet = observer(
         // See: https://github.com/gorhom/react-native-bottom-sheet/issues/1141
         accessible={false}>
         <BottomSheetFlatList
-          ref={flatListRef}
           data={TABS}
           renderItem={renderContent}
           bounces={false}
           showsVerticalScrollIndicator={false}
           keyExtractor={item => item.id}
-          horizontal
-          pagingEnabled
           showsHorizontalScrollIndicator={false}
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
         />
       </BottomSheet>
     );
