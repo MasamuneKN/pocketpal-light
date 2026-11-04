@@ -18,7 +18,6 @@ import {
   modelStore,
   chatSessionStore,
   palStore,
-  serverStore,
   uiStore,
 } from '../../store';
 
@@ -100,7 +99,7 @@ export const ChatScreen: React.FC = observer(() => {
   // (fail-open on 'unknown' so remote + missed-local models are reachable).
   const reasoningCapability = resolveReasoningCapability(
     modelStore.activeModel,
-    serverStore.remoteReasoning,
+    undefined,
   );
   const thinkingSupported =
     !!modelStore.activeModel && reasoningCapability.isReasoning !== 'no';
