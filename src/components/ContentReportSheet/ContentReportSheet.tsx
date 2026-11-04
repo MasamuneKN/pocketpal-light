@@ -9,16 +9,16 @@ import {submitContentReport} from '../../api/feedback';
 
 import {ChevronDownIcon} from '../../assets/icons';
 
-import {useTheme} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
 
 import {Menu} from '../Menu';
 import {createStyles} from './styles';
 
-import {modelStore} from '../../store';
+import {modelStore} from '../../store/ModelStore';
 
 import {L10nContext} from '../../utils';
 
-import {TextInput} from '..';
+import {TextInput} from '../TextInput';
 
 interface ContentReportSheetProps {
   isVisible: boolean;
