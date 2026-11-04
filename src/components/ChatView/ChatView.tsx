@@ -30,12 +30,10 @@ import Reanimated, {
 
 import {useComponentSize} from '../KeyboardAccessoryView/hooks';
 
-import {
-  useTheme,
-  useMessageActions,
-  usePrevious,
-  usePalLoadHint,
-} from '../../hooks';
+import {useTheme} from '../../hooks/useTheme';
+import {useMessageActions} from '../../hooks/useMessageActions';
+import {usePrevious} from '../../hooks/usePrevious';
+import {usePalLoadHint} from '../../hooks/usePalLoadHint';
 
 import ImageView from './ImageView';
 import {BannerRow} from './BannerRow';
@@ -51,11 +49,8 @@ import {t} from '../../locales';
 import {getModelMemoryRequirement} from '../../utils/memoryEstimator';
 import {CONTEXT_LADDER} from '../../utils/bannerVariantResolver';
 
-import {
-  NEW_CHAT_DRAFT_KEY,
-  chatSessionStore,
-  modelStore,
-} from '../../store';
+import {NEW_CHAT_DRAFT_KEY, chatSessionStore} from '../../store/ChatSessionStore';
+import {modelStore} from '../../store/ModelStore';
 import type {UndoneSend} from '../../hooks/useChatSession';
 
 import {MessageType, User} from '../../utils/types';
