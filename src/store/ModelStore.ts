@@ -2607,11 +2607,7 @@ class ModelStore {
   };
 
   get activeModel(): Model | undefined {
-    // Look in local models first, then remote models
-    return (
-      this.models.find(model => model.id === this.activeModelId) ||
-      this.remoteModels.find(model => model.id === this.activeModelId)
-    );
+    return this.models.find(model => model.id === this.activeModelId);
   }
 
   private get capabilityEnv(): CapabilityEnv {
