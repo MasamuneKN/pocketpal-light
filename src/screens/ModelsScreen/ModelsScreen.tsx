@@ -21,7 +21,9 @@ import {ErrorSnackbar} from '../../components/ErrorSnackbar';
 import {ModelSettingsSheet} from '../../components/ModelSettingsSheet';
 import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 
-import {uiStore, modelStore, hfStore, UIStore} from '../../store';
+import {uiStore, UIStore} from '../../store/UIStore';
+import {modelStore} from '../../store/ModelStore';
+import {hfStore} from '../../store/HFStore';
 
 import {L10nContext} from '../../utils';
 import {Model, ModelOrigin} from '../../utils/types';
