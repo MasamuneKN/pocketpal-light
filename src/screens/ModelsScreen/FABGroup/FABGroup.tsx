@@ -58,6 +58,7 @@ export const FABGroup: React.FC<FABGroupProps> = ({
           onAddLocalModel();
         },
       },
+    ];
     return items;
   }, [
     l10n,
