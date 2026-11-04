@@ -10,6 +10,5 @@ export * from './ServerStore';
 export * from './RouterStore';
 export * from './TTSStore';
 export * from './ASRStore';
-export * from './SearchProviderStore';
 export * from './PurchaseStore';
 export * from './VoiceModeStore';
