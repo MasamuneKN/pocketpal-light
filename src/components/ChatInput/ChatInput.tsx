@@ -134,7 +134,6 @@ export const ChatInput = observer(
     const theme = useTheme();
     const user = React.useContext(UserContext);
     const inputRef = React.useRef<TextInputInstance>(null);
-    const focusInput = React.useCallback(() => inputRef.current?.focus(), []);
     const editBarHeight = React.useRef(new Animated.Value(0)).current;
     const iconRotation = React.useRef(new Animated.Value(0)).current;
 
