@@ -34,7 +34,6 @@ export * from './PlusHost';
 export * from './SuggestedPromptsRow';
 export * from './ImageMessage';
 export * from './KeyboardAccessoryView';
-export * from './LanguageSelector';
 export * from './LoadingBubble';
 export * from './MarkdownView';
 export * from './PendingIndicator';
