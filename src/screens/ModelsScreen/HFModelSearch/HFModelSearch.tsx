@@ -6,7 +6,7 @@ import debounce from 'lodash/debounce';
 import {SearchView} from './SearchView';
 import {DetailsView} from './DetailsView';
 
-import {hfStore} from '../../../store';
+import {hfStore} from '../../../store/HFStore';
 
 import {HuggingFaceModel} from '../../../utils/types';
 import {Sheet} from '../../../components';

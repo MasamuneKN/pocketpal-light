@@ -4,11 +4,11 @@ import {StyleSheet} from 'react-native';
 import {List} from 'react-native-paper';
 import {observer} from 'mobx-react-lite';
 
-import {useTheme} from '../../../hooks';
+import {useTheme} from '../../../hooks/useTheme';
 
 import {createStyles} from './styles';
 
-import {modelStore} from '../../../store';
+import {modelStore} from '../../../store/ModelStore';
 
 interface ModelAccordionProps {
   group: any;
