@@ -57,18 +57,8 @@ export const FONT_FAMILIES = {
  * locale's characters against the bundled TTFs before omitting it here.
  * Portuguese needs only Latin-1 (ã õ ç á é í ó ú â ê ô à) and is covered.
  */
-export const NON_LATIN_LOCALES: ReadonlyArray<AvailableLanguage> = [
-  'ar',
-  'fa',
-  'he',
-  'ja',
-  'ko',
-  'pl',
-  'ru',
-  'uk',
-  'zh',
-  'zh_Hant',
-];
+/** No non-Latin locale bundles ship in PocketPal Lite. */
+export const NON_LATIN_LOCALES: ReadonlyArray<AvailableLanguage> = [];
 
 const isNonLatinLocale = (locale: AvailableLanguage): boolean =>
   NON_LATIN_LOCALES.includes(locale);
