@@ -1506,7 +1506,6 @@ class ChatSessionStore {
    */
   async resolveCompletionSettings(
     sessionId?: string,
-    palId?: string,
   ): Promise<CompletionParams> {
     // Start with system defaults
     let resolvedSettings: CompletionParams = {...defaultCompletionSettings};
@@ -1518,7 +1517,7 @@ class ChatSessionStore {
     };
 
     // No-session-only: apply user's explicit thinking override last so it
-    // wins over pal's enable_thinking. Overlays the local enable_thinking flag
+    // wins over the global default. Overlays the local enable_thinking flag
     // AND the reasoning carrier (so the remote wire path honors the on/off
     // intent for the first message of the new chat, not just local thinking).
     // Does NOT touch any other field, and does NOT affect tool availability.
@@ -1534,20 +1533,14 @@ class ChatSessionStore {
       };
     }
 
-    // Apply session-specific settings based on explicit user choice
+    // Lite has no Pal presets: a saved session's own settings are authoritative.
     if (sessionId) {
       const session = this.sessions.find(s => s.id === sessionId);
-
-      if (session?.settingsSource === 'custom') {
-        // User explicitly chose custom settings - use session settings.
-        // Preserve PACT-derived tools — custom settings control generation
-        // params (temperature, etc.) but pact.talents is the source of truth
-        // for tool availability.
-        const pactTools = resolvedSettings.tools;
-        resolvedSettings = session.completionSettings;
-        if (pactTools) {
-          resolvedSettings = {...resolvedSettings, tools: pactTools};
-        }
+      if (session) {
+        resolvedSettings = {
+          ...resolvedSettings,
+          ...session.completionSettings,
+        };
       }
     }
 
@@ -1558,14 +1551,7 @@ class ChatSessionStore {
    * Gets the effective completion settings for the current context
    */
   async getCurrentCompletionSettings(): Promise<CompletionParams> {
-    const activePalId = this.activeSessionId
-      ? this.sessions.find(s => s.id === this.activeSessionId)?.activePalId
-      : this.newChatPalId;
-
-    return this.resolveCompletionSettings(
-      this.activeSessionId || undefined,
-      activePalId,
-    );
+    return this.resolveCompletionSettings(this.activeSessionId || undefined);
   }
 }
 
