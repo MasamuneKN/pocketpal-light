@@ -10,11 +10,9 @@ import {
   ErrorSnackbar,
   ModelErrorReportSheet,
 } from '../../components';
-import {PalSheet} from '../../components/PalsSheets';
 
 import {useChatSession} from '../../hooks';
 import {usePendingMessage} from '../../hooks/useDeepLinking';
-import {Pal} from '../../types/pal';
 
 import {
   modelStore,
@@ -69,9 +67,6 @@ export const ChatScreen: React.FC = observer(() => {
     : undefined;
   const isVideoPal = activePal && hasVideoCapability(activePal);
 
-  // State for pal sheet
-  const [isPalSheetVisible, setIsPalSheetVisible] = useState(false);
-
   // State for model error report sheet
   const [isErrorReportVisible, setIsErrorReportVisible] = useState(false);
   const [errorToReport, setErrorToReport] = useState<ErrorState | null>(null);
@@ -86,15 +81,6 @@ export const ChatScreen: React.FC = observer(() => {
 
   // Handle deep linking for message prefill
   const {pendingMessage, clearPendingMessage} = usePendingMessage();
-
-  // Callback handler for opening pal sheet
-  const handleOpenPalSheet = React.useCallback((_pal: Pal) => {
-    setIsPalSheetVisible(true);
-  }, []);
-
-  const handleClosePalSheet = React.useCallback(() => {
-    setIsPalSheetVisible(false);
-  }, []);
 
   // Handlers for model error report
   const handleReportModelError = React.useCallback(() => {
@@ -276,7 +262,6 @@ export const ChatScreen: React.FC = observer(() => {
           activePal={activePal}
           onSendPress={handleSendPress}
           onStopPress={handleStopPress}
-          onPalSettingsSelect={handleOpenPalSheet}
           user={user}
           isStopVisible={modelStore.inferencing}
           isStreaming={modelStore.isStreaming}
@@ -321,13 +306,7 @@ export const ChatScreen: React.FC = observer(() => {
         onClose={handleCloseErrorReport}
         error={errorToReport}
       />
-      {activePal && (
-        <PalSheet
-          isVisible={isPalSheetVisible}
-          onClose={handleClosePalSheet}
-          pal={activePal}
-        />
-      )}
+}
   );
 });
 
