@@ -6,6 +6,7 @@ import {
   StatusBar,
   View,
   TouchableOpacity,
+  Keyboard,
 } from 'react-native';
 
 import dayjs from 'dayjs';
@@ -65,7 +66,6 @@ import {
   UserContext,
   L10nContext,
 } from '../../utils';
-import {hasVideoCapability} from '../../utils/pal-capabilities';
 
 import {
   Message,
@@ -79,7 +79,6 @@ import {
   ChatPalModelPickerSheet,
   ChatHeader,
   ChatEmptyPlaceholder,
-  VideoPalEmptyPlaceholder,
   ContentReportSheet,
   GreetingBubble,
   SuggestedPromptsRow,
@@ -928,17 +927,8 @@ export const ChatView = observer(
       ],
     );
 
-    // Render empty state (video pal or regular chat placeholder)
+    // Render the standard local-chat empty state.
     const renderListEmptyComponent = React.useCallback(() => {
-      // Show VideoPalEmptyPlaceholder for video pal, otherwise show regular ChatEmptyPlaceholder
-      if (activePal && hasVideoCapability(activePal)) {
-        return (
-          <VideoPalEmptyPlaceholder
-            bottomComponentHeight={bottomComponentHeight}
-          />
-        );
-      }
-
       return (
         <>
           {activePal?.greeting?.text && modelStore.activeModelId ? (
