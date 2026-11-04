@@ -60,7 +60,7 @@ import {
   clearAllSessionCaches,
   getSessionCacheInfo,
 } from '../../utils';
-import {type AvailableLanguage, languageDisplayNames, t} from '../../locales';
+import {t} from '../../locales';
 import {checkGpuSupport} from '../../utils/deviceCapabilities';
 import {exportLegacyChatSessions} from '../../utils/exportUtils';
 import {getDeviceOptions, DeviceOption} from '../../utils/deviceSelection';
@@ -73,11 +73,6 @@ import {
 // OpenCL documentation URL (not localized)
 const OPENCL_DOCS_URL =
   'https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/OPENCL.md#model-preparation';
-
-const languageName = (code: string): string =>
-  code in languageDisplayNames
-    ? languageDisplayNames[code as AvailableLanguage]
-    : code.toUpperCase();
 
 export const SettingsScreen: React.FC = observer(() => {
   const l10n = useContext(L10nContext);
