@@ -4,14 +4,12 @@ import {StyleSheet, View} from 'react-native';
 import {observer} from 'mobx-react';
 import {runInAction} from 'mobx';
 
-import {
-  Bubble,
-  ChatView,
-  ErrorSnackbar,
-  ModelErrorReportSheet,
-} from '../../components';
+import {Bubble} from '../../components/Bubble';
+import {ChatView} from '../../components/ChatView';
+import {ErrorSnackbar} from '../../components/ErrorSnackbar';
+import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 
-import {useChatSession} from '../../hooks';
+import {useChatSession} from '../../hooks/useChatSession';
 import {usePendingMessage} from '../../hooks/useDeepLinking';
 
 import {
