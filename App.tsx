@@ -33,7 +33,6 @@ import {ROUTES} from './src/utils/navigationConstants';
 import {
   SidebarContent,
   ModelsHeaderRight,
-  PalHeaderRight,
   HeaderLeft,
   AppWithMigration,
   TTSSetupSheet,
@@ -54,13 +53,11 @@ import {
   ChatScreen,
   ModelsScreen,
   SettingsScreen,
-  BenchmarkScreen,
   AboutScreen,
 
   // Dev tools screen. Only available in debug mode.
   DevToolsScreen,
 } from './src/screens';
-import PalsScreen from './src/screens/PalsScreen';
 
 // Check if app is in debug mode
 const isDebugMode = __DEV__;
@@ -163,29 +160,12 @@ const App = observer(() => {
                               }}
                             />
                             <Drawer.Screen
-                              name={ROUTES.PALS}
-                              component={gestureHandlerRootHOC(PalsScreen)}
-                              options={{
-                                headerRight: () => <PalHeaderRight />,
-                                headerStyle: styles.headerWithoutDivider,
-                                title: currentL10n.screenTitles.pals,
-                              }}
-                            />
-                            <Drawer.Screen
                               name={ROUTES.MODELS}
                               component={gestureHandlerRootHOC(ModelsScreen)}
                               options={{
                                 headerRight: () => <ModelsHeaderRight />,
                                 headerStyle: styles.headerWithoutDivider,
                                 title: currentL10n.screenTitles.models,
-                              }}
-                            />
-                            <Drawer.Screen
-                              name={ROUTES.BENCHMARK}
-                              component={gestureHandlerRootHOC(BenchmarkScreen)}
-                              options={{
-                                headerStyle: styles.headerWithoutDivider,
-                                title: currentL10n.screenTitles.benchmark,
                               }}
                             />
                             <Drawer.Screen
