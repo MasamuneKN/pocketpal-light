@@ -1226,8 +1226,6 @@ export const ChatView = observer(
                 isVisible={isPickerVisible}
                 onClose={() => setIsPickerVisible(false)}
                 onModelSelect={handleModelSelect}
-                onPalSelect={handlePalSelect}
-                onPalSettingsSelect={onPalSettingsSelect}
                 chatInputHeight={chatInputHeight.height}
               />
             )}
