@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Sheet} from '../Sheet/Sheet';
-import {CompletionSettings} from '..';
+import {CompletionSettings} from '../CompletionSettings';
 import {CompletionParams} from '../../utils/completionTypes';
 import {
   chatSessionStore,
