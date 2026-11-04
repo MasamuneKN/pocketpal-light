@@ -1,6 +1,5 @@
 import {talentUIRegistry} from './TalentUIRegistry';
 import {RenderHtmlTalentUI} from './RenderHtmlTalentUI';
-import {WebSearchTalentUI} from './WebSearchTalentUI';
 
 let registered = false;
 
@@ -11,7 +10,6 @@ export function registerDefaultTalentUIs(): void {
     return;
   }
   talentUIRegistry.register(new RenderHtmlTalentUI());
-  talentUIRegistry.register(new WebSearchTalentUI());
   registered = true;
 }
 
