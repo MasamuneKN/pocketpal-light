@@ -10,8 +10,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {useCameraPermission} from 'react-native-vision-camera';
+import {launchImageLibrary} from 'react-native-image-picker';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {observer} from 'mobx-react';
@@ -186,9 +185,6 @@ export const ChatInput = observer(
       asrStore.captureState === 'recording' ||
       asrStore.captureState === 'transcribing';
 
-    // Camera permission hook from react-native-vision-camera
-    const {hasPermission, requestPermission} = useCameraPermission();
-
     const hasActiveModel = !!modelStore.activeModelId;
 
     // Use `defaultValue` if provided
@@ -286,60 +282,6 @@ export const ChatInput = observer(
     // Handle plus button press to show image upload menu
     const handlePlusButtonPress = () => {
       setShowImageUploadMenu(true);
-    };
-
-    // Need to figure this out:
-    // Handle taking a photo with the camera using react-native-image-picker
-    // but with permission checking from react-native-vision-camera
-    const handleTakePhoto = async () => {
-      try {
-        if (!hasPermission) {
-          const permissionResult = await requestPermission();
-          if (!permissionResult) {
-            Alert.alert(
-              l10n.camera.permissionTitle,
-              l10n.camera.permissionMessage,
-            );
-            setShowImageUploadMenu(false);
-            return;
-          }
-        }
-
-        // Disable auto-release during camera operation
-        // this is only needed on Android.
-        modelStore.disableAutoRelease('camera-photo');
-
-        const result = await launchCamera({
-          mediaType: 'photo',
-          quality: 0.8,
-        });
-
-        if (result.errorCode === 'camera_unavailable') {
-          Alert.alert(l10n.camera.errorTitle, l10n.camera.noDevice);
-        } else if (result.errorCode) {
-          Alert.alert(
-            l10n.errors.cameraErrorTitle,
-            l10n.errors.cameraErrorMessage,
-          );
-        } else if (
-          result.assets &&
-          result.assets.length > 0 &&
-          result.assets[0].uri
-        ) {
-          const newImages = [...selectedImages, result.assets[0].uri];
-          setSelectedImages(newImages);
-        }
-        setShowImageUploadMenu(false);
-      } catch (error) {
-        console.error('Error taking photo:', error);
-        Alert.alert(
-          l10n.errors.cameraErrorTitle,
-          l10n.errors.cameraErrorMessage,
-        );
-      } finally {
-        // Re-enable auto-release after camera operation
-        modelStore.enableAutoRelease('camera-photo');
-      }
     };
 
     // Handle selecting images from the gallery
@@ -570,11 +512,6 @@ export const ChatInput = observer(
                         <PlusIcon width={20} height={20} stroke={plusColor} />
                       </TouchableOpacity>
                     }>
-                    <Menu.Item
-                      label={l10n.camera?.takePhoto || 'Camera'}
-                      icon="camera"
-                      onPress={handleTakePhoto}
-                    />
                     <Menu.Item
                       label={l10n.common?.gallery || 'Gallery'}
                       icon="image"
