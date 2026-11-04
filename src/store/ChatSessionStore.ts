@@ -16,8 +16,6 @@ import {
 import {chatSessionRepository} from '../repositories/ChatSessionRepository';
 import {defaultCompletionParams} from '../utils/completionSettingsVersions';
 import {derivedText} from '../utils/chat';
-import {palStore} from './PalStore';
-import {deriveToolSchemas} from '../services/talents';
 import {AgentUiState, initialAgentUiState} from '../services/agent';
 
 /**
@@ -1518,32 +1516,6 @@ class ChatSessionStore {
       ...resolvedSettings,
       ...this.newChatCompletionSettings,
     };
-
-    // Apply pal-specific settings if available
-    if (palId) {
-      // Use in-memory pal store as the source of truth (avoids cache invalidation issues)
-      const pal = palStore.pals.find(p => p.id === palId);
-      const palSettings = pal?.completionSettings;
-
-      if (palSettings) {
-        resolvedSettings = {
-          ...resolvedSettings,
-          ...palSettings,
-        };
-      }
-
-      // Inject tool schemas from pact.talents (PACT → completionSettings.tools)
-      const talentNames = pal?.pact?.talents?.map(t => t.name);
-      if (talentNames && talentNames.length > 0) {
-        const tools = deriveToolSchemas(talentNames);
-        if (tools.length > 0) {
-          resolvedSettings = {
-            ...resolvedSettings,
-            tools,
-          };
-        }
-      }
-    }
 
     // No-session-only: apply user's explicit thinking override last so it
     // wins over pal's enable_thinking. Overlays the local enable_thinking flag
