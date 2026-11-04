@@ -183,7 +183,7 @@ class ModelStore {
    * Returns models with projection models filtered out for display purposes
    */
   get displayModels(): Model[] {
-    return [...filterProjectionModels(this.models), ...this.remoteModels];
+    return filterProjectionModels(this.models);
   }
 
   appState: AppStateStatus = AppState.currentState as AppStateStatus;
