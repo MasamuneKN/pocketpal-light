@@ -25,17 +25,15 @@ import {
   AtomIcon,
 } from '../../assets/icons';
 
-import {useTheme, useVoiceCapture} from '../../hooks';
+import {useTheme} from '../../hooks';
 
 import {createStyles} from './styles';
 
 import {
-  asrStore,
   chatSessionStore,
   modelStore,
   palStore,
   uiStore,
-  voiceModeStore,
 } from '../../store';
 
 import {MessageType} from '../../utils/types';
@@ -46,10 +44,6 @@ import {
   SendButton,
   StopButton,
   Menu,
-  VoiceChip,
-  MicButton,
-  VoiceRecordingBar,
-  VoiceModeButton,
 } from '..';
 
 export interface ChatInputTopLevelProps {
@@ -87,13 +81,6 @@ export interface ChatInputTopLevelProps {
   isThinkingEnabled?: boolean;
   /** Callback when thinking toggle is pressed */
   onThinkingToggle?: (enabled: boolean) => void;
-  /** Append a voice transcript to the composer (never auto-sent). */
-  appendTranscript?: (text: string) => void;
-  /**
-   * Opens voice mode; the empty composer then shows the voice button.
-   * `focusInput` puts the cursor back in this composer.
-   */
-  onVoicePress?: (focusInput: () => void) => void;
   /** Whether the model supports graded reasoning effort (axis 2) */
   supportsEffort?: boolean;
   /** The graded effort value set, e.g. ['low','medium','high'] */
@@ -161,8 +148,6 @@ export const ChatInput = observer(
     showThinkingToggle = false,
     isThinkingEnabled = false,
     onThinkingToggle,
-    appendTranscript,
-    onVoicePress,
     supportsEffort = false,
     effortValues = [],
     reasoningEffort,
@@ -177,13 +162,6 @@ export const ChatInput = observer(
     const iconRotation = React.useRef(new Animated.Value(0)).current;
     const activePalId = chatSessionStore.activePalId;
     const currentActivePal = palStore.pals.find(pal => pal.id === activePalId);
-
-    const voiceCapture = useVoiceCapture({
-      onTranscript: appendTranscript ?? (() => {}),
-    });
-    const isVoiceCaptureActive =
-      asrStore.captureState === 'recording' ||
-      asrStore.captureState === 'transcribing';
 
     const hasActiveModel = !!modelStore.activeModelId;
 
@@ -340,15 +318,6 @@ export const ChatInput = observer(
       (sendButtonVisibilityMode === 'always' || value.trim());
     const isSendButtonEnabled =
       value.trim().length > 0 && hasActiveModel && !isStopping;
-    const isVoiceModeButtonVisible =
-      !!onVoicePress &&
-      voiceModeStore.supported &&
-      !value.trim() &&
-      selectedImages.length === 0 &&
-      !isEditMode &&
-      !isVideoCapable &&
-      !isStopVisible &&
-      !isVoiceCaptureActive;
     const sendButtonOpacity = isSendButtonEnabled ? 1 : 0.4;
 
     const rotateInterpolate = iconRotation.interpolate({
@@ -485,13 +454,7 @@ export const ChatInput = observer(
           </View>
 
           {/* Control Bar (Bottom Row) */}
-          {isVoiceCaptureActive ? (
-            <VoiceRecordingBar
-              onCancel={voiceCapture.cancel}
-              onStop={voiceCapture.stop}
-            />
-          ) : (
-            <View style={styles.controlBar}>
+          <View style={styles.controlBar}>
               {/* Left Controls */}
               <View style={styles.leftControls}>
                 {/* Plus Button for Image Upload (only for regular chat) */}
@@ -641,20 +604,6 @@ export const ChatInput = observer(
                   </View>
                 )}
 
-                {/* Voice chip (TTS) — always present so users can stop
-                  audio independently of text generation. Self-gates:
-                  returns null when TTS is unavailable. */}
-                <VoiceChip />
-
-                {/* Voice input (ASR) mic. Self-gates: returns null when voice
-                  input is unavailable. */}
-                {appendTranscript && (
-                  <MicButton
-                    onStart={voiceCapture.start}
-                    style={styles.micBeforeSend}
-                  />
-                )}
-
                 {/* Send/Stop Button */}
                 {isStopVisible ? (
                   <StopButton color={onSurfaceColor} onPress={onStopPress} />
@@ -680,8 +629,6 @@ export const ChatInput = observer(
                       {l10n.video.startCamera}
                     </Text>
                   </TouchableOpacity>
-                ) : isVoiceModeButtonVisible ? (
-                  <VoiceModeButton onPress={() => onVoicePress?.(focusInput)} />
                 ) : (
                   isSendButtonVisible && (
                     <View
@@ -700,7 +647,7 @@ export const ChatInput = observer(
                 )}
               </View>
             </View>
-          )}
+          </View>
         </View>
       </View>
     );
