@@ -33,7 +33,7 @@ const ownerOf = (_modelId: string, modelName: string) => ({
  * Affordances:
  *   - Body tap → Models screen (the home for multi-download management;
  *     the +N badge telegraphs that there are more behind the visible one).
- *   - Stop pill → cancels the visible download. Pal stays bound to the
+ *   - Stop pill → cancels the visible download. Model stays bound to the
  *     model so the user can resume from the Models screen.
  *   - × icon  → dismisses the banner for this download only. Download
  *     continues. Dismissal clears when the download disappears.
@@ -81,9 +81,6 @@ export const DownloadBanner: React.FC = observer(() => {
             importantForAccessibility="no-hide-descendants"
             style={[
               styles.avatar,
-              failedPal?.color?.[0]
-                ? {backgroundColor: failedPal.color[0]}
-                : null,
             ]}
           />
           <View style={styles.content}>
