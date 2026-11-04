@@ -27,11 +27,9 @@ import {useTheme} from '../../hooks';
 
 import {createStyles} from './styles';
 
-import {
-  chatSessionStore,
-  modelStore,
-  uiStore,
-} from '../../store';
+import {chatSessionStore} from '../../store/ChatSessionStore';
+import {modelStore} from '../../store/ModelStore';
+import {uiStore} from '../../store/UIStore';
 
 import {MessageType} from '../../utils/types';
 import {L10nContext, UserContext} from '../../utils';
