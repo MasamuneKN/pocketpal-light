@@ -4,12 +4,18 @@ import enData from './en.json';
 import type {Translations} from './types';
 
 /** PocketPal Lite ships English UI strings only. */
-export type AvailableLanguage = 'en';
+const languageRegistry = {
+  en: {displayName: 'English (EN)'},
+} as const;
 
-export const supportedLanguages: AvailableLanguage[] = ['en'];
+export type AvailableLanguage = keyof typeof languageRegistry;
+
+export const supportedLanguages = Object.keys(
+  languageRegistry,
+) as AvailableLanguage[];
 
 export const languageDisplayNames: Record<AvailableLanguage, string> = {
-  en: 'English (EN)',
+  en: languageRegistry.en.displayName,
 };
 
 export const l10n = {
