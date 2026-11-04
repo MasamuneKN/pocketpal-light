@@ -244,6 +244,7 @@ export const ChatScreen: React.FC = observer(() => {
 
   // Otherwise, show the regular chat view
   return (
+    <>
       <View
         style={styles.chat}
         importantForAccessibility={chatCovered ? 'no-hide-descendants' : 'auto'}
@@ -298,6 +299,7 @@ export const ChatScreen: React.FC = observer(() => {
         onClose={handleCloseErrorReport}
         error={errorToReport}
       />
+    </>
   );
 });
 
