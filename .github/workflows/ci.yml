@@ -406,10 +406,10 @@ jobs:
 
   # Job for iOS build
   build-ios:
+    # PocketPal Lite currently targets Android only.
     if: false
-    runs-on: macos-26  # Keep CI on the same Xcode major as the release workflow
+    runs-on: macos-26
     needs: [build-and-test, detect-changes]
-    if: needs.detect-changes.outputs.translation_only != 'true'
     env:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
