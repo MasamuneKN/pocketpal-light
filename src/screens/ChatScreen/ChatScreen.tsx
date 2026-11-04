@@ -21,7 +21,6 @@ import {
   serverStore,
   uiStore,
 } from '../../store';
-import {hasVideoCapability} from '../../utils/pal-capabilities';
 
 import {L10nContext} from '../../utils';
 import {
@@ -65,7 +64,6 @@ export const ChatScreen: React.FC = observer(() => {
   const activePal = activePalId
     ? palStore.pals.find(p => p.id === activePalId)
     : undefined;
-  const isVideoPal = activePal && hasVideoCapability(activePal);
 
   // State for model error report sheet
   const [isErrorReportVisible, setIsErrorReportVisible] = useState(false);
@@ -244,12 +242,6 @@ export const ChatScreen: React.FC = observer(() => {
     await persistReasoning(nextEnabled, nextEffort);
   };
 
-  // If the active pal is a video pal, show the video pal screen
-  if (isVideoPal) {
-    return <VideoPalScreen activePal={activePal} />;
-  }
-
-
   // Otherwise, show the regular chat view
   return (
       <View
@@ -306,7 +298,6 @@ export const ChatScreen: React.FC = observer(() => {
         onClose={handleCloseErrorReport}
         error={errorToReport}
       />
-}
   );
 });
 
