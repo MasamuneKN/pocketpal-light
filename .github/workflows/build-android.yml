@@ -65,34 +65,19 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Create Android .env file
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
         run: |
-          set -euo pipefail
-
-          missing=()
-          [ -n "$SUPABASE_URL" ] || missing+=(SUPABASE_URL)
-          [ -n "$SUPABASE_ANON_KEY" ] || missing+=(SUPABASE_ANON_KEY)
-          [ -n "$GOOGLE_WEB_CLIENT_ID" ] || missing+=(GOOGLE_WEB_CLIENT_ID)
-          if [ "${#missing[@]}" -gt 0 ]; then
-            echo "::error::Missing GitHub Actions secrets: ${missing[*]}"
-            echo "Add the official PocketPal/PalsHub values under Settings > Secrets and variables > Actions."
-            exit 1
-          fi
-
-          cat > .env <<EOL
-          FIREBASE_FUNCTIONS_URL=https://dummy-firebase-url.com
-          SUPABASE_URL=$SUPABASE_URL
-          SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
-          PALSHUB_API_BASE_URL=https://palshub.ai
+          cat > .env <<'EOL'
+          # PocketPal Lite is local-first: cloud PalsHub and authentication are disabled.
+          FIREBASE_FUNCTIONS_URL=https://disabled.invalid
+          SUPABASE_URL=https://disabled.invalid
+          SUPABASE_ANON_KEY=disabled
+          PALSHUB_API_BASE_URL=https://disabled.invalid
           APP_URL=pocketpal://app
-          ENABLE_PALSHUB_INTEGRATION=true
-          ENABLE_AUTHENTICATION=true
+          ENABLE_PALSHUB_INTEGRATION=false
+          ENABLE_AUTHENTICATION=false
           ENABLE_OFFLINE_MODE=true
           GOOGLE_IOS_CLIENT_ID=
-          GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID
+          GOOGLE_WEB_CLIENT_ID=
           EOL
 
       - name: Build optimized release APK

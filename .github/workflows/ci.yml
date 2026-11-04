@@ -245,44 +245,19 @@ jobs:
           EOL
 
       - name: Create Android .env file
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-          GOOGLE_WEB_CLIENT_ID: ${{ secrets.GOOGLE_WEB_CLIENT_ID }}
         run: |
-          set -euo pipefail
-
-          # These values must come from the official PocketPal/PalsHub project.
-          # Do not replace them with credentials from an unrelated Supabase project.
-          missing=()
-          [ -n "$SUPABASE_URL" ] || missing+=(SUPABASE_URL)
-          [ -n "$SUPABASE_ANON_KEY" ] || missing+=(SUPABASE_ANON_KEY)
-          [ -n "$GOOGLE_WEB_CLIENT_ID" ] || missing+=(GOOGLE_WEB_CLIENT_ID)
-          if [ "${#missing[@]}" -gt 0 ]; then
-            echo "::error::Missing GitHub Actions secrets: ${missing[*]}"
-            echo "Add the official Android/PalsHub configuration under Settings > Secrets and variables > Actions."
-            exit 1
-          fi
-
-          cat > .env <<EOL
-          FIREBASE_FUNCTIONS_URL=https://dummy-firebase-url.com
-
-          # PalsHub/Supabase Configuration
-          SUPABASE_URL=$SUPABASE_URL
-          SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
-          PALSHUB_API_BASE_URL=https://palshub.ai
-
-          # App Configuration
+          cat > .env <<'EOL'
+          # PocketPal Lite is local-first: cloud PalsHub and authentication are disabled.
+          FIREBASE_FUNCTIONS_URL=https://disabled.invalid
+          SUPABASE_URL=https://disabled.invalid
+          SUPABASE_ANON_KEY=disabled
+          PALSHUB_API_BASE_URL=https://disabled.invalid
           APP_URL=pocketpal://app
-
-          # Feature Flags
-          ENABLE_PALSHUB_INTEGRATION=true
-          ENABLE_AUTHENTICATION=true
+          ENABLE_PALSHUB_INTEGRATION=false
+          ENABLE_AUTHENTICATION=false
           ENABLE_OFFLINE_MODE=true
-
-          # Android build does not use the iOS OAuth client ID
           GOOGLE_IOS_CLIENT_ID=
-          GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID
+          GOOGLE_WEB_CLIENT_ID=
           EOL
 
       - name: Create dummy release keystore for CI
