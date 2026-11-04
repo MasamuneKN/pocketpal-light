@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, ReactNode, useState} from 'react';
+import React, {useRef, ReactNode, useState} from 'react';
 import {StyleSheet, View} from 'react-native';
 
 import {observer} from 'mobx-react';
@@ -31,7 +31,6 @@ import {MessageType} from '../../utils/types';
 import {ErrorState} from '../../utils/errors';
 import {user, assistant} from '../../utils/chat';
 
-import {VideoPalScreen} from './VideoPalScreen';
 
 const renderBubble = ({
   child,
