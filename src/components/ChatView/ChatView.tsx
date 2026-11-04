@@ -6,7 +6,6 @@ import {
   StatusBar,
   View,
   TouchableOpacity,
-  Keyboard,
 } from 'react-native';
 
 import dayjs from 'dayjs';
@@ -53,16 +52,11 @@ import {CONTEXT_LADDER} from '../../utils/bannerVariantResolver';
 
 import {
   NEW_CHAT_DRAFT_KEY,
-  asrStore,
   chatSessionStore,
   modelStore,
-  voiceModeStore,
 } from '../../store';
 import type {UndoneSend} from '../../hooks/useChatSession';
-import type {VoiceEntryActions} from '../../hooks/useVoiceMode';
 
-import {openMicSettings} from '../../utils/asrMicPermission';
-import type {AsrErrorKind} from '../../services/asr';
 import {MessageType, User} from '../../utils/types';
 import {Pal} from '../../types/pal';
 import {
@@ -89,7 +83,6 @@ import {
   ContentReportSheet,
   GreetingBubble,
   SuggestedPromptsRow,
-  VoiceBar,
 } from '..';
 import {
   AlertIcon,
@@ -180,8 +173,6 @@ export interface ChatProps extends Omit<ChatTopLevelProps, 'onSendPress'> {
   initialInputText?: string;
   /** Callback when initial text is consumed */
   onInitialTextConsumed?: () => void;
-  /** Opens voice mode with this chat's model picker and composer focus. */
-  onVoiceModePress?: (actions: VoiceEntryActions) => void;
   /**
    * Allows you to customize the time format. IMPORTANT: only for the time,
    * do not return date here. @see {@link ChatProps.dateFormat} to customize the date format.
@@ -214,26 +205,6 @@ const PendingIndicatorView: React.FC = observer(() =>
 );
 
 type L10n = React.ContextType<typeof L10nContext>;
-
-/** Map a capture error kind to its user-facing composer message. */
-function asrErrorMessage(kind: AsrErrorKind, l10n: L10n): string {
-  switch (kind) {
-    case 'permission_denied':
-      return l10n.voiceInput.errorPermissionDenied;
-    case 'permission_blocked':
-      return l10n.voiceInput.errorPermissionBlocked;
-    case 'transcribe_failed':
-      return l10n.voiceInput.errorTranscribeFailed;
-    case 'not_installed':
-      return l10n.voiceInput.errorNotInstalled;
-    case 'insufficient_memory':
-      return l10n.voiceInput.errorInsufficientMemory;
-    case 'mic_unavailable':
-      return l10n.voiceInput.errorMicUnavailable;
-    case 'transcript_partial':
-      return l10n.voiceInput.errorTranscriptPartial;
-  }
-}
 
 /** Entry component, represents the complete chat */
 export const ChatView = observer(
@@ -269,7 +240,6 @@ export const ChatView = observer(
     showImageUpload = false,
     isVisionEnabled = false,
     initialInputText,
-    onVoiceModePress,
     onInitialTextConsumed,
     textInputProps,
     timeFormat,
@@ -737,7 +707,6 @@ export const ChatView = observer(
     } = l10n.components.chatView.menuItems;
 
     const isStopping = chatSessionStore.isStopping;
-    const voiceModeOpen = voiceModeStore.isOpen;
     const menuItems = React.useMemo((): MenuItem[] => {
       if (
         !selectedMessage ||
@@ -749,7 +718,7 @@ export const ChatView = observer(
 
       const isAuthor = selectedMessage.author.id === user.id;
       const canGenerate =
-        modelStore.activeModelId !== undefined && !isStopping && !voiceModeOpen;
+        modelStore.activeModelId !== undefined && !isStopping;
       const models = modelStore.availableModels || [];
 
       const baseItems: MenuItem[] = [
@@ -778,7 +747,7 @@ export const ChatView = observer(
         baseItems.push({
           label: regenerateWithLabel,
           icon: () => <GridIcon stroke={theme.colors.primary} />,
-          disabled: isStopping || voiceModeOpen,
+          disabled: isStopping,
           submenu: models.map(model => ({
             label: model.name,
             width: Math.min(300, size.width),
@@ -816,7 +785,6 @@ export const ChatView = observer(
     }, [
       selectedMessage,
       isStopping,
-      voiceModeOpen,
       user.id,
       handleCopy,
       handleTryAgain,
@@ -1216,10 +1184,7 @@ export const ChatView = observer(
                 onNewChat={() => chatSessionStore.resetActiveSession()}
                 onIncreaseContext={() => setIncreaseSheetOpen(true)}
               />
-              {onVoiceModePress && voiceModeStore.isOpen ? (
-                <VoiceBar />
-              ) : (
-                <ChatInput
+              <ChatInput
                   {...{
                     ...unwrap(inputProps),
                     isStreaming,
@@ -1236,18 +1201,6 @@ export const ChatView = observer(
                     isVisionEnabled,
                     defaultImages: inputImages,
                     onDefaultImagesChange: setInputImages,
-                    appendTranscript: composerShowsPromptText
-                      ? undefined
-                      : appendTranscript,
-                    onVoicePress:
-                      onVoiceModePress &&
-                      ((focusInput: () => void) => {
-                        Keyboard.dismiss();
-                        onVoiceModePress({
-                          openModelPicker: () => setIsPickerVisible(true),
-                          focusInput,
-                        });
-                      }),
                     textInputProps: {
                       ...textInputProps,
                       ...(!composerShowsPromptText && {
@@ -1256,8 +1209,7 @@ export const ChatView = observer(
                       }),
                     },
                   }}
-                />
-              )}
+              />
             </Reanimated.View>
 
             {/* Suggested prompts — float above the input container, share
@@ -1381,31 +1333,7 @@ export const ChatView = observer(
             {l10n.chat.palLoadHint}
           </Snackbar>
 
-          <Snackbar
-            visible={
-              isFocused &&
-              asrStore.lastError !== null &&
-              !reloadSnackbar &&
-              !palLoadHint.hintVisible
-            }
-            onDismiss={() => asrStore.resetCapture()}
-            duration={4000}
-            action={
-              asrStore.lastError === 'permission_blocked'
-                ? {
-                    label: l10n.voiceInput.openSettingsLabel,
-                    onPress: () => {
-                      asrStore.resetCapture();
-                      openMicSettings();
-                    },
-                  }
-                : undefined
-            }
-            testID="asr-error-snackbar">
-            {asrStore.lastError
-              ? asrErrorMessage(asrStore.lastError, l10n)
-              : ''}
-          </Snackbar>
+
         </View>
       </UserContext.Provider>
     );
