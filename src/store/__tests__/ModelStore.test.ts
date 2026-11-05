@@ -2761,7 +2761,9 @@ describe('ModelStore', () => {
 
   describe('computed properties', () => {
     it('should return correct active model', () => {
-      const model = presetModelFixture;
+      // activeModel is resolved from availableModels, which intentionally
+      // excludes presets until they are downloaded or imported locally.
+      const model = {...presetModelFixture, isDownloaded: true};
       modelStore.models = [model];
       modelStore.activeModelId = model.id;
 
