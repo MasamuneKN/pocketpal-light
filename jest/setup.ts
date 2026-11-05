@@ -1,6 +1,12 @@
 import 'react-native-gesture-handler/jestSetup';
 import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
 
+// Native AsyncStorage is unavailable in Jest; use the package's in-memory mock
+// so stores that persist state exercise the same getItem/setItem contract.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);
+
 import 'react-native-gesture-handler/jestSetup';
 
 // __E2E__ is a build-time constant in prod/e2e builds (see babel.config.js),
