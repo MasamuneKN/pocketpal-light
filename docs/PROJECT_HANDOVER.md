@@ -156,3 +156,21 @@ Update this file after each major milestone. Include:
 - Remaining blockers and next actions.
 
 Keep historical notes factual. When a previous status becomes stale, replace it with the newly verified state rather than silently carrying forward old assumptions.
+
+
+## 11. Verified status review — 2026-11-05
+
+- Current `main` HEAD observed: `6067fe12e8cf267c779780d9b60a8efe4288d019` (handover-document commit).
+- The related `refactor/remove-unreachable-features` branch still exists.
+- GitHub compare reports the feature branch as diverged from `main`: 7 commits ahead and 1 behind, with merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`. Do not merge or reset either branch without inspecting the full commit sequence and resolving the divergence deliberately.
+- No open pull requests or open issues were returned by repository-scoped GitHub searches during this review.
+- The current `package.json` on `main` still contains iOS scripts and packages associated by name with voice, purchases, camera, Firebase, and Supabase. This is evidence that dependency/scope cleanup is not complete; determine actual reachability and native usage before removing anything.
+- `yarn.lock` exists and is a Yarn v1 lockfile. Its presence alone does not verify a clean Yarn 1.22.22 install or lockfile consistency.
+- CI could not be conclusively verified in this review. The available commit-workflow lookup returned no PR-triggered runs for the prior code commit, and combined commit-status lookups returned no status entries. These empty results are not proof that no Actions runs exist or that CI passed. Inspect the repository Actions page/run logs through a workflow-runs listing capability before reporting CI status.
+- No current Jest, lint, typecheck, Android build, or physical-device verification was performed in this review.
+
+### Next actions from this review
+
+1. Inspect the 7 feature-branch-only commits and the one main-only commit, then decide how to integrate without losing either side's work.
+2. Obtain the actual latest Actions run list and inspect failed job logs; do not infer status from empty commit-status responses.
+3. Continue the dependency/native configuration audit, retaining local inference, model downloads, persistence, and gallery selection while removing only proven-unreachable features.
