@@ -283,4 +283,3 @@ No local Jest, lint, typecheck, or Android build was run in this session. The An
 - No physical-device tests were performed. Model download, persistence across restart, local inference, gallery selection, and offline inference remain unverified.
 - No production source code was changed in this continuation; only the ChatHeaderTitle test fixture was updated.
 - Next: inspect outcomes of CI #163 / Android #151; use the new Jest report to classify failures by retained-feature regression, invalid test fixture, or intentionally retired functionality. Continue ModelStore/ServerStore repair first, then coordinate Plus/voice/Pals removal and dependency audit.
-
