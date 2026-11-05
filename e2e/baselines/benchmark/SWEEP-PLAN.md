@@ -25,13 +25,13 @@ Sweeps below are designed for **Android only**; iOS / Metal counterpart is a sep
 
 These three items block rule derivation. Without them, sweep results are uninterpretable for memory rules.
 
-| # | Gap | Why it blocks | Effort |
-|---|---|---|---|
-| 1 | `peak_memory_mb` measures **device-wide RAM** (`RNDeviceInfo.getUsedMemory()` at `BenchmarkRunnerScreen.tsx:150-162`), not process PSS | The duplicate-residency hazard is invisible without process-PSS. Rule "guard against mmap+repack on Android" cannot be evidence-based. | ~1h: swap for `Debug.MemoryInfo.getTotalPss()` on Android, equivalent on iOS for parity |
-| 2 | Single peak sample only — no load / post-load / post-pp / post-tg distinction | Foundation report's "always record" list separates these. Without it we conflate load-time peak with steady-state. | ~2-3h: 4-checkpoint sampling around the bench call |
-| 3 | `n_ctx` is fixed at the bench protocol's pp+tg sum; KV growth invisible | KV-quant impact only shows up at long context. Bench at pp=512/tg=128 → KV ~tens of MiB, can't measure KV-quant savings. | ~1h: add n_ctx as sweep axis |
-| 4 | No `flash_attn_actually_enabled` parsing | The report explicitly flags `flash_attn_type=auto` as something that may be silently disabled by graph-assignment checks. We sweep it but can't confirm the cell actually used FA. | ~30min: add log-signal regex for `flash_attn = 1` / `0` |
-| 5 | No build-variant tag in report | Report's open question #1: which paths are compiled? On Klee we observed `librnllama_jni_v8_2_dotprod_i8mm.so` (lean, no Hexagon/OpenCL). Each device's effective backend support depends on the runtime-selected JNI lib. | ~30min: parse `Load /data/.../librnllama_jni_*.so` log, stamp on report |
+| #   | Gap                                                                                                                                    | Why it blocks                                                                                                                                                                                                              | Effort                                                                                  |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 1   | `peak_memory_mb` measures **device-wide RAM** (`RNDeviceInfo.getUsedMemory()` at `BenchmarkRunnerScreen.tsx:150-162`), not process PSS | The duplicate-residency hazard is invisible without process-PSS. Rule "guard against mmap+repack on Android" cannot be evidence-based.                                                                                     | ~1h: swap for `Debug.MemoryInfo.getTotalPss()` on Android, equivalent on iOS for parity |
+| 2   | Single peak sample only — no load / post-load / post-pp / post-tg distinction                                                          | Foundation report's "always record" list separates these. Without it we conflate load-time peak with steady-state.                                                                                                         | ~2-3h: 4-checkpoint sampling around the bench call                                      |
+| 3   | `n_ctx` is fixed at the bench protocol's pp+tg sum; KV growth invisible                                                                | KV-quant impact only shows up at long context. Bench at pp=512/tg=128 → KV ~tens of MiB, can't measure KV-quant savings.                                                                                                   | ~1h: add n_ctx as sweep axis                                                            |
+| 4   | No `flash_attn_actually_enabled` parsing                                                                                               | The report explicitly flags `flash_attn_type=auto` as something that may be silently disabled by graph-assignment checks. We sweep it but can't confirm the cell actually used FA.                                         | ~30min: add log-signal regex for `flash_attn = 1` / `0`                                 |
+| 5   | No build-variant tag in report                                                                                                         | Report's open question #1: which paths are compiled? On Klee we observed `librnllama_jni_v8_2_dotprod_i8mm.so` (lean, no Hexagon/OpenCL). Each device's effective backend support depends on the runtime-selected JNI lib. | ~30min: parse `Load /data/.../librnllama_jni_*.so` log, stamp on report                 |
 
 Recommended packaging: **Story 1** = items 1 + 2 + 3 + 4 + 5 (~5h). One PR, one quick complexity.
 
@@ -43,19 +43,20 @@ Full cartesian (3 models × 4 quants × 3 backends × 4 mmap×repack × 3 KV × 
 
 The headline test for the foundation report's #1 finding.
 
-| Axis | Values | Rationale |
-|---|---|---|
-| backend | `cpu` (fixed) | Isolate CPU repack path |
-| model | qwen3-1.7b, gemma-3-1b, phi-3.5-mini | Std attention vs sliding-window vs alt-GQA-ratio |
-| quant | q4_0, q4_K_M, q8_0 | NPU-compat repack target, mainstream repack target, high-mem ref |
-| use_mmap | true, false | Full cross |
-| no_extra_bufts | false (repack ON), true (repack OFF) | Full cross |
-| KV (k/v) | f16/f16 | Fixed |
-| flash_attn_type | auto | Fixed |
+| Axis            | Values                               | Rationale                                                        |
+| --------------- | ------------------------------------ | ---------------------------------------------------------------- |
+| backend         | `cpu` (fixed)                        | Isolate CPU repack path                                          |
+| model           | qwen3-1.7b, gemma-3-1b, phi-3.5-mini | Std attention vs sliding-window vs alt-GQA-ratio                 |
+| quant           | q4_0, q4_K_M, q8_0                   | NPU-compat repack target, mainstream repack target, high-mem ref |
+| use_mmap        | true, false                          | Full cross                                                       |
+| no_extra_bufts  | false (repack ON), true (repack OFF) | Full cross                                                       |
+| KV (k/v)        | f16/f16                              | Fixed                                                            |
+| flash_attn_type | auto                                 | Fixed                                                            |
 
 **3 × 3 × 2 × 2 = 36 cells / device.** ~45-60 min/device.
 
 **Expected validation**:
+
 ```
 qwen3-1.7b q4_0  cpu  mmap=true  repack=ON   → PSS_post_load ≈ 2× weights_mib  (HAZARD)
                       mmap=true  repack=OFF  → PSS_post_load ≈ 1× weights_mib  (SAFE)
@@ -69,19 +70,20 @@ If the (true, ON) corner does NOT show doubling in PSS, either (a) llama.cpp's `
 
 Isolates "which backend wins per quant" without conflating the residency hazard.
 
-| Axis | Values | Rationale |
-|---|---|---|
-| backend | cpu, gpu, hexagon (skip if absent) | Per-device backend coverage |
-| model | qwen3-1.7b, phi-3.5-mini | Drop gemma — sliding-window confounds backend comparison |
-| quant | q4_0, q4_K_M, q5_K_M, q8_0 | Hexagon-compat ↔ K-quant boundary |
-| use_mmap | true (fixed) | Memory-safe baseline |
-| no_extra_bufts | true (CPU repack OFF; fixed) | Memory-safe baseline. Per the report, CPU repack doesn't apply to offloaded layers anyway, and Hexagon's HTP-REPACK is a separate device-extra-buffer path that runs regardless. |
-| KV (k/v) | f16/f16 | Fixed |
-| flash_attn_type | auto | Fixed |
+| Axis            | Values                             | Rationale                                                                                                                                                                        |
+| --------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| backend         | cpu, gpu, hexagon (skip if absent) | Per-device backend coverage                                                                                                                                                      |
+| model           | qwen3-1.7b, phi-3.5-mini           | Drop gemma — sliding-window confounds backend comparison                                                                                                                         |
+| quant           | q4_0, q4_K_M, q5_K_M, q8_0         | Hexagon-compat ↔ K-quant boundary                                                                                                                                               |
+| use_mmap        | true (fixed)                       | Memory-safe baseline                                                                                                                                                             |
+| no_extra_bufts  | true (CPU repack OFF; fixed)       | Memory-safe baseline. Per the report, CPU repack doesn't apply to offloaded layers anyway, and Hexagon's HTP-REPACK is a separate device-extra-buffer path that runs regardless. |
+| KV (k/v)        | f16/f16                            | Fixed                                                                                                                                                                            |
+| flash_attn_type | auto                               | Fixed                                                                                                                                                                            |
 
 **2 × 4 × 3 = 24 cells / device** (less for non-Hexagon devices).
 
 **Expected outputs**:
+
 - Backend ranking per (model, quant) — pp/tg tables
 - K-quant boundary verification: q4_K_M and q5_K_M on Hexagon should silently fall back to CPU (Hexagon supports only q4_0 / q8_0 / MXFP4). Effective_backend should fall through.
 - requested_backend × effective_backend mismatch matrix (catches misclassifications like the Myron parser-miss we just diagnosed)
@@ -90,18 +92,19 @@ Isolates "which backend wins per quant" without conflating the residency hazard.
 
 Requires Pre-work item 3 (n_ctx axis). Targets long-context memory rules.
 
-| Axis | Values | Rationale |
-|---|---|---|
-| backend | (winner of Sweep B per device) | One backend |
-| model | qwen3-1.7b (fixed) | Standard attention, predictable KV shape |
-| quant | q4_K_M (fixed) | Mainstream baseline |
-| n_ctx | 2048, 4096, 8192 | Where KV starts to dominate |
-| KV (k/v) | f16/f16, q8_0/q8_0, q4_0/q4_0 | 3 KV configs |
-| flash_attn_type | auto, off | Cross — but quantized V invalid with FA off (auto-rejected by upstream) |
+| Axis            | Values                         | Rationale                                                               |
+| --------------- | ------------------------------ | ----------------------------------------------------------------------- |
+| backend         | (winner of Sweep B per device) | One backend                                                             |
+| model           | qwen3-1.7b (fixed)             | Standard attention, predictable KV shape                                |
+| quant           | q4_K_M (fixed)                 | Mainstream baseline                                                     |
+| n_ctx           | 2048, 4096, 8192               | Where KV starts to dominate                                             |
+| KV (k/v)        | f16/f16, q8_0/q8_0, q4_0/q4_0  | 3 KV configs                                                            |
+| flash_attn_type | auto, off                      | Cross — but quantized V invalid with FA off (auto-rejected by upstream) |
 
 **3 × 3 × 2 = 18 nominal cells, ~12 valid** (FA off + quantized V is rejected by llama.cpp). ~20-30 min/device.
 
 **Expected outputs**:
+
 - KV memory growth curve at 2k/4k/8k by KV-quant config
 - FA's actually-enabled status per backend / context combination
 - Whether quantized KV pays off at our typical context (suspected: not until 4k+; report-grounded)
@@ -112,13 +115,14 @@ Requires Pre-work item 3 (n_ctx axis). Targets long-context memory rules.
 
 ## Device coverage
 
-| Device | Chip | Hexagon | OpenCL | RAM | Status |
-|---|---|---|---|---|---|
-| POCO X9 Pro Myron | Snapdragon 8 Elite Gen 5 | v81 | Adreno 840 ✅ | 12GB | ✅ have |
-| Samsung S23 | Snapdragon 8 Gen 2 | v73 | Adreno 740 ✅ | 8GB | ✅ have (older baseline) |
-| POCO X7 Pro Klee | MediaTek Dimensity 8400 | ❌ | Mali-G720 ⚠️ (build lacks OpenCL) | 8GB | ✅ have, needs CPU-hang investigation |
+| Device            | Chip                     | Hexagon | OpenCL                            | RAM  | Status                                |
+| ----------------- | ------------------------ | ------- | --------------------------------- | ---- | ------------------------------------- |
+| POCO X9 Pro Myron | Snapdragon 8 Elite Gen 5 | v81     | Adreno 840 ✅                     | 12GB | ✅ have                               |
+| Samsung S23       | Snapdragon 8 Gen 2       | v73     | Adreno 740 ✅                     | 8GB  | ✅ have (older baseline)              |
+| POCO X7 Pro Klee  | MediaTek Dimensity 8400  | ❌      | Mali-G720 ⚠️ (build lacks OpenCL) | 8GB  | ✅ have, needs CPU-hang investigation |
 
 **Gaps that limit rule confidence**:
+
 - **Low-end Snapdragon** (e.g. SD 7 Gen / 6 Gen) — narrower NPU, older Adreno
 - **Pixel / Tensor** — no Hexagon, ARM Mali variant, distinct thermal profile
 - **Low-RAM device** (4-6 GB) — where memory rules matter most
@@ -163,6 +167,7 @@ The `recommendSettings()` API would emit knobs + a confidence tier + a brief rat
 ## Cross-platform asymmetry — planned Phase 2.5 (iOS)
 
 The Metal path inverts the mmap hazard:
+
 - **Metal** with `mmap=true`: mapped pages can be the final tensor storage (host-pointer buffer support) → **safe default**
 - **Metal** with `mmap=false`: forces a separate Metal copy → doubles weight memory
 - CPU repack on iOS still has the same hazard as Android when CPU fallback fires

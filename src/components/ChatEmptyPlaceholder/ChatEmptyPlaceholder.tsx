@@ -25,7 +25,6 @@ export const ChatEmptyPlaceholder = observer(
     const hasAvailableModels = modelStore.availableModels.length > 0;
     const hasActiveModel = modelStore.activeModelId !== undefined;
 
-
     const getContent = () => {
       if (!hasAvailableModels) {
         return {

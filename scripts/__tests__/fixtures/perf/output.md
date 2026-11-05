@@ -8,10 +8,10 @@
 <details open>
 <summary>Show entries</summary>
 
-| Name                                                                      | Type   | Duration                                 | Count    |
-| ------------------------------------------------------------------------- | ------ | ---------------------------------------- | -------- |
-| Sheet render performance opens and closes from the owner state            | render | 5.8 ms → 4.7 ms (-1.1 ms, -19.2%)  🟢    | 3 → 3    |
-| ChatView render performance streams tokens into the newest assistant turn | render | 97.5 ms → 84.7 ms (-12.8 ms, -13.1%)  🟢 | 23 → 23  |
+| Name                                                                      | Type   | Duration                                | Count   |
+| ------------------------------------------------------------------------- | ------ | --------------------------------------- | ------- |
+| Sheet render performance opens and closes from the owner state            | render | 5.8 ms → 4.7 ms (-1.1 ms, -19.2%) 🟢    | 3 → 3   |
+| ChatView render performance streams tokens into the newest assistant turn | render | 97.5 ms → 84.7 ms (-12.8 ms, -13.1%) 🟢 | 23 → 23 |
 
 </details>
 
@@ -30,12 +30,12 @@
 <details>
 <summary>Show entries</summary>
 
-| Name                                                                                       | Type   | Duration                               | Count    |
-| ------------------------------------------------------------------------------------------ | ------ | -------------------------------------- | -------- |
-| ChatPalModelPickerSheet render performance opens and closes the picker from the chat input | render | 110.0 ms → 114.4 ms (+4.5 ms, +4.1%)   | 7 → 7    |
-| ChatView render performance types into the chat input                                      | render | 204.3 ms → 202.3 ms (-2.1 ms, -1.0%)   | 23 → 23  |
-| ModelsScreen render performance filters the list to downloaded models                      | render | 110.0 ms → 97.8 ms (-12.2 ms, -11.1%)  | 6 → 6    |
-| SettingsScreen render performance expands the advanced settings                            | render | 125.3 ms → 133.7 ms (+8.4 ms, +6.7%)   | 4 → 4    |
+| Name                                                                                       | Type   | Duration                              | Count   |
+| ------------------------------------------------------------------------------------------ | ------ | ------------------------------------- | ------- |
+| ChatPalModelPickerSheet render performance opens and closes the picker from the chat input | render | 110.0 ms → 114.4 ms (+4.5 ms, +4.1%)  | 7 → 7   |
+| ChatView render performance types into the chat input                                      | render | 204.3 ms → 202.3 ms (-2.1 ms, -1.0%)  | 23 → 23 |
+| ModelsScreen render performance filters the list to downloaded models                      | render | 110.0 ms → 97.8 ms (-12.2 ms, -11.1%) | 6 → 6   |
+| SettingsScreen render performance expands the advanced settings                            | render | 125.3 ms → 133.7 ms (+8.4 ms, +6.7%)  | 4 → 4   |
 
 </details>
 
@@ -53,7 +53,7 @@
 
 ### Render Count Changes
 
-*There are no entries*
+_There are no entries_
 
 ### Render Issues
 
@@ -67,11 +67,11 @@
 
 ### Added Entries
 
-*There are no entries*
+_There are no entries_
 
 ### Removed Entries
 
-*There are no entries*
+_There are no entries_
 
 ### Stability
 

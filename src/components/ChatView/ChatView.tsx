@@ -47,7 +47,10 @@ import {t} from '../../locales';
 import {getModelMemoryRequirement} from '../../utils/memoryEstimator';
 import {CONTEXT_LADDER} from '../../utils/bannerVariantResolver';
 
-import {NEW_CHAT_DRAFT_KEY, chatSessionStore} from '../../store/ChatSessionStore';
+import {
+  NEW_CHAT_DRAFT_KEY,
+  chatSessionStore,
+} from '../../store/ChatSessionStore';
 import {modelStore} from '../../store/ModelStore';
 import type {UndoneSend} from '../../hooks/useChatSession';
 
@@ -518,7 +521,6 @@ export const ChatView = observer(
       chatSessionStore.exitEditMode();
     }, []);
 
-
     const {handleCopy, handleEdit, handleTryAgain, handleTryAgainWith} =
       useMessageActions({
         user,
@@ -652,8 +654,7 @@ export const ChatView = observer(
       }
 
       const isAuthor = selectedMessage.author.id === user.id;
-      const canGenerate =
-        modelStore.activeModelId !== undefined && !isStopping;
+      const canGenerate = modelStore.activeModelId !== undefined && !isStopping;
       const models = modelStore.availableModels || [];
 
       const baseItems: MenuItem[] = [
@@ -1041,8 +1042,6 @@ export const ChatView = observer(
       setIsPickerVisible(false);
     }, []);
 
-
-
     // ============ COMPUTED VALUES ============
     const inputBackgroundColor = theme.colors.surface;
 
@@ -1102,28 +1101,29 @@ export const ChatView = observer(
                 onIncreaseContext={() => setIncreaseSheetOpen(true)}
               />
               <ChatInput
-                  {...{
-                    ...unwrap(inputProps),
-                    isStreaming,
-                    onSendPress: wrappedOnSendPress,
-                    onStopPress,
-                    chatInputHeight,
-                    inputBackgroundColor,
-                    onCancelEdit: handleCancelEdit,
-                    onModelPickerPress: () => setIsPickerVisible(!isPickerVisible),
-                    isStopVisible,
-                    isPickerVisible,
-                    sendButtonVisibilityMode,
-                    showImageUpload,
-                    isVisionEnabled,
-                    defaultImages: inputImages,
-                    onDefaultImagesChange: setInputImages,
-                    textInputProps: {
-                      ...textInputProps,
-                      value: inputText,
-                      onChangeText: setInputText,
-                    },
-                  }}
+                {...{
+                  ...unwrap(inputProps),
+                  isStreaming,
+                  onSendPress: wrappedOnSendPress,
+                  onStopPress,
+                  chatInputHeight,
+                  inputBackgroundColor,
+                  onCancelEdit: handleCancelEdit,
+                  onModelPickerPress: () =>
+                    setIsPickerVisible(!isPickerVisible),
+                  isStopVisible,
+                  isPickerVisible,
+                  sendButtonVisibilityMode,
+                  showImageUpload,
+                  isVisionEnabled,
+                  defaultImages: inputImages,
+                  onDefaultImagesChange: setInputImages,
+                  textInputProps: {
+                    ...textInputProps,
+                    value: inputText,
+                    onChangeText: setInputText,
+                  },
+                }}
               />
             </Reanimated.View>
 
@@ -1202,10 +1202,6 @@ export const ChatView = observer(
             testID="context-reload-snackbar">
             {reloadSnackbar?.message ?? ''}
           </Snackbar>
-
-
-
-
         </View>
       </UserContext.Provider>
     );

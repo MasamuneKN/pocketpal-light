@@ -2,11 +2,11 @@
 
 **Rules used** (validated in `findings-android-rules.md` + `findings-hex-validation.md`):
 
-| Setting           | cpu  | gpu  | hexagon |
-|---                |---   |---   |---      |
-| `flash_attn_type` | on   | off  | on      |
-| `use_mmap`        | false| false| false   |
-| `no_extra_bufts`  | false| —    | —       |
+| Setting           | cpu   | gpu   | hexagon |
+| ----------------- | ----- | ----- | ------- |
+| `flash_attn_type` | on    | off   | on      |
+| `use_mmap`        | false | false | false   |
+| `no_extra_bufts`  | false | —     | —       |
 
 **Bench**: `pp=256, tg=64, pl=1, nr=3`, 30 s inter-cell settle, purge APK.
 
@@ -14,11 +14,11 @@
 
 ## Per-device coverage (after multi-phase recovery)
 
-| Device | SoC | Backends | OK cells | Of target | Notes |
-|---|---|---|---|---|---|
-| poco-x7-klee | MediaTek MT6899 | cpu only* | **80 / 84** | 95 % | * gpu unavailable on this build. Recovered 13 cells via per-cell config + APK reinstall isolation. Remaining 4 (phi-3.5 q8_0, phi-4-mini q8_0, gemma-4 q6_K + q8_0) OOM on 7.5 GiB device — RAM physics. |
-| samsung-s23 | Snapdragon 8 Gen 2 | cpu, gpu, hexagon | **217 / 252** | 86 % | After 4 recovery phases adding 39 cells. Remaining 35 missing cells are large-model loads (all gemma-4-E2B, phi-3.5 q6+, phi-4-mini q5+) that OOM on 8 GiB RAM. |
-| poco-myron | Snapdragon 8 Elite | cpu, gpu, hexagon | **252 / 252** | **100 %** ✅ | Final cell (gemma-4-e2b q8_0 gpu) captured via individual-config + reinstall isolation. |
+| Device       | SoC                | Backends          | OK cells      | Of target    | Notes                                                                                                                                                                                                     |
+| ------------ | ------------------ | ----------------- | ------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| poco-x7-klee | MediaTek MT6899    | cpu only\*        | **80 / 84**   | 95 %         | \* gpu unavailable on this build. Recovered 13 cells via per-cell config + APK reinstall isolation. Remaining 4 (phi-3.5 q8_0, phi-4-mini q8_0, gemma-4 q6_K + q8_0) OOM on 7.5 GiB device — RAM physics. |
+| samsung-s23  | Snapdragon 8 Gen 2 | cpu, gpu, hexagon | **217 / 252** | 86 %         | After 4 recovery phases adding 39 cells. Remaining 35 missing cells are large-model loads (all gemma-4-E2B, phi-3.5 q6+, phi-4-mini q5+) that OOM on 8 GiB RAM.                                           |
+| poco-myron   | Snapdragon 8 Elite | cpu, gpu, hexagon | **252 / 252** | **100 %** ✅ | Final cell (gemma-4-e2b q8_0 gpu) captured via individual-config + reinstall isolation.                                                                                                                   |
 
 **Total: 549 ok cells** across 3 devices, 11 architectures, 8 quants. All 3 devices cover all 11 model architectures.
 
@@ -41,6 +41,7 @@ Each `runs[]` entry has `model_id`, `quant`, `requested_backend`, `effective_bac
 ### Klee (cpu only) — 17 missing cells
 
 Large models that OOM at load on 7.5 GiB RAM, all of which we tested at `n_ctx=2048` with full REPACK:
+
 - `phi-3.5-mini q8_0` (1 cell)
 - `phi-4-mini` all 8 quants
 - `gemma-4-e2b` all 8 quants
@@ -49,31 +50,31 @@ These match the original Klee baseline's coverage. Reducing `n_ctx` to 1024 coul
 
 ### S23 (cpu + gpu + hex) — 37 missing cells
 
-| Model | Quants | Backends affected | Cells | Why missing |
-|---|---|---|---|---|
-| gemma-4-e2b | iq1_s, q2_k, q3_k_m | gpu only | 3 | Adreno 740 gpu pipeline crash on large model |
-| gemma-4-e2b | q4_0, q4_K_M, q5_K_M, q6_K, q8_0 | cpu, gpu, hex | 15 | Bench app crashes loading these 3-5 GB gemma-4 variants |
-| phi-3.5-mini | q6_K, q8_0 | cpu, gpu, hex | 6 | App crash loading 3-4 GB Phi-3.5 large quants |
-| phi-4-mini | q4_0 | gpu only | 1 | gpu cell-count crash earlier in batch; not recovered |
-| phi-4-mini | q4_K_M, q5_K_M, q6_K, q8_0 | cpu, gpu, hex | 12 | App crash loading 2-4 GB Phi-4 large quants |
-| **Total** | | | **37** | |
+| Model        | Quants                           | Backends affected | Cells  | Why missing                                             |
+| ------------ | -------------------------------- | ----------------- | ------ | ------------------------------------------------------- |
+| gemma-4-e2b  | iq1_s, q2_k, q3_k_m              | gpu only          | 3      | Adreno 740 gpu pipeline crash on large model            |
+| gemma-4-e2b  | q4_0, q4_K_M, q5_K_M, q6_K, q8_0 | cpu, gpu, hex     | 15     | Bench app crashes loading these 3-5 GB gemma-4 variants |
+| phi-3.5-mini | q6_K, q8_0                       | cpu, gpu, hex     | 6      | App crash loading 3-4 GB Phi-3.5 large quants           |
+| phi-4-mini   | q4_0                             | gpu only          | 1      | gpu cell-count crash earlier in batch; not recovered    |
+| phi-4-mini   | q4_K_M, q5_K_M, q6_K, q8_0       | cpu, gpu, hex     | 12     | App crash loading 2-4 GB Phi-4 large quants             |
+| **Total**    |                                  |                   | **37** |                                                         |
 
 ### Myron (cpu + gpu + hex) — 1 missing cell
 
-| Model | Quant | Backend | Why missing |
-|---|---|---|---|
-| gemma-4-e2b | q8_0 | gpu | Deterministic crash on 5 GB model on Adreno 840 gpu pipeline. Tried with flash=on (rule violation) and reduced n_ctx=1024 — both also crashed. Likely a real gpu limitation, not a recoverable issue. |
+| Model       | Quant | Backend | Why missing                                                                                                                                                                                           |
+| ----------- | ----- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| gemma-4-e2b | q8_0  | gpu     | Deterministic crash on 5 GB model on Adreno 840 gpu pipeline. Tried with flash=on (rule violation) and reduced n_ctx=1024 — both also crashed. Likely a real gpu limitation, not a recoverable issue. |
 
 ---
 
 ## Recovery work done
 
-| Phase | What was attempted | Cells added | Wall-time |
-|---|---|---|---|
-| Original baseline pass | All 3 devices in parallel; S23 two-pass for disk | 496 base | ~7 h |
-| Phase 1 recovery | S23 gpu 4 split batches + Myron gemma-4 q8_0 attempts | +16 (S23 gpu) | ~1 h |
-| Phase 2 recovery | S23 phi-3.5+phi-4+gemma-4 cpu/hex + 6 gpu sub-batches; APK reinstall between configs | +37 (S23) | ~2 h |
-| **Net recovery** | | **+53 cells** | **~3 h** |
+| Phase                  | What was attempted                                                                   | Cells added   | Wall-time |
+| ---------------------- | ------------------------------------------------------------------------------------ | ------------- | --------- |
+| Original baseline pass | All 3 devices in parallel; S23 two-pass for disk                                     | 496 base      | ~7 h      |
+| Phase 1 recovery       | S23 gpu 4 split batches + Myron gemma-4 q8_0 attempts                                | +16 (S23 gpu) | ~1 h      |
+| Phase 2 recovery       | S23 phi-3.5+phi-4+gemma-4 cpu/hex + 6 gpu sub-batches; APK reinstall between configs | +37 (S23)     | ~2 h      |
+| **Net recovery**       |                                                                                      | **+53 cells** | **~3 h**  |
 
 Final coverage: **91 %** (533/588 cells across all 3 devices).
 
@@ -105,11 +106,11 @@ Final coverage: **91 %** (533/588 cells across all 3 devices).
 
 ## Provenance — input reports merged
 
-| Device | Input files |
-|---|---|
-| poco-x7-klee | klee-baseline-on.json |
-| samsung-s23 | s23-passA-on, s23-passA-off, s23-passA-off-recovery, s23-passB-salvage-on, s23-passB-salvage-off, s23-gpu-rec-1/2/3, s23-p2-cpuhex, s23-p2-gpu-1/5/6 |
-| poco-myron | myron-baseline-on, myron-baseline-off, myron-baseline-off-recovery{1,2,3} |
+| Device       | Input files                                                                                                                                          |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| poco-x7-klee | klee-baseline-on.json                                                                                                                                |
+| samsung-s23  | s23-passA-on, s23-passA-off, s23-passA-off-recovery, s23-passB-salvage-on, s23-passB-salvage-off, s23-gpu-rec-1/2/3, s23-p2-cpuhex, s23-p2-gpu-1/5/6 |
+| poco-myron   | myron-baseline-on, myron-baseline-off, myron-baseline-off-recovery{1,2,3}                                                                            |
 
 Merge script: `seed-staging/merge-baselines.py`. Dedups by `(model_id, quant, requested_backend, settings_fingerprint)` with the latest file winning.
 

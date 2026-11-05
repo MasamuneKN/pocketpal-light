@@ -23,28 +23,15 @@
         "runs": 3,
         "meanDuration": 5.800355666679631,
         "stdevDuration": 0.5000854630303686,
-        "durations": [
-          5.962578999962716,
-          5.239298000014969,
-          6.199190000061208
-        ],
-        "warmupDurations": [
-          5.772067000012612
-        ],
+        "durations": [5.962578999962716, 5.239298000014969, 6.199190000061208],
+        "warmupDurations": [5.772067000012612],
         "outlierDurations": [],
         "meanCount": 3,
         "stdevCount": 0,
-        "counts": [
-          3,
-          3,
-          3
-        ],
+        "counts": [3, 3, 3],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            1,
-            2
-          ]
+          "redundantUpdates": [1, 2]
         }
       },
       "current": {
@@ -53,29 +40,15 @@
         "runs": 3,
         "meanDuration": 4.686927499984449,
         "stdevDuration": 0.010069907591673487,
-        "durations": [
-          4.679807000040455,
-          4.6940479999284435
-        ],
-        "warmupDurations": [
-          6.360709000000497
-        ],
-        "outlierDurations": [
-          5.05537700001878
-        ],
+        "durations": [4.679807000040455, 4.6940479999284435],
+        "warmupDurations": [6.360709000000497],
+        "outlierDurations": [5.05537700001878],
         "meanCount": 3,
         "stdevCount": 0,
-        "counts": [
-          3,
-          3,
-          3
-        ],
+        "counts": [3, 3, 3],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            1,
-            2
-          ]
+          "redundantUpdates": [1, 2]
         }
       },
       "stability": {
@@ -97,22 +70,12 @@
         "runs": 3,
         "meanDuration": 97.48021300015778,
         "stdevDuration": 1.8693818781244784,
-        "durations": [
-          98.3679910000501,
-          98.74028300014106,
-          95.33236500028215
-        ],
-        "warmupDurations": [
-          104.19670400006362
-        ],
+        "durations": [98.3679910000501, 98.74028300014106, 95.33236500028215],
+        "warmupDurations": [104.19670400006362],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
           "redundantUpdates": []
@@ -124,22 +87,12 @@
         "runs": 3,
         "meanDuration": 84.69373099997695,
         "stdevDuration": 3.695700340630779,
-        "durations": [
-          83.31361599999218,
-          88.88088199998492,
-          81.88669499995376
-        ],
-        "warmupDurations": [
-          86.05959300009818
-        ],
+        "durations": [83.31361599999218, 88.88088199998492, 81.88669499995376],
+        "warmupDurations": [86.05959300009818],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
           "redundantUpdates": []
@@ -167,27 +120,16 @@
         "meanDuration": 109.95851466670865,
         "stdevDuration": 8.254204924345567,
         "durations": [
-          100.53806400007306,
-          113.41445500003465,
-          115.92302500001824
+          100.53806400007306, 113.41445500003465, 115.92302500001824
         ],
-        "warmupDurations": [
-          100.64824699985184
-        ],
+        "warmupDurations": [100.64824699985184],
         "outlierDurations": [],
         "meanCount": 7,
         "stdevCount": 0,
-        "counts": [
-          7,
-          7,
-          7
-        ],
+        "counts": [7, 7, 7],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6
-          ]
+          "redundantUpdates": [4, 6]
         }
       },
       "current": {
@@ -197,27 +139,16 @@
         "meanDuration": 114.44119066662763,
         "stdevDuration": 3.4456311186687274,
         "durations": [
-          115.39556400000765,
-          117.30903799996486,
-          110.6189699999104
+          115.39556400000765, 117.30903799996486, 110.6189699999104
         ],
-        "warmupDurations": [
-          95.90786400002071
-        ],
+        "warmupDurations": [95.90786400002071],
         "outlierDurations": [],
         "meanCount": 7,
         "stdevCount": 0,
-        "counts": [
-          7,
-          7,
-          7
-        ],
+        "counts": [7, 7, 7],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6
-          ]
+          "redundantUpdates": [4, 6]
         }
       },
       "stability": {
@@ -240,35 +171,16 @@
         "meanDuration": 204.31914099997206,
         "stdevDuration": 18.48418483798295,
         "durations": [
-          219.79869899994446,
-          209.30541999996512,
-          183.85330400000657
+          219.79869899994446, 209.30541999996512, 183.85330400000657
         ],
-        "warmupDurations": [
-          219.7037919999466
-        ],
+        "warmupDurations": [219.7037919999466],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6,
-            8,
-            10,
-            12,
-            14,
-            16,
-            18,
-            20,
-            22
-          ]
+          "redundantUpdates": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
         }
       },
       "current": {
@@ -278,35 +190,16 @@
         "meanDuration": 202.26207133331658,
         "stdevDuration": 12.001713677738156,
         "durations": [
-          189.01785300001848,
-          205.3508899999706,
-          212.41747099996064
+          189.01785300001848, 205.3508899999706, 212.41747099996064
         ],
-        "warmupDurations": [
-          201.14547299993865
-        ],
+        "warmupDurations": [201.14547299993865],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6,
-            8,
-            10,
-            12,
-            14,
-            16,
-            18,
-            20,
-            22
-          ]
+          "redundantUpdates": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
         }
       },
       "stability": {
@@ -329,27 +222,16 @@
         "meanDuration": 109.97994966665162,
         "stdevDuration": 19.71152563657333,
         "durations": [
-          114.46678999991855,
-          127.06126599988056,
-          88.41179300015574
+          114.46678999991855, 127.06126599988056, 88.41179300015574
         ],
-        "warmupDurations": [
-          122.9292920000953
-        ],
+        "warmupDurations": [122.9292920000953],
         "outlierDurations": [],
         "meanCount": 6,
         "stdevCount": 0,
-        "counts": [
-          6,
-          6,
-          6
-        ],
+        "counts": [6, 6, 6],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            4,
-            5
-          ]
+          "redundantUpdates": [4, 5]
         }
       },
       "current": {
@@ -358,28 +240,15 @@
         "runs": 3,
         "meanDuration": 97.81825866671352,
         "stdevDuration": 7.130159434229435,
-        "durations": [
-          103.7751839999546,
-          89.91786000008506,
-          99.76173200010089
-        ],
-        "warmupDurations": [
-          137.81513600004473
-        ],
+        "durations": [103.7751839999546, 89.91786000008506, 99.76173200010089],
+        "warmupDurations": [137.81513600004473],
         "outlierDurations": [],
         "meanCount": 6,
         "stdevCount": 0,
-        "counts": [
-          6,
-          6,
-          6
-        ],
+        "counts": [6, 6, 6],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            4,
-            5
-          ]
+          "redundantUpdates": [4, 5]
         }
       },
       "stability": {
@@ -402,21 +271,13 @@
         "meanDuration": 125.32154666665035,
         "stdevDuration": 19.193719331524644,
         "durations": [
-          135.04020399993533,
-          137.71213499998157,
-          103.21230100003413
+          135.04020399993533, 137.71213499998157, 103.21230100003413
         ],
-        "warmupDurations": [
-          150.14147300019067
-        ],
+        "warmupDurations": [150.14147300019067],
         "outlierDurations": [],
         "meanCount": 4,
         "stdevCount": 0,
-        "counts": [
-          4,
-          4,
-          4
-        ],
+        "counts": [4, 4, 4],
         "issues": {
           "initialUpdateCount": 0,
           "redundantUpdates": []
@@ -429,21 +290,13 @@
         "meanDuration": 133.69544266665494,
         "stdevDuration": 0.9712503754253486,
         "durations": [
-          132.61112100003447,
-          134.48561999989397,
-          133.9895870000364
+          132.61112100003447, 134.48561999989397, 133.9895870000364
         ],
-        "warmupDurations": [
-          135.30284600004234
-        ],
+        "warmupDurations": [135.30284600004234],
         "outlierDurations": [],
         "meanCount": 4,
         "stdevCount": 0,
-        "counts": [
-          4,
-          4,
-          4
-        ],
+        "counts": [4, 4, 4],
         "issues": {
           "initialUpdateCount": 0,
           "redundantUpdates": []
@@ -472,35 +325,16 @@
         "meanDuration": 204.31914099997206,
         "stdevDuration": 18.48418483798295,
         "durations": [
-          219.79869899994446,
-          209.30541999996512,
-          183.85330400000657
+          219.79869899994446, 209.30541999996512, 183.85330400000657
         ],
-        "warmupDurations": [
-          219.7037919999466
-        ],
+        "warmupDurations": [219.7037919999466],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6,
-            8,
-            10,
-            12,
-            14,
-            16,
-            18,
-            20,
-            22
-          ]
+          "redundantUpdates": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
         }
       },
       "current": {
@@ -510,35 +344,16 @@
         "meanDuration": 202.26207133331658,
         "stdevDuration": 12.001713677738156,
         "durations": [
-          189.01785300001848,
-          205.3508899999706,
-          212.41747099996064
+          189.01785300001848, 205.3508899999706, 212.41747099996064
         ],
-        "warmupDurations": [
-          201.14547299993865
-        ],
+        "warmupDurations": [201.14547299993865],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6,
-            8,
-            10,
-            12,
-            14,
-            16,
-            18,
-            20,
-            22
-          ]
+          "redundantUpdates": [4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
         }
       },
       "stability": {
@@ -560,22 +375,12 @@
         "runs": 3,
         "meanDuration": 97.48021300015778,
         "stdevDuration": 1.8693818781244784,
-        "durations": [
-          98.3679910000501,
-          98.74028300014106,
-          95.33236500028215
-        ],
-        "warmupDurations": [
-          104.19670400006362
-        ],
+        "durations": [98.3679910000501, 98.74028300014106, 95.33236500028215],
+        "warmupDurations": [104.19670400006362],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
           "redundantUpdates": []
@@ -587,22 +392,12 @@
         "runs": 3,
         "meanDuration": 84.69373099997695,
         "stdevDuration": 3.695700340630779,
-        "durations": [
-          83.31361599999218,
-          88.88088199998492,
-          81.88669499995376
-        ],
-        "warmupDurations": [
-          86.05959300009818
-        ],
+        "durations": [83.31361599999218, 88.88088199998492, 81.88669499995376],
+        "warmupDurations": [86.05959300009818],
         "outlierDurations": [],
         "meanCount": 23,
         "stdevCount": 0,
-        "counts": [
-          23,
-          23,
-          23
-        ],
+        "counts": [23, 23, 23],
         "issues": {
           "initialUpdateCount": 1,
           "redundantUpdates": []
@@ -628,27 +423,16 @@
         "meanDuration": 109.95851466670865,
         "stdevDuration": 8.254204924345567,
         "durations": [
-          100.53806400007306,
-          113.41445500003465,
-          115.92302500001824
+          100.53806400007306, 113.41445500003465, 115.92302500001824
         ],
-        "warmupDurations": [
-          100.64824699985184
-        ],
+        "warmupDurations": [100.64824699985184],
         "outlierDurations": [],
         "meanCount": 7,
         "stdevCount": 0,
-        "counts": [
-          7,
-          7,
-          7
-        ],
+        "counts": [7, 7, 7],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6
-          ]
+          "redundantUpdates": [4, 6]
         }
       },
       "current": {
@@ -658,27 +442,16 @@
         "meanDuration": 114.44119066662763,
         "stdevDuration": 3.4456311186687274,
         "durations": [
-          115.39556400000765,
-          117.30903799996486,
-          110.6189699999104
+          115.39556400000765, 117.30903799996486, 110.6189699999104
         ],
-        "warmupDurations": [
-          95.90786400002071
-        ],
+        "warmupDurations": [95.90786400002071],
         "outlierDurations": [],
         "meanCount": 7,
         "stdevCount": 0,
-        "counts": [
-          7,
-          7,
-          7
-        ],
+        "counts": [7, 7, 7],
         "issues": {
           "initialUpdateCount": 1,
-          "redundantUpdates": [
-            4,
-            6
-          ]
+          "redundantUpdates": [4, 6]
         }
       },
       "stability": {
@@ -701,27 +474,16 @@
         "meanDuration": 109.97994966665162,
         "stdevDuration": 19.71152563657333,
         "durations": [
-          114.46678999991855,
-          127.06126599988056,
-          88.41179300015574
+          114.46678999991855, 127.06126599988056, 88.41179300015574
         ],
-        "warmupDurations": [
-          122.9292920000953
-        ],
+        "warmupDurations": [122.9292920000953],
         "outlierDurations": [],
         "meanCount": 6,
         "stdevCount": 0,
-        "counts": [
-          6,
-          6,
-          6
-        ],
+        "counts": [6, 6, 6],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            4,
-            5
-          ]
+          "redundantUpdates": [4, 5]
         }
       },
       "current": {
@@ -730,28 +492,15 @@
         "runs": 3,
         "meanDuration": 97.81825866671352,
         "stdevDuration": 7.130159434229435,
-        "durations": [
-          103.7751839999546,
-          89.91786000008506,
-          99.76173200010089
-        ],
-        "warmupDurations": [
-          137.81513600004473
-        ],
+        "durations": [103.7751839999546, 89.91786000008506, 99.76173200010089],
+        "warmupDurations": [137.81513600004473],
         "outlierDurations": [],
         "meanCount": 6,
         "stdevCount": 0,
-        "counts": [
-          6,
-          6,
-          6
-        ],
+        "counts": [6, 6, 6],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            4,
-            5
-          ]
+          "redundantUpdates": [4, 5]
         }
       },
       "stability": {
@@ -773,28 +522,15 @@
         "runs": 3,
         "meanDuration": 5.800355666679631,
         "stdevDuration": 0.5000854630303686,
-        "durations": [
-          5.962578999962716,
-          5.239298000014969,
-          6.199190000061208
-        ],
-        "warmupDurations": [
-          5.772067000012612
-        ],
+        "durations": [5.962578999962716, 5.239298000014969, 6.199190000061208],
+        "warmupDurations": [5.772067000012612],
         "outlierDurations": [],
         "meanCount": 3,
         "stdevCount": 0,
-        "counts": [
-          3,
-          3,
-          3
-        ],
+        "counts": [3, 3, 3],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            1,
-            2
-          ]
+          "redundantUpdates": [1, 2]
         }
       },
       "current": {
@@ -803,29 +539,15 @@
         "runs": 3,
         "meanDuration": 4.686927499984449,
         "stdevDuration": 0.010069907591673487,
-        "durations": [
-          4.679807000040455,
-          4.6940479999284435
-        ],
-        "warmupDurations": [
-          6.360709000000497
-        ],
-        "outlierDurations": [
-          5.05537700001878
-        ],
+        "durations": [4.679807000040455, 4.6940479999284435],
+        "warmupDurations": [6.360709000000497],
+        "outlierDurations": [5.05537700001878],
         "meanCount": 3,
         "stdevCount": 0,
-        "counts": [
-          3,
-          3,
-          3
-        ],
+        "counts": [3, 3, 3],
         "issues": {
           "initialUpdateCount": 0,
-          "redundantUpdates": [
-            1,
-            2
-          ]
+          "redundantUpdates": [1, 2]
         }
       },
       "stability": {

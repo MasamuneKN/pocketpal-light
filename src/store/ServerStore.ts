@@ -117,7 +117,6 @@ class ServerStore {
     }).then(() => {
       this.afterHydration();
     });
-
   }
 
   /**

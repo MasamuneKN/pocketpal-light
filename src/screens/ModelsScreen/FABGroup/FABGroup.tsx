@@ -60,12 +60,7 @@ export const FABGroup: React.FC<FABGroupProps> = ({
       },
     ];
     return items;
-  }, [
-    l10n,
-    onAddHFModel,
-    onAddLocalModel,
-    styles.actionButton,
-  ]);
+  }, [l10n, onAddHFModel, onAddLocalModel, styles.actionButton]);
 
   return (
     <FAB.Group

@@ -76,15 +76,25 @@ export const PalsScreen: React.FC = observer(() => {
           }}
           accessibilityLabel="Search local Pals"
         />
-        <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+        <View
+          style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
           <Text
             onPress={() => setVideoOnly(false)}
-            style={{color: !videoOnly ? theme.colors.primary : theme.colors.onSurfaceVariant, marginRight: 18}}>
+            style={{
+              color: !videoOnly
+                ? theme.colors.primary
+                : theme.colors.onSurfaceVariant,
+              marginRight: 18,
+            }}>
             All local Pals
           </Text>
           <Text
             onPress={() => setVideoOnly(true)}
-            style={{color: videoOnly ? theme.colors.primary : theme.colors.onSurfaceVariant}}>
+            style={{
+              color: videoOnly
+                ? theme.colors.primary
+                : theme.colors.onSurfaceVariant,
+            }}>
             Video Pals
           </Text>
         </View>
@@ -102,7 +112,11 @@ export const PalsScreen: React.FC = observer(() => {
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <PlusIcon stroke={theme.colors.onSurfaceVariant} width={48} height={48} />
+            <PlusIcon
+              stroke={theme.colors.onSurfaceVariant}
+              width={48}
+              height={48}
+            />
             <Text style={styles.emptyStateText}>
               {query || videoOnly
                 ? 'No matching local Pals.'

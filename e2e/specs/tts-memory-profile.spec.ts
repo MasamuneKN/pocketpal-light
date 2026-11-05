@@ -118,7 +118,11 @@ async function relaunchApp(chatPage: ChatPage): Promise<void> {
   await driver.pause(SETTLE_MS);
 }
 
-function getDeviceInfo(): {device: string; os_version: string; platform: string} {
+function getDeviceInfo(): {
+  device: string;
+  os_version: string;
+  platform: string;
+} {
   const caps = (driver.capabilities || {}) as Record<string, any>;
   const isAndroid = (driver as any).isAndroid;
   if (isAndroid) {
@@ -155,7 +159,7 @@ function getCommitHash(): string {
 function memBytes(snap: MemorySnapshot): number {
   return snap.native.phys_footprint !== undefined
     ? snap.native.phys_footprint + (snap.native.metal_allocated ?? 0)
-    : snap.native.pss_total ?? 0;
+    : (snap.native.pss_total ?? 0);
 }
 
 function toMb(bytes: number): number {

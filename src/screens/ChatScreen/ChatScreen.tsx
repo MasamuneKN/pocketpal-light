@@ -25,7 +25,6 @@ import {MessageType} from '../../utils/types';
 import {ErrorState} from '../../utils/errors';
 import {user, assistant} from '../../utils/chat';
 
-
 const renderBubble = ({
   child,
   message,
@@ -62,8 +61,6 @@ export const ChatScreen: React.FC = observer(() => {
     user,
     assistant,
   );
-
-
 
   // Handle deep linking for message prefill
   const {pendingMessage, clearPendingMessage} = usePendingMessage();
@@ -194,7 +191,7 @@ export const ChatScreen: React.FC = observer(() => {
         <ChatView
           renderBubble={renderBubble}
           messages={chatSessionStore.currentSessionMessages}
-                onSendPress={handleSendPress}
+          onSendPress={handleSendPress}
           onStopPress={handleStopPress}
           user={user}
           isStopVisible={modelStore.inferencing}

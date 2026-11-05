@@ -97,78 +97,75 @@ const App = observer(() => {
               <MarkdownProvider>
                 <NavigationContainer>
                   <DeepLinkHandler />
-                    <BottomSheetModalProvider>
-                      <SwitchPoint
-                        drawer={
-                          <Drawer.Navigator
-                            screenOptions={{
-                              headerLeft: () => <HeaderLeft />,
-                              drawerStyle: {
-                                width:
-                                  screenWidth > 400 ? 320 : screenWidth * 0.8,
-                              },
-                              headerStyle: {
-                                backgroundColor: theme.colors.background,
-                              },
-                              headerTintColor: theme.colors.onBackground,
-                              headerTitleStyle: styles.headerTitle,
+                  <BottomSheetModalProvider>
+                    <SwitchPoint
+                      drawer={
+                        <Drawer.Navigator
+                          screenOptions={{
+                            headerLeft: () => <HeaderLeft />,
+                            drawerStyle: {
+                              width:
+                                screenWidth > 400 ? 320 : screenWidth * 0.8,
+                            },
+                            headerStyle: {
+                              backgroundColor: theme.colors.background,
+                            },
+                            headerTintColor: theme.colors.onBackground,
+                            headerTitleStyle: styles.headerTitle,
+                          }}
+                          drawerContent={props => (
+                            <SidebarContent {...props} />
+                          )}>
+                          <Drawer.Screen
+                            name={ROUTES.CHAT}
+                            component={gestureHandlerRootHOC(ChatScreen)}
+                            options={{
+                              headerShown: false,
                             }}
-                            drawerContent={props => (
-                              <SidebarContent {...props} />
-                            )}>
-                            <Drawer.Screen
-                              name={ROUTES.CHAT}
-                              component={gestureHandlerRootHOC(ChatScreen)}
-                              options={{
-                                headerShown: false,
-                              }}
-                            />
-                            <Drawer.Screen
-                              name={ROUTES.MODELS}
-                              component={gestureHandlerRootHOC(ModelsScreen)}
-                              options={{
-                                headerRight: () => <ModelsHeaderRight />,
-                                headerStyle: styles.headerWithoutDivider,
-                                title: currentL10n.screenTitles.models,
-                              }}
-                            />
-                            <Drawer.Screen
-                              name={ROUTES.SETTINGS}
-                              component={gestureHandlerRootHOC(SettingsScreen)}
-                              options={{
-                                headerStyle: styles.headerWithoutDivider,
-                                title: currentL10n.screenTitles.settings,
-                              }}
-                            />
-                            <Drawer.Screen
-                              name={ROUTES.APP_INFO}
-                              component={gestureHandlerRootHOC(AboutScreen)}
-                              options={{
-                                headerStyle: styles.headerWithoutDivider,
-                                title: currentL10n.screenTitles.appInfo,
-                              }}
-                            />
+                          />
+                          <Drawer.Screen
+                            name={ROUTES.MODELS}
+                            component={gestureHandlerRootHOC(ModelsScreen)}
+                            options={{
+                              headerRight: () => <ModelsHeaderRight />,
+                              headerStyle: styles.headerWithoutDivider,
+                              title: currentL10n.screenTitles.models,
+                            }}
+                          />
+                          <Drawer.Screen
+                            name={ROUTES.SETTINGS}
+                            component={gestureHandlerRootHOC(SettingsScreen)}
+                            options={{
+                              headerStyle: styles.headerWithoutDivider,
+                              title: currentL10n.screenTitles.settings,
+                            }}
+                          />
+                          <Drawer.Screen
+                            name={ROUTES.APP_INFO}
+                            component={gestureHandlerRootHOC(AboutScreen)}
+                            options={{
+                              headerStyle: styles.headerWithoutDivider,
+                              title: currentL10n.screenTitles.appInfo,
+                            }}
+                          />
 
-                            {/* Only show Dev Tools screen in debug mode */}
-                            {isDebugMode && (
-                              <Drawer.Screen
-                                name={ROUTES.DEV_TOOLS}
-                                component={gestureHandlerRootHOC(
-                                  DevToolsScreen,
-                                )}
-                                options={{
-                                  headerStyle: styles.headerWithoutDivider,
-                                  title: 'Dev Tools',
-                                }}
-                              />
-                            )}
-
-                          </Drawer.Navigator>
-                        }
-                      />
-                      <DownloadOverlay />
-                      <HubRunSheetHost />
-                    </BottomSheetModalProvider>
+                          {/* Only show Dev Tools screen in debug mode */}
+                          {isDebugMode && (
+                            <Drawer.Screen
+                              name={ROUTES.DEV_TOOLS}
+                              component={gestureHandlerRootHOC(DevToolsScreen)}
+                              options={{
+                                headerStyle: styles.headerWithoutDivider,
+                                title: 'Dev Tools',
+                              }}
+                            />
+                          )}
+                        </Drawer.Navigator>
+                      }
+                    />
+                    <DownloadOverlay />
+                    <HubRunSheetHost />
+                  </BottomSheetModalProvider>
                 </NavigationContainer>
               </MarkdownProvider>
             </L10nContext.Provider>

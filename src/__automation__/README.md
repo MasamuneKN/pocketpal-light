@@ -80,11 +80,11 @@ by deep link only. See `BenchmarkRunnerScreen.tsx` as reference.
 
 ## Current adapters
 
-| Adapter | Purpose | Commands |
-|---------|---------|----------|
-| `MemoryAdapter` | Memory profile snapshots for the `memory-profile` spec | `snap::<label>`, `clear::snapshots`, `read::snapshots` |
-| `VoiceAdapter` | Forces voice-mode states on Android for visual captures | `unlock::on\|off\|plus`, `gate::on\|off`, `state::listening\|muted\|thinking\|speaking\|error\|bar\|closed`, `setup::incomplete\|complete`, `memory::tight\|wont-fit`, `seed::spoken`, `trace::dump\|clear` (see Voice trace) |
-| `IapAdapter` | Scripts the in-app purchase `FakeStore` on Android for the `iap-*` specs | `api::<base>`, `products::<id>=<price>\|...`, `next::<outcome>`, `approve_pending`, `decline_pending`, `refund::<id>`, `entitle::<id>`, `unfinished::<id>`, `unavailable`, `plus_ship::<featureId>[,<featureId>]\|none` (marks Plus features shipped; `reset` clears it), `reset`, `read` |
+| Adapter         | Purpose                                                                  | Commands                                                                                                                                                                                                                                                                                  |
+| --------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MemoryAdapter` | Memory profile snapshots for the `memory-profile` spec                   | `snap::<label>`, `clear::snapshots`, `read::snapshots`                                                                                                                                                                                                                                    |
+| `VoiceAdapter`  | Forces voice-mode states on Android for visual captures                  | `unlock::on\|off\|plus`, `gate::on\|off`, `state::listening\|muted\|thinking\|speaking\|error\|bar\|closed`, `setup::incomplete\|complete`, `memory::tight\|wont-fit`, `seed::spoken`, `trace::dump\|clear` (see Voice trace)                                                             |
+| `IapAdapter`    | Scripts the in-app purchase `FakeStore` on Android for the `iap-*` specs | `api::<base>`, `products::<id>=<price>\|...`, `next::<outcome>`, `approve_pending`, `decline_pending`, `refund::<id>`, `entitle::<id>`, `unfinished::<id>`, `unavailable`, `plus_ship::<featureId>[,<featureId>]\|none` (marks Plus features shipped; `reset` clears it), `reset`, `read` |
 
 ### Voice trace
 
@@ -118,10 +118,10 @@ Documents/voice-trace.txt --destination voice-trace.txt`.
 
 ## Screens
 
-| Screen | Purpose | Activation |
-|--------|---------|------------|
-| `BenchmarkRunnerScreen` | Drives the benchmark matrix in-app for the `benchmark-matrix` spec | Deep link `pocketpal://e2e/benchmark` (registered in `android/app/src/e2e/AndroidManifest.xml`); manual button tap to start |
-| `PlusTestFeatureScreen` | A locked feature behind Plus for the `iap-plus` spec: checks `isPlusUnlocked()`, else calls `openPlus({onUnlocked})` | Deep link `pocketpal://e2e/plus-feature` |
+| Screen                  | Purpose                                                                                                              | Activation                                                                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `BenchmarkRunnerScreen` | Drives the benchmark matrix in-app for the `benchmark-matrix` spec                                                   | Deep link `pocketpal://e2e/benchmark` (registered in `android/app/src/e2e/AndroidManifest.xml`); manual button tap to start |
+| `PlusTestFeatureScreen` | A locked feature behind Plus for the `iap-plus` spec: checks `isPlusUnlocked()`, else calls `openPlus({onUnlocked})` | Deep link `pocketpal://e2e/plus-feature`                                                                                    |
 
 ## Deep-link dispatcher
 

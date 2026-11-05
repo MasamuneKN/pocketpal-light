@@ -52,10 +52,7 @@ export const DownloadBanner: React.FC = observer(() => {
       : undefined;
   if (failedModel) {
     const failedTitle = l10n.downloadBanner.failedTitle;
-    const {subject: failedSubject} = ownerOf(
-      failedModel.id,
-      failedModel.name,
-    );
+    const {subject: failedSubject} = ownerOf(failedModel.id, failedModel.name);
     const activeCount = modelStore.activeDownloads.length;
     const failedLabel = [
       failedTitle,
@@ -79,9 +76,7 @@ export const DownloadBanner: React.FC = observer(() => {
           <View
             accessibilityElementsHidden
             importantForAccessibility="no-hide-descendants"
-            style={[
-              styles.avatar,
-            ]}
+            style={[styles.avatar]}
           />
           <View style={styles.content}>
             <Text style={[styles.title, styles.failedTitle]} numberOfLines={1}>
@@ -138,9 +133,7 @@ export const DownloadBanner: React.FC = observer(() => {
   }
 
   const {subject} = ownerOf(visible.modelId, visible.model.name);
-  const title = (
-    l10n.downloadBanner.titleByModel
-  ).replace('{{name}}', subject);
+  const title = l10n.downloadBanner.titleByModel.replace('{{name}}', subject);
   const eta = visible.etaLabel || formatSize(visible.bytesTotal);
   const clamped = Math.max(0, Math.min(100, visible.progress));
   const extraCount = Math.max(0, modelStore.activeDownloads.length - 1);
@@ -164,10 +157,7 @@ export const DownloadBanner: React.FC = observer(() => {
         <View
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
-          style={[
-            styles.avatar,
-            null,
-          ]}
+          style={[styles.avatar, null]}
         />
         <View style={styles.content}>
           <View style={styles.titleRow}>

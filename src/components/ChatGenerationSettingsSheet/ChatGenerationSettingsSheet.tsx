@@ -2,7 +2,10 @@ import React, {useContext, useEffect, useState} from 'react';
 import {Sheet} from '../Sheet/Sheet';
 import {CompletionSettings} from '../CompletionSettings';
 import {CompletionParams} from '../../utils/completionTypes';
-import {chatSessionStore, defaultCompletionSettings} from '../../store/ChatSessionStore';
+import {
+  chatSessionStore,
+  defaultCompletionSettings,
+} from '../../store/ChatSessionStore';
 import {modelStore} from '../../store/ModelStore';
 import {styles} from './styles';
 import {
@@ -102,7 +105,8 @@ const ChatGenerationSettingsSheetImpl = ({
   useEffect(() => {
     if (isVisible) {
       setSettings(
-        session?.completionSettings ?? chatSessionStore.newChatCompletionSettings,
+        session?.completionSettings ??
+          chatSessionStore.newChatCompletionSettings,
       );
     }
   }, [session, isVisible]);

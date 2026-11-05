@@ -1014,12 +1014,7 @@
         "total": "Łącznie: ",
         "usage": "Wykorzystanie: "
       },
-      "byteSizes": [
-        "Bajtów",
-        "KB",
-        "MB",
-        "GB"
-      ]
+      "byteSizes": ["Bajtów", "KB", "MB", "GB"]
     },
     "chatView": {
       "menuItems": {

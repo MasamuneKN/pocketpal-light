@@ -308,7 +308,6 @@ export const SettingsScreen: React.FC = observer(() => {
     // Otherwise, keep the user's current flash attention preference
   };
 
-
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <TouchableWithoutFeedback onPress={handleOutsidePress} accessible={false}>

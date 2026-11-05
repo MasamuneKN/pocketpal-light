@@ -5,7 +5,6 @@ import {SquarePalCard} from '../SquarePalCard';
 
 import {styles} from './styles';
 
-
 import type {PalGridItem, PalGridRowData} from '../../palGridLayout';
 
 interface PalGridRowProps {
@@ -24,10 +23,7 @@ export const PalGridRow: React.FC<PalGridRowProps> = ({
   <View style={styles.row}>
     {row.items.map(item => (
       <View key={item.id} style={[styles.cell, {width: cardWidth}]}>
-        <SquarePalCard
-          pal={item}
-          onPress={() => onPalPress(item)}
-        />
+        <SquarePalCard pal={item} onPress={() => onPalPress(item)} />
       </View>
     ))}
   </View>

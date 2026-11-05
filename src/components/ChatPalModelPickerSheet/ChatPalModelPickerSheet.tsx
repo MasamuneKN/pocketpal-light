@@ -67,14 +67,11 @@ export const ChatPalModelPickerSheet = observer(
     onModelSelect,
     chatInputHeight,
   }: ChatPalModelPickerSheetProps) => {
-      const theme = useTheme();
+    const theme = useTheme();
     const l10n = useContext(L10nContext);
     const styles = createStyles({theme});
 
-    const TABS = React.useMemo(
-      () => [{id: 'models' as const}],
-      [],
-    );
+    const TABS = React.useMemo(() => [{id: 'models' as const}], []);
 
     // Dismiss keyboard when sheet becomes visible
     useEffect(() => {

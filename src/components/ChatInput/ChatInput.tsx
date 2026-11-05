@@ -16,12 +16,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import {observer} from 'mobx-react';
 import {IconButton, Text} from 'react-native-paper';
 
-
-import {
-  ChevronUpIcon,
-  PlusIcon,
-  AtomIcon,
-} from '../../assets/icons';
+import {ChevronUpIcon, PlusIcon, AtomIcon} from '../../assets/icons';
 
 import {useTheme} from '../../hooks';
 
@@ -401,153 +396,150 @@ export const ChatInput = observer(
 
           {/* Control Bar (Bottom Row) */}
           <View style={styles.controlBar}>
-              {/* Left Controls */}
-              <View style={styles.leftControls}>
-                {/* Gallery image attachment */}
-                {showImageUpload && (
-                  <Menu
-                    visible={showImageUploadMenu}
-                    onDismiss={() => setShowImageUploadMenu(false)}
-                    anchorPosition="top"
-                    anchor={
-                      <TouchableOpacity
-                        style={styles.plusButton}
-                        disabled={!isPlusButtonEnabled}
-                        onPress={
-                          isPlusButtonEnabled ? handlePlusButtonPress : () => {}
-                        }
-                        accessibilityLabel="Add image"
-                        accessibilityRole="button">
-                        <PlusIcon width={20} height={20} stroke={plusColor} />
-                      </TouchableOpacity>
-                    }>
-                    <Menu.Item
-                      label={l10n.common?.gallery || 'Gallery'}
-                      icon="image"
-                      onPress={handleSelectImages}
-                    />
-                  </Menu>
-                )}
+            {/* Left Controls */}
+            <View style={styles.leftControls}>
+              {/* Gallery image attachment */}
+              {showImageUpload && (
+                <Menu
+                  visible={showImageUploadMenu}
+                  onDismiss={() => setShowImageUploadMenu(false)}
+                  anchorPosition="top"
+                  anchor={
+                    <TouchableOpacity
+                      style={styles.plusButton}
+                      disabled={!isPlusButtonEnabled}
+                      onPress={
+                        isPlusButtonEnabled ? handlePlusButtonPress : () => {}
+                      }
+                      accessibilityLabel="Add image"
+                      accessibilityRole="button">
+                      <PlusIcon width={20} height={20} stroke={plusColor} />
+                    </TouchableOpacity>
+                  }>
+                  <Menu.Item
+                    label={l10n.common?.gallery || 'Gallery'}
+                    icon="image"
+                    onPress={handleSelectImages}
+                  />
+                </Menu>
+              )}
 
-                {/* Model picker */}
-                <View testID="model-selector" style={styles.palSelector}>
-                  <TouchableOpacity
-                    style={[
-                      styles.palBtn,
-                      {
-                        backgroundColor:
-                          uiStore.colorScheme === 'dark'
-                            ? theme.colors.inverseOnSurface
-                            : theme.colors.inverseSurface,
-                      },
-                    ]}
-                    onPress={onModelPickerPress}
-                    accessibilityLabel="Select model"
-                    accessibilityRole="button">
-                    <Animated.View
-                      style={{
-                        transform: [{rotate: rotateInterpolate}],
-                      }}>
-                      <ChevronUpIcon stroke={inputBackgroundColor} />
-                    </Animated.View>
-                  </TouchableOpacity>
+              {/* Model picker */}
+              <View testID="model-selector" style={styles.palSelector}>
+                <TouchableOpacity
+                  style={[
+                    styles.palBtn,
+                    {
+                      backgroundColor:
+                        uiStore.colorScheme === 'dark'
+                          ? theme.colors.inverseOnSurface
+                          : theme.colors.inverseSurface,
+                    },
+                  ]}
+                  onPress={onModelPickerPress}
+                  accessibilityLabel="Select model"
+                  accessibilityRole="button">
+                  <Animated.View
+                    style={{
+                      transform: [{rotate: rotateInterpolate}],
+                    }}>
+                    <ChevronUpIcon stroke={inputBackgroundColor} />
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
 
-
-                </View>
-
-                {/* Thinking Toggle Button. Graded models (axis-2) cycle
+              {/* Thinking Toggle Button. Graded models (axis-2) cycle
                   off -> low -> medium -> high; effortless models toggle
                   on/off. The label shows the current effort when graded. */}
-                {showThinkingToggle && (
-                  <TouchableOpacity
-                    testID="thinking-toggle"
+              {showThinkingToggle && (
+                <TouchableOpacity
+                  testID="thinking-toggle"
+                  style={[
+                    styles.thinkingToggleLeft,
+                    isThinkingEnabled && {backgroundColor: onSurfaceColor},
+                    {borderColor: onSurfaceColorVariant},
+                  ]}
+                  onPress={() =>
+                    supportsEffort && effortValues.length > 0
+                      ? onEffortCycle?.()
+                      : onThinkingToggle?.(!isThinkingEnabled)
+                  }
+                  accessibilityLabel={
+                    supportsEffort && effortValues.length > 0
+                      ? t(
+                          l10n.components.chatInput.thinkingToggle.cycleEffort,
+                          {
+                            level: localizedEffort ?? '',
+                          },
+                        )
+                      : isThinkingEnabled
+                        ? l10n.components.chatInput.thinkingToggle
+                            .disableThinking
+                        : l10n.components.chatInput.thinkingToggle
+                            .enableThinking
+                  }
+                  accessibilityRole="button">
+                  <AtomIcon
+                    width={14}
+                    height={14}
+                    stroke={
+                      isThinkingEnabled
+                        ? inputBackgroundColor
+                        : onSurfaceColorVariant
+                    }
+                    strokeWidth={2}
+                  />
+                  <Text
+                    testID="thinking-toggle-label"
+                    numberOfLines={1}
                     style={[
-                      styles.thinkingToggleLeft,
-                      isThinkingEnabled && {backgroundColor: onSurfaceColor},
-                      {borderColor: onSurfaceColorVariant},
-                    ]}
-                    onPress={() =>
-                      supportsEffort && effortValues.length > 0
-                        ? onEffortCycle?.()
-                        : onThinkingToggle?.(!isThinkingEnabled)
-                    }
-                    accessibilityLabel={
-                      supportsEffort && effortValues.length > 0
-                        ? t(
-                            l10n.components.chatInput.thinkingToggle
-                              .cycleEffort,
-                            {
-                              level: localizedEffort ?? '',
-                            },
-                          )
-                        : isThinkingEnabled
-                          ? l10n.components.chatInput.thinkingToggle
-                              .disableThinking
-                          : l10n.components.chatInput.thinkingToggle
-                              .enableThinking
-                    }
-                    accessibilityRole="button">
-                    <AtomIcon
-                      width={14}
-                      height={14}
-                      stroke={
-                        isThinkingEnabled
-                          ? inputBackgroundColor
-                          : onSurfaceColorVariant
-                      }
-                      strokeWidth={2}
+                      styles.thinkingToggleText,
+                      isThinkingEnabled
+                        ? {color: inputBackgroundColor}
+                        : {color: onSurfaceColorVariant},
+                    ]}>
+                    {supportsEffort && isThinkingEnabled && reasoningEffort
+                      ? localizedEffort
+                      : l10n.components.chatInput.thinkingToggle.thinkText}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Right Controls */}
+            <View style={styles.rightControls}>
+              {/* Helper text for model not loaded */}
+              {showModelWarning && !hasActiveModel && (
+                <View style={styles.helperTextContainer}>
+                  <Text variant="bodySmall" style={styles.helperText}>
+                    {l10n.chat.cannotSendWithoutModel}
+                  </Text>
+                </View>
+              )}
+
+              {/* Send/Stop Button */}
+              {isStopVisible ? (
+                <StopButton color={onSurfaceColor} onPress={onStopPress} />
+              ) : (
+                isSendButtonVisible && (
+                  <View
+                    style={{opacity: sendButtonOpacity}}
+                    pointerEvents="box-none">
+                    <SendButton
+                      color={onSurfaceColor}
+                      onPress={handleSend}
+                      touchableOpacityProps={{
+                        disabled: isStopping,
+                        accessibilityState: {disabled: isStopping},
+                      }}
                     />
-                    <Text
-                      testID="thinking-toggle-label"
-                      numberOfLines={1}
-                      style={[
-                        styles.thinkingToggleText,
-                        isThinkingEnabled
-                          ? {color: inputBackgroundColor}
-                          : {color: onSurfaceColorVariant},
-                      ]}>
-                      {supportsEffort && isThinkingEnabled && reasoningEffort
-                        ? localizedEffort
-                        : l10n.components.chatInput.thinkingToggle.thinkText}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              {/* Right Controls */}
-              <View style={styles.rightControls}>
-                {/* Helper text for model not loaded */}
-                {showModelWarning && !hasActiveModel && (
-                  <View style={styles.helperTextContainer}>
-                    <Text variant="bodySmall" style={styles.helperText}>
-                      {l10n.chat.cannotSendWithoutModel}
-                    </Text>
                   </View>
-                )}
-
-                {/* Send/Stop Button */}
-                {isStopVisible ? (
-                  <StopButton color={onSurfaceColor} onPress={onStopPress} />
-                ) : (
-                  isSendButtonVisible && (
-                    <View
-                      style={{opacity: sendButtonOpacity}}
-                      pointerEvents="box-none">
-                      <SendButton
-                        color={onSurfaceColor}
-                        onPress={handleSend}
-                        touchableOpacityProps={{
-                          disabled: isStopping,
-                          accessibilityState: {disabled: isStopping},
-                        }}
-                      />
-                    </View>
-                  )
-                )}
-              </View>
+                )
+              )}
             </View>
           </View>
         </View>
+      </View>
     );
   },
 );

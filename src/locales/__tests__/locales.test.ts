@@ -15,7 +15,7 @@ describe('English-only locale bundle', () => {
   it('exposes English as the only supported language', () => {
     expect(supportedLanguages).toEqual(['en']);
     expect(Object.keys(l10n)).toEqual(['en']);
-    expect(languageDisplayNames).toEqual({'en': 'English (EN)'});
+    expect(languageDisplayNames).toEqual({en: 'English (EN)'});
   });
 
   it('uses the bundled English translations without copying them', () => {
@@ -43,9 +43,7 @@ describe('t() interpolation helper', () => {
   });
 
   it('preserves missing placeholders and handles zero', () => {
-    expect(t('{{name}} has {{count}}', {count: 0})).toBe(
-      '{{name}} has 0',
-    );
+    expect(t('{{name}} has {{count}}', {count: 0})).toBe('{{name}} has 0');
   });
 });
 

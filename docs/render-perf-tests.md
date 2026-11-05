@@ -22,18 +22,18 @@ yarn test:perf:compare [base]  # measure base, then HEAD, then apply the render-
 
 ## Reading the result
 
-| Result | Job |
-| --- | --- |
-| A scenario's render count went up | fails |
-| A scenario's render count differs between its runs | fails |
-| Two scenarios share a name (when the base has no perf tests) | fails |
-| The base was measured but no comparison was produced | fails |
-| A perf test failed on the base or on your branch | fails (`run-failed`), see the job log |
+| Result                                                                                                                         | Job                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| A scenario's render count went up                                                                                              | fails                                                                                |
+| A scenario's render count differs between its runs                                                                             | fails                                                                                |
+| Two scenarios share a name (when the base has no perf tests)                                                                   | fails                                                                                |
+| The base was measured but no comparison was produced                                                                           | fails                                                                                |
+| A perf test failed on the base or on your branch                                                                               | fails (`run-failed`), see the job log                                                |
 | Reassure's output format changed, or a scenario measured on both sides is reported as added or removed (`unrecognised-output`) | fails: the gate fails closed rather than read an unknown format or skip a comparison |
-| Render count went down, or stayed the same | passes |
-| Duration changed with an equal render count | passes (informational) |
-| Scenario added, removed or renamed | passes (not compared) |
-| The base has no perf tests yet | passes, lists your counts |
+| Render count went down, or stayed the same                                                                                     | passes                                                                               |
+| Duration changed with an equal render count                                                                                    | passes (informational)                                                               |
+| Scenario added, removed or renamed                                                                                             | passes (not compared)                                                                |
+| The base has no perf tests yet                                                                                                 | passes, lists your counts                                                            |
 
 The summary starts with the gate's heading and verdict; on failure, a link to this section follows. A failed run (`run-failed`) uses the same heading and verdict line, followed by its cause. When the pull request changes perf tests or their Jest setup (`*.perf-test.tsx`, `jest/`, `__mocks__/`, `jest.config.js`, `babel.config.js`), a note says that count changes may come from the tests themselves; the verdict is unchanged. Reassure's own report is folded at the end, under "Reassure report (durations are informational)".
 
@@ -88,11 +88,11 @@ it('expands the advanced settings', async () => {
 
 ## Current scenarios
 
-| File | Interaction |
-| --- | --- |
-| `src/components/Sheet/__tests__/Sheet.perf-test.tsx` | open and close a `Sheet` from its owner's state |
-| `src/components/ChatPalModelPickerSheet/__tests__/ChatPalModelPickerSheet.perf-test.tsx` | open and close the pal/model picker from the chat input's Select Pal button; the count includes the chat view's own toggle |
-| `src/components/ChatView/__tests__/ChatView.typing.perf-test.tsx` | type ten characters into the chat input |
-| `src/components/ChatView/__tests__/ChatView.streaming.perf-test.tsx` | stream twenty tokens into the newest assistant turn, written the way `ChatSessionStore` writes them; the store's 30 ms streaming throttle is upstream of the view and not exercised |
-| `src/screens/ModelsScreen/__tests__/ModelsScreen.perf-test.tsx` | filter the model list to downloaded models |
-| `src/screens/SettingsScreen/__tests__/SettingsScreen.perf-test.tsx` | expand the advanced settings |
+| File                                                                                     | Interaction                                                                                                                                                                         |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/components/Sheet/__tests__/Sheet.perf-test.tsx`                                     | open and close a `Sheet` from its owner's state                                                                                                                                     |
+| `src/components/ChatPalModelPickerSheet/__tests__/ChatPalModelPickerSheet.perf-test.tsx` | open and close the pal/model picker from the chat input's Select Pal button; the count includes the chat view's own toggle                                                          |
+| `src/components/ChatView/__tests__/ChatView.typing.perf-test.tsx`                        | type ten characters into the chat input                                                                                                                                             |
+| `src/components/ChatView/__tests__/ChatView.streaming.perf-test.tsx`                     | stream twenty tokens into the newest assistant turn, written the way `ChatSessionStore` writes them; the store's 30 ms streaming throttle is upstream of the view and not exercised |
+| `src/screens/ModelsScreen/__tests__/ModelsScreen.perf-test.tsx`                          | filter the model list to downloaded models                                                                                                                                          |
+| `src/screens/SettingsScreen/__tests__/SettingsScreen.perf-test.tsx`                      | expand the advanced settings                                                                                                                                                        |

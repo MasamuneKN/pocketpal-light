@@ -9,7 +9,9 @@ interface BottomActionBarProps {
   onCreatePal: (type: 'assistant' | 'roleplay' | 'video') => void;
 }
 
-export const BottomActionBar: React.FC<BottomActionBarProps> = ({onCreatePal}) => {
+export const BottomActionBar: React.FC<BottomActionBarProps> = ({
+  onCreatePal,
+}) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const styles = createStyles(theme, insets);
