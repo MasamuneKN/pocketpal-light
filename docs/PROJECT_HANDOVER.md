@@ -325,3 +325,34 @@ No local Jest, lint, typecheck, or Android build was run in this session. The An
 6. Physical-device checks remain outstanding: installation/launch, model download/import, persistence after restart, local inference, gallery selection, and offline inference.
 
 No physical-device verification was performed. No production source, dependencies, or lockfile were changed in this session.
+
+## 16. Verified session update — 2026-11-06 (CI rerun and formatting workflow)
+
+### Latest repository state
+
+- Live `main` HEAD before this note: `f1a84f92057c9a152f2f71755a4bd67a52133c29` — `chore: apply repository Prettier formatting`.
+- This formatting commit changes only `src/components/ChatGenerationSettingsSheet/__tests__/ChatGenerationSettingsSheet.serverDefaults.test.tsx`, collapsing a multi-line array to the repository's Prettier form. The functional test fixture correction remains unchanged.
+- Feature branch remains at `69400451b2036ee1066a68cae37d186ce8e3d0d8`; compare remains diverged, 7 ahead / 21 behind, merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`.
+
+### Formatting workflow incident and recovery
+
+- [Format/validate #39](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42118135272) failed at its commit step, not during formatting or dependency installation. Prettier completed successfully; the runner's push was rejected with `[rejected] HEAD -> main (fetch first)` because the handover update had advanced `main` after that runner checked it out. No remote commit was overwritten and no force-push was attempted.
+- [Format/validate #40](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42118350795) subsequently completed **successfully**. It committed the one-file formatting correction as `f1a84f92057c9a152f2f71755a4bd67a52133c29` and dispatched fresh validation.
+- CI #169 was cancelled while the repository advanced. CI #170 is running against the handover commit `f7fc8ff950102fccd5750a2630133e63008a70d1`; CI #171 is queued against the current formatting commit `f1a84f92057c9a152f2f71755a4bd67a52133c29`.
+- Android APK #159 is in progress against `f1a84f92057c9a152f2f71755a4bd67a52133c29`. Earlier APK runs #157 and #158 were cancelled while main advanced; do not count them as verification.
+
+### Verification status
+
+- The three targeted Jest test corrections from commits `0696880fafa617fb47c0bf700be72f9508462058` and `f7a89f4d401510fd34c887d8608ab7ff237f3994` have **not yet received a completed Jest result**. CI #169 was cancelled before its test outcome; CI #170 had not completed when this note was written, and #171 was queued.
+- Format/validate #40 passed, including locked dependency installation and Prettier formatting.
+- The last completed Android release evidence remains APK #154 success on the earlier code SHA `48b503f4424ef585058d56bd520f0f9121761002`. Current APK #159 remains in progress.
+- No local lint, TypeScript, Jest, or Android build was run. No physical-device verification, dependency changes, or lockfile regeneration was performed.
+
+### Next actions
+
+1. Fetch the final outcomes and logs for CI #170/#171 and Android APK #159. Prefer the latest completed run on the current main SHA.
+2. Confirm whether the ModelStore remote-vision fixture, ServerStore hydration/fetch test, and ChatGenerationSettingsSheet remote-server fixture now pass.
+3. Continue failure triage from the remaining retained-feature regressions; coordinate Plus/voice/Pals test retirement with production and workflow cleanup.
+4. Keep the feature branch untouched until its remaining Plus-gate Gradle difference is reviewed alongside the verifier/workflow contract.
+5. Complete dependency reachability analysis and regenerate `yarn.lock` only with Yarn Classic 1.22.22 in a clean environment.
+6. Physical-device verification remains outstanding for model download/import, persistence, local inference, gallery selection, and offline operation.
