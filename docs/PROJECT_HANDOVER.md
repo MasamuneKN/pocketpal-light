@@ -174,7 +174,6 @@ Keep historical notes factual. When a previous status becomes stale, replace it 
 2. Obtain the actual latest Actions run list and inspect failed job logs; do not infer status from empty commit-status responses.
 3. Continue the dependency/native configuration audit, retaining local inference, model downloads, persistence, and gallery selection while removing only proven-unreachable features.
 
-
 ## 12. Verified session review — 2026-11-05 (latest live repository state)
 
 ### Branch state and history
