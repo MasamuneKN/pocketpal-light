@@ -283,3 +283,45 @@ No local Jest, lint, typecheck, or Android build was run in this session. The An
 - No physical-device tests were performed. Model download, persistence across restart, local inference, gallery selection, and offline inference remain unverified.
 - No production source code was changed in this continuation; only the ChatHeaderTitle test fixture was updated.
 - Next: inspect outcomes of CI #163 / Android #151; use the new Jest report to classify failures by retained-feature regression, invalid test fixture, or intentionally retired functionality. Continue ModelStore/ServerStore repair first, then coordinate Plus/voice/Pals removal and dependency audit.
+
+## 15. Verified session update — 2026-11-06 (repository refresh and test-fixture corrections)
+
+### Live repository and branch state
+
+- Live `main` HEAD at the start of this work: `48b503f4424ef585058d56bd520f0f9121761002` (`chore: apply repository Prettier formatting`). Current session commits: `0696880fafa617fb47c0bf700be72f9508462058` and `f7a89f4d401510fd34c887d8608ab7ff237f3994`.
+- `refactor/remove-unreachable-features` remains at `69400451b2036ee1066a68cae37d186ce8e3d0d8`.
+- Fresh compare after the two commits: branches diverged; feature branch is 7 commits ahead and 21 behind. Merge base remains `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`. No merge, cherry-pick, reset, force-push, or branch rewrite was performed.
+- The visible feature-branch Gradle difference removes the `PLUS_STORE_GATE` Hermes task input. The verifier script remains present; do not integrate the Gradle change in isolation until the gate's workflow/build contract is retired together. The feature branch's remaining mock changes were not adopted in this session.
+
+### Latest Actions evidence before the final test commit
+
+- [CI Pipeline #166](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42106049889), on `48b503f4424ef585058d56bd520f0f9121761002`, completed failure: ESLint and TypeScript passed; Jest failed with 406 failed / 8,669 tests, 2 skipped, 8,261 passed, across 61 failed / 428 suites. The CI Android job was skipped.
+- [Android APK #154](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42106053906), on the same SHA, completed success. All 12 steps passed, including optimized release APK build and artifact upload.
+- Failure-log inspection confirmed one ModelStore remote-vision test supplied a remote model through the persisted local-model array instead of `ServerStore.userSelectedModels`; one ServerStore test expected a model-list fetch from `afterHydration()` even though that method only normalizes hydrated server types; and one ChatGenerationSettingsSheet test constructed a remote model without registering its server/selected-model relationship.
+
+### Test corrections committed
+
+- `0696880fafa617fb47c0bf700be72f9508462058` — `test(stores): align remote model fixtures with store contract`.
+  - `src/store/__tests__/ModelStore.test.ts`: remote vision fixture now registers the remote model through `serverStore.userSelectedModels` and clears that state after the test. This matches `ModelStore.remoteModels` and `activeModel` resolution.
+  - `src/store/__tests__/ServerStore.test.ts`: the hydration test now explicitly calls `fetchModelsForServer('srv-1')` after `afterHydration()`, so it verifies the normalized type is seen by the first actual fetch rather than expecting hydration itself to fetch.
+- `f7a89f4d401510fd34c887d8608ab7ff237f3994` — `test(chat-settings): configure selected remote server fixture`.
+  - `src/components/ChatGenerationSettingsSheet/__tests__/ChatGenerationSettingsSheet.serverDefaults.test.tsx`: fixture now registers both the server and selected remote model, and restores the prior store state after each test.
+- These are test-fixture/contract corrections only. Assertions were retained; no production behavior was changed. No local Jest execution was available, so these corrections are **not yet verified as passing**.
+
+### Actions triggered by the latest code commit
+
+- [CI Pipeline #169](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42118196023) on `f7a89f4d401510fd34c887d8608ab7ff237f3994` was in progress when this note was written. Its `build-and-test` job had started; the Jest outcome was not yet available.
+- [Format and validate #39](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42118135272) was in progress.
+- [Android APK #157](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42118199597) was in progress.
+- Earlier runs #167/#168 and Android #155/#156 were superseded/cancelled while new commits were pushed; do not treat those as verification.
+
+### Remaining work and next actions
+
+1. Retrieve final outcomes and logs for CI #169, format/validate #39, and Android APK #157. Verify whether the three corrected test cases pass.
+2. Continue classifying Jest failures by retained-feature regression, invalid test setup, and explicitly retired functionality. Do not bulk-delete tests or weaken assertions.
+3. Continue tracing Plus, purchases, voice, and Pals from navigation through services, native configuration, tests, and workflows before deleting shared code.
+4. Reconcile the feature branch selectively; it remains diverged and must not be merged wholesale.
+5. Audit dependency reachability and regenerate `yarn.lock` with Yarn Classic 1.22.22 in a clean environment. No package or lockfile changes were made.
+6. Physical-device checks remain outstanding: installation/launch, model download/import, persistence after restart, local inference, gallery selection, and offline inference.
+
+No physical-device verification was performed. No production source, dependencies, or lockfile were changed in this session.
