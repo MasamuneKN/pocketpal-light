@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import {View, FlatList, TextInput, useWindowDimensions} from 'react-native';
 import {Text} from 'react-native-paper';
 import {observer} from 'mobx-react-lite';
@@ -29,16 +29,16 @@ export const PalsScreen: React.FC = observer(() => {
   const [showPalSheet, setShowPalSheet] = useState(false);
   const [currentPal, setCurrentPal] = useState<Partial<Pal> | null>(null);
 
-  const pals = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return palStore.getLocalPals().filter(pal => {
-      const matchesQuery =
-        !normalizedQuery ||
-        pal.name.toLowerCase().includes(normalizedQuery) ||
-        (pal.description ?? '').toLowerCase().includes(normalizedQuery);
-      return matchesQuery && (!videoOnly || hasVideoCapability(pal));
-    });
-  }, [query, videoOnly, palStore.pals.length, palStore.ready]);
+  // Read the observable store directly during render so MobX updates
+  // refresh the filtered list without invalid useMemo dependencies.
+  const normalizedQuery = query.trim().toLowerCase();
+  const pals = palStore.getLocalPals().filter(pal => {
+    const matchesQuery =
+      !normalizedQuery ||
+      pal.name.toLowerCase().includes(normalizedQuery) ||
+      (pal.description ?? '').toLowerCase().includes(normalizedQuery);
+    return matchesQuery && (!videoOnly || hasVideoCapability(pal));
+  });
 
   const handleCreatePal = (type: 'assistant' | 'roleplay' | 'video') => {
     const newPal =
