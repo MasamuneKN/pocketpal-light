@@ -483,14 +483,8 @@ class ChatSessionStore {
         await this.addMessageToSession(session.id, message);
       }
     } else {
-      // Resolve settings using the selected settings source so the
-      // session snapshot matches what the model actually receives
-      const palIdForSettings =
-        this.newChatSettingsSource === 'pal' ? this.newChatPalId : undefined;
-      const settings = await this.resolveCompletionSettings(
-        undefined,
-        palIdForSettings,
-      );
+      // PocketPal Lite uses local global/session settings only.
+      const settings = await this.resolveCompletionSettings();
       await this.createNewSession(NEW_SESSION_TITLE, [message], settings);
       const created = this.sessions.find(s => s.id === this.activeSessionId);
       if (created?.messages[0]) {
