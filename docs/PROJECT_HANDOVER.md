@@ -157,7 +157,6 @@ Update this file after each major milestone. Include:
 
 Keep historical notes factual. When a previous status becomes stale, replace it with the newly verified state rather than silently carrying forward old assumptions.
 
-
 ## 11. Verified status review — 2026-11-05
 
 - Current `main` HEAD observed: `6067fe12e8cf267c779780d9b60a8efe4288d019` (handover-document commit).
