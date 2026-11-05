@@ -117,6 +117,8 @@ class ServerStore {
     }).then(() => {
       this.afterHydration();
     });
+
+    this.setupAppStateListener();
   }
 
   /**
