@@ -12,6 +12,9 @@ const URL = 'http://localhost:8080';
 
 const startSession = (serverType: ServerType) => {
   runInAction(() => {
+    serverStore.servers = [
+      {id: 'srv-1', name: 'llama', url: URL, serverType},
+    ];
     serverStore.userSelectedModels = [
       {serverId: 'srv-1', remoteModelId: 'remote-model'},
     ];
@@ -32,11 +35,13 @@ const startSession = (serverType: ServerType) => {
 describe('ChatGenerationSettingsSheet server defaults', () => {
   const models = modelStore.models;
   const selectedModels = serverStore.userSelectedModels;
+  const servers = serverStore.servers;
 
   afterEach(() => {
     runInAction(() => {
       modelStore.models = models;
       serverStore.userSelectedModels = selectedModels;
+      serverStore.servers = servers;
       modelStore.activeModelId = undefined;
       modelStore.activeRemoteBinding = undefined;
       serverStore.remoteCaps = {};
