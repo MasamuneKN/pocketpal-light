@@ -548,7 +548,6 @@ export const ChatInput = observer(
             </View>
           </View>
         </View>
-      </View>
     );
   },
 );
