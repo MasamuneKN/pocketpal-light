@@ -1,5 +1,5 @@
-import React, {useContext, useEffect} from 'react';
-import {Dimensions, View, Keyboard} from 'react-native';
+import React, {useEffect} from 'react';
+import {Dimensions, View, Keyboard, Pressable} from 'react-native';
 import {observer} from 'mobx-react';
 import {Text} from 'react-native-paper';
 import BottomSheet, {
@@ -12,8 +12,7 @@ import {createStyles} from './styles';
 import {modelStore} from '../../store/ModelStore';
 import {CustomBackdrop} from '../Sheet/CustomBackdrop';
 import {SheetBackground} from '../Sheet/SheetBackground';
-import {getModelSkills, L10nContext, Model} from '../../utils';
-import {t} from '../../locales';
+import {getModelSkills, Model} from '../../utils';
 import {SkillsDisplay} from '../SkillsDisplay';
 
 interface ChatPalModelPickerSheetProps {
@@ -68,7 +67,6 @@ export const ChatPalModelPickerSheet = observer(
     chatInputHeight,
   }: ChatPalModelPickerSheetProps) => {
     const theme = useTheme();
-    const l10n = useContext(L10nContext);
     const styles = createStyles({theme});
 
     const TABS = React.useMemo(() => [{id: 'models' as const}], []);
@@ -137,7 +135,7 @@ export const ChatPalModelPickerSheet = observer(
     );
 
     const renderContent = React.useCallback(
-      ({item}: {item: (typeof TABS)[0]}) => (
+      () => (
         <View style={{width: Dimensions.get('window').width}}>
           <BottomSheetScrollView
             contentContainerStyle={{paddingBottom: chatInputHeight + 66}}>
