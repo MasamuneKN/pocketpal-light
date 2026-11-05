@@ -80,13 +80,14 @@ export const ChatScreen: React.FC = observer(() => {
   }, []);
 
   const visionEnabled = modelStore.activeModelCaps.visionActive;
+  const chatCovered = false;
 
   // Resolver is the single source of truth for reasoning capability.
   // Pill is reachable whenever the model is not known to be non-reasoning
   // (fail-open on 'unknown' so remote + missed-local models are reachable).
   const reasoningCapability = resolveReasoningCapability(
     modelStore.activeModel,
-    undefined,
+    {},
   );
   const thinkingSupported =
     !!modelStore.activeModel && reasoningCapability.isReasoning !== 'no';
