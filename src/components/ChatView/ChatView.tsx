@@ -55,11 +55,7 @@ import {modelStore} from '../../store/ModelStore';
 import type {UndoneSend} from '../../hooks/useChatSession';
 
 import {MessageType, User} from '../../utils/types';
-import {
-  calculateChatMessages,
-  unwrap,
-  UserContext,
-} from '../../utils';
+import {calculateChatMessages, unwrap, UserContext} from '../../utils';
 
 import {Message} from '../Message';
 import type {MessageTopLevelProps} from '../Message';
