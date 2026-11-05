@@ -1,6 +1,8 @@
 import {downloadingModel} from '../../jest/fixtures/models';
 
 export const downloadManager = {
+  // Match the production DownloadManager contract used by ModelStore tests.
+  activeJobs: [],
   isDownloading: jest.fn().mockImplementation(modelId => {
     // Return true for specific model IDs that should be "downloading"
     return modelId === downloadingModel.id;
