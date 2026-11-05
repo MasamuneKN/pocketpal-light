@@ -206,3 +206,39 @@ Keep historical notes factual. When a previous status becomes stale, replace it 
 - Not verified in this session: local clean install, full test reproduction, APK extraction/checksum, physical-device install/launch, model download/restart/inference, persistence, gallery flow, or offline inference.
 - No code, dependency, or lockfile changes were made. `yarn.lock` was not regenerated.
 - Next: obtain a focused failure inventory from CI logs; group the 407 failures by shared mock/setup drift versus real retained-feature regressions versus explicitly retired-feature tests. Inspect and repair the model/download mock and ModelStore/ServerStore failures first. Then reconcile the 7 branch-only commits against the 12 main-only commits selectively, audit feature reachability and Android build/workflow coupling, and only then remove obsolete packages and regenerate the lockfile with Yarn 1.22.22.
+
+## 13. Verified session update — 2026-11-06
+
+### Live repository and branch state
+
+- Latest main commit created during this session: de4638c2861921a006adb5817305799369820ff8 — test(model-store): mark active model fixture as available.
+- Before this commit, GitHub compare reported main at f4d4e314b7c5f088471e24b35a8b620a156a851e, with refactor/remove-unreachable-features 7 commits ahead and 14 behind; merge base ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf. Refresh the comparison after this main-branch commit before any integration decision.
+- Both branches still exist. No merge, reset, force-push, or feature-branch rewrite was performed.
+
+### CI results retrieved
+
+- Previously pending CI Pipeline run #158 (run ID 42079174054) completed failure. Install, localization validation, font validation, ESLint, and TypeScript checks passed; Jest failed. Summary: 61 failed / 428 suites; 407 failed / 8,669 tests; 2 skipped; 8,260 passed; 310 snapshots passed. The dependent Android job was skipped.
+- Previously pending Android APK run #146 (run ID 42079178109) completed success. All 12 build steps passed, including optimized release APK build and artifact upload.
+- Run URLs: https://github.com/MasamuneKN/pocketpal-light/actions/runs/42079174054 and https://github.com/MasamuneKN/pocketpal-light/actions/runs/42079178109.
+- These are the latest specific run IDs retrieved from the preceding session. A repository-wide latest-run listing was not available through the connected GitHub actions in this session; do not claim no newer runs exist.
+
+### Test correction committed
+
+- Inspected src/store/ModelStore.ts: activeModel resolves through availableModels, which deliberately includes only local/imported or downloaded models plus remote models.
+- The failing should return correct active model test used presetModelFixture with isDownloaded false, isLocal false, and preset origin. The fixture therefore represented a model excluded by the production availability contract.
+- Corrected only the test setup to use {...presetModelFixture, isDownloaded: true}, retaining the original assertion. This aligns the test fixture with the behavior being tested; no production behavior or assertion was weakened.
+- Commit: de4638c2861921a006adb5817305799369820ff8.
+- GitHub commit fetch confirmed the exact one-file diff and the updated test content on main.
+- The focused Jest test and full suite have not yet been rerun. This change is committed but not yet verified by CI.
+
+### Outstanding work
+
+1. Re-fetch current main and feature-branch heads; refresh compare counts after the test correction commit.
+2. Retrieve the CI run triggered by de4638c2861921a006adb5817305799369820ff8 when available and inspect its focused test outcome.
+3. Continue classifying ModelStore/ServerStore failures; do not assume the single fixture correction resolves the rest of the 407 failures.
+4. Audit feature-branch commits and reconcile selectively.
+5. Remove unreachable Plus, voice, and Pals paths only after tracing shared code, native configuration, workflows, and tests.
+6. Audit dependencies and regenerate yarn.lock using Yarn 1.22.22; no dependency or lockfile changes have been made.
+7. Physical-device verification remains outstanding: model download, restart persistence, local inference, gallery selection, and offline inference.
+
+No local Jest, lint, typecheck, or Android build was run in this session. The Android success above is GitHub Actions evidence only; no new device verification was performed.
