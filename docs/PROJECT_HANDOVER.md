@@ -173,3 +173,37 @@ Keep historical notes factual. When a previous status becomes stale, replace it 
 1. Inspect the 7 feature-branch-only commits and the one main-only commit, then decide how to integrate without losing either side's work.
 2. Obtain the actual latest Actions run list and inspect failed job logs; do not infer status from empty commit-status responses.
 3. Continue the dependency/native configuration audit, retaining local inference, model downloads, persistence, and gallery selection while removing only proven-unreachable features.
+
+
+## 12. Verified session review — 2026-11-05 (latest live repository state)
+
+### Branch state and history
+
+- Live `main` HEAD: `68e2e2ba11c8a7466300a983e70eab6baddd5cc7` — `fix(model-store): resolve active remote models`.
+- Live `refactor/remove-unreachable-features` HEAD: `69400451b2036ee1066a68cae37d186ce8e3d0d8` — `fix(test): format model store mock for Prettier`.
+- GitHub compare `main...refactor/remove-unreachable-features`: **diverged**, feature branch 7 commits ahead and 12 commits behind; merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`.
+- The 7 feature-branch commits are the two retired-search/voice test cleanup commits, obsolete search barrel removal, two model/download mock updates, and Plus-gate cleanup attempts. The current feature-branch diff against main touches `__mocks__/services/downloads.ts`, `__mocks__/stores/modelStore.ts`, `android/app/build.gradle`, and `scripts/verify-plus-gate.sh`. Do not merge, reset, or cherry-pick wholesale: main has 12 later commits, including Jest setup/config fixes and model/server-store fixes.
+- Main's 12 commits since the merge base change the two shared mocks, Jest config/setup, `ModelStore.ts`, `ServerStore.ts`, and add this handover. No source changes were made in this review.
+
+### Latest GitHub Actions evidence
+
+- Latest listed run at review time: [CI Pipeline #156](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42062516024), run ID `42062516024`, on main SHA `68e2e2ba11c8a7466300a983e70eab6baddd5cc7`, completed **failure**.
+- Job `build-and-test` failed at **Run unit tests**. The preceding install, localization validation, font validation, ESLint, and TypeScript typecheck steps all completed successfully. Test output: **61 failed / 428 suites; 407 failed / 8,669 tests; 2 skipped; 8,260 passed; 310 snapshots passed**.
+- Failure logs show broad failures across retained and retired areas, including ModelStore/ServerStore, chat/model screens and components, navigation/header tests, script tests, Pals/Plus/voice-related tests, and system-prompt talent tests. Example stale test assumption: `HeaderLeft.test.tsx` calls a mocked `useFocusEffect` even though current `HeaderLeft.tsx` no longer imports or invokes it. This is a confirmed mismatch in that test, not an explanation for all 407 failures. Do not bulk-delete tests or weaken assertions; inspect failures by root cause and retain coverage for local inference, downloads, persistence, and gallery selection.
+- Latest listed Android run: [Build PocketPal Android APK #144](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42062521516), run ID `42062521516`, same main SHA, completed **success**. All 16 build-job steps passed, including Android SDK setup, Yarn frozen-lockfile install, optimized `assembleProdRelease`, diagnostics upload, and APK upload.
+- APK artifact `PocketPal-Android-APK`: 70,991,592 bytes; artifact archive digest `sha256:54d86e13d5a7aff02c610800c923331d74346930e8323c35b381b671ec9f5637`. This is the GitHub artifact archive digest, **not** a verified APK file checksum. Artifact expires 2026-11-12. Build diagnostics artifact digest: `sha256:85fd83edc95a5fc1f2cdd41ee1c5a9b7d45790f40e6aaf97945b38308679eb85`.
+- The CI workflow currently has an Android build job dependent on the test job, so the Android job was skipped in failed CI run #156. The separate Android APK workflow succeeded. iOS CI job is explicitly disabled with `if: false`.
+
+### Source/configuration observations
+
+- Current `package.json` still includes iOS scripts and dependencies named for voice/speech, IAP, camera, Firebase, Supabase, and other broad PocketPal features. Names alone do not establish reachability; perform an import/native/codegen audit before removing dependencies.
+- Current Android manifest does not declare camera permissions and uses no camera capture activity/service. It retains INTERNET for model downloads and older-device external-storage permissions (max SDK 28) for legacy session storage.
+- Current `android/app/build.gradle` still wires the Plus-gate environment input into Hermes bundle task inputs. The Android release workflow also still runs `scripts/verify-plus-gate.sh`; deleting that verifier before updating the workflow will break the build pipeline. Coordinate feature retirement and workflow cleanup.
+- Android product flavors/build types currently constrain valid variants to prodDebug, prodRelease, e2eDebug, and e2eReleaseE2e. The successful workflow built prodRelease; the separate package script still points to assembleProdDebug.
+
+### Verification boundaries and next actions
+
+- Verified in GitHub Actions: lint, typecheck, localization/font checks, Yarn install, and Android prodRelease build passed on SHA `68e2e2ba11c8a7466300a983e70eab6baddd5cc7`; Jest failed as detailed above.
+- Not verified in this session: local clean install, full test reproduction, APK extraction/checksum, physical-device install/launch, model download/restart/inference, persistence, gallery flow, or offline inference.
+- No code, dependency, or lockfile changes were made. `yarn.lock` was not regenerated.
+- Next: obtain a focused failure inventory from CI logs; group the 407 failures by shared mock/setup drift versus real retained-feature regressions versus explicitly retired-feature tests. Inspect and repair the model/download mock and ModelStore/ServerStore failures first. Then reconcile the 7 branch-only commits against the 12 main-only commits selectively, audit feature reachability and Android build/workflow coupling, and only then remove obsolete packages and regenerate the lockfile with Yarn 1.22.22.
