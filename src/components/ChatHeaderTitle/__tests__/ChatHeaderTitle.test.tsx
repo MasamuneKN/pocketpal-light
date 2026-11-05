@@ -5,6 +5,8 @@ import {chatSessionStore, modelStore} from '../../../store';
 import {runInAction} from 'mobx';
 import {basicModel, downloadedModel} from '../../../../jest/fixtures/models';
 
+const availableBasicModel = {...basicModel, isDownloaded: true};
+
 describe('ChatHeaderTitle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -39,8 +41,8 @@ describe('ChatHeaderTitle', () => {
 
   it('renders model name when active model exists', () => {
     runInAction(() => {
-      modelStore.models = [basicModel];
-      modelStore.setActiveModel(basicModel.id);
+      modelStore.models = [availableBasicModel];
+      modelStore.setActiveModel(availableBasicModel.id);
     });
 
     const {getByText} = render(<ChatHeaderTitle />);
@@ -48,16 +50,16 @@ describe('ChatHeaderTitle', () => {
   });
 
   it('updates when active model changes', () => {
-    // Initial model
+    // Initial model is available to the user.
     runInAction(() => {
-      modelStore.models = [basicModel];
-      modelStore.setActiveModel(basicModel.id);
+      modelStore.models = [availableBasicModel];
+      modelStore.setActiveModel(availableBasicModel.id);
     });
 
     const {getByText, rerender} = render(<ChatHeaderTitle />);
     expect(getByText('basic model')).toBeTruthy();
 
-    // Change model
+    // Change to another available model.
     runInAction(() => {
       modelStore.models = [downloadedModel];
       modelStore.setActiveModel(downloadedModel.id);
