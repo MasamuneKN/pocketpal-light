@@ -13,7 +13,7 @@ import {
   validateCompletionSettings,
 } from '../../utils/modelSettings';
 import {Alert, View} from 'react-native';
-import {Button, Text} from 'react-native-paper';
+import {Button} from 'react-native-paper';
 import {L10nContext} from '../../utils';
 import {ChevronDownIcon} from '../../assets/icons';
 import {Menu} from '../Menu';
