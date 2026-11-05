@@ -210,7 +210,9 @@ class MockModelStore {
     this.getDownloadProgress = jest.fn();
     this.manualReleaseContext = jest.fn();
     this.addHFModel = jest.fn();
-    this.fetchAndUpdateModelFileDetails = jest.fn().mockResolvedValue(undefined);
+    this.fetchAndUpdateModelFileDetails = jest
+      .fn()
+      .mockResolvedValue(undefined);
     this.registerOnboardingPalModel = jest.fn().mockImplementation(
       async (entry: {
         repo: string;
