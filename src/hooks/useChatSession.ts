@@ -55,7 +55,6 @@ import {
 } from '../utils/completionTypes';
 import {
   collectSystemPromptFragments,
-  seedReadUrlAllowlist,
   talentRegistry,
 } from '../services/talents';
 import type {ToolDefinition} from '../services/talents/types';
@@ -168,10 +167,6 @@ const prepareCompletion = async ({
     ...chatMessages,
     {role: 'user', content: userMessageContent},
   ]);
-
-  // Reseed the read_url exfiltration allowlist for this run; the trust policy
-  // (which sources count) lives in the talents module.
-  seedReadUrlAllowlist(messages, currentMessages);
 
   const completionParamsWithAppProps = {
     ...sessionCompletionSettings,
