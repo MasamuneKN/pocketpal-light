@@ -2607,7 +2607,7 @@ class ModelStore {
   };
 
   get activeModel(): Model | undefined {
-    return this.models.find(model => model.id === this.activeModelId);
+    return this.availableModels.find(model => model.id === this.activeModelId);
   }
 
   private get capabilityEnv(): CapabilityEnv {
