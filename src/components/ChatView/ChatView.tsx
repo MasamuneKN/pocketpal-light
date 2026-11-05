@@ -59,7 +59,6 @@ import {
   calculateChatMessages,
   unwrap,
   UserContext,
-  L10nContext,
 } from '../../utils';
 
 import {Message} from '../Message';
@@ -187,8 +186,6 @@ const PendingIndicatorView: React.FC = observer(() => (
     isStopping={chatSessionStore.isStopping}
   />
 ));
-
-type L10n = React.ContextType<typeof L10nContext>;
 
 /** Entry component, represents the complete chat */
 export const ChatView = observer(
