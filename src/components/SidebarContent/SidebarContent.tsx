@@ -604,7 +604,7 @@ export const SidebarContent: React.FC<DrawerContentComponentProps> = observer(
           <Divider style={styles.divider} />
         </View>
       ),
-      [l10n, theme, styles, navigateTo, props.navigation],
+      [l10n, theme, styles, navigateTo],
     );
 
     return (
