@@ -200,7 +200,6 @@ android {
 }
 
 tasks.withType(com.facebook.react.tasks.BundleHermesCTask).configureEach {
-    inputs.property('plusStoreGate', providers.environmentVariable('PLUS_STORE_GATE').orElse(''))
     inputs.property('e2eBuild', providers.environmentVariable('E2E_BUILD').orElse(''))
     inputs.property('e2eSkipOnboarding', providers.environmentVariable('E2E_SKIP_ONBOARDING').orElse(''))
 }
