@@ -312,6 +312,7 @@ describe('ServerStore', () => {
       });
 
       await serverStore.afterHydration();
+      await serverStore.fetchModelsForServer('srv-1');
 
       expect(seen).toEqual(['unknown']);
     });

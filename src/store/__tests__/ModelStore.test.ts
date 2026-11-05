@@ -3630,12 +3630,8 @@ describe('ModelStore', () => {
         runInAction(() => {
           modelStore.context = undefined;
           modelStore.isMultimodalActive = false;
-          modelStore.models = [
-            {
-              id: 'srv-1/remote-model',
-              origin: ModelOrigin.REMOTE,
-              serverId: 'srv-1',
-            } as any,
+          serverStore.userSelectedModels = [
+            {serverId: 'srv-1', remoteModelId: 'remote-model'},
           ];
           modelStore.activeModelId = 'srv-1/remote-model';
           serverStore.servers = [
@@ -3669,6 +3665,7 @@ describe('ModelStore', () => {
         runInAction(() => {
           serverStore.servers = [];
           serverStore.remoteCaps = {};
+          serverStore.userSelectedModels = [];
           modelStore.models = [];
           modelStore.activeModelId = undefined;
           modelStore.activeRemoteBinding = undefined;
