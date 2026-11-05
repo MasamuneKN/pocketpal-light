@@ -242,3 +242,45 @@ Keep historical notes factual. When a previous status becomes stale, replace it 
 7. Physical-device verification remains outstanding: model download, restart persistence, local inference, gallery selection, and offline inference.
 
 No local Jest, lint, typecheck, or Android build was run in this session. The Android success above is GitHub Actions evidence only; no new device verification was performed.
+
+## 14. Verified session update — 2026-11-06 (continued)
+
+### Current branch state
+
+- Current `main` HEAD before this handover update: `66fae0c549a301d32c76ef0aa175d321b169098d` — `test(chat-header): use an available model fixture`.
+- `refactor/remove-unreachable-features` remains at `69400451b2036ee1066a68cae37d186ce8e3d0d8`.
+- Fresh GitHub compare: branches remain diverged; feature branch is 7 commits ahead and 17 commits behind. Merge base remains `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`.
+- Current feature-only diff still touches `__mocks__/services/downloads.ts`, `__mocks__/stores/modelStore.ts`, `android/app/build.gradle`, and `scripts/verify-plus-gate.sh`. No branch integration or history rewrite was performed.
+
+### Latest Actions evidence
+
+- Latest CI Pipeline before the new test correction: [run #162](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42089860075), run ID `42089860075`, on SHA `8d81e309de3dd73d6080af1f322de8ce1d943f39`, completed **failure**.
+- CI install, localization validation, font validation, ESLint, and TypeScript checks passed. Jest failed: **61 failed / 428 suites; 406 failed / 8,669 tests; 2 skipped; 8,261 passed; 310 snapshots passed**. The dependent CI Android job was skipped.
+- The latest listed standalone Android workflow before the new correction was [run #150](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42089863742), on SHA `8d81e309de3dd73d6080af1f322de8ce1d943f39`, completed **success**. This verifies the workflow build, not device behavior.
+- New runs triggered by the latest test correction are queued at review time: [CI #163](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42105701731), [format/validate #36](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42105701738), and [Android APK #151](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42105701814). Their outcomes are **not yet verified**.
+
+### New test correction
+
+- Inspected `ChatHeaderTitle.tsx`: it renders `modelStore.activeModel`, which follows the store's availability contract.
+- The component tests used `basicModel` with `isDownloaded: false` and `isLocal: false`, so the fixture was not an available model. This reproduces the same fixture-contract mistake identified in the earlier ModelStore test.
+- Updated only `src/components/ChatHeaderTitle/__tests__/ChatHeaderTitle.test.tsx` to create an available basic-model fixture with `isDownloaded: true`; original title/model assertions remain intact.
+- Commit: `66fae0c549a301d32c76ef0aa175d321b169098d`. GitHub fetch confirmed the committed file content.
+- This is a targeted test-fixture correction, not proof the test passes. The CI run triggered by it is still queued; no local Jest execution was performed.
+
+### Remaining failure clusters observed in CI #162
+
+- ModelStore and ServerStore suites.
+- Chat/session, ChatScreen, ChatInput, SettingsScreen, model UI, and download UI suites.
+- Pals/Plus/voice suites that require removal only in coordination with their production paths.
+- Talent/system-prompt registry expectations; current talent registration shown in `src/services/talents/index.ts` registers RenderHtml, Calculate, and Datetime engines, while the failing test still expects `web_search`.
+- HeaderLeft tests still exercise Plus return-focus behavior although current `HeaderLeft.tsx` no longer imports or uses the focus hook. This is stale Plus-related test coverage, but should be removed only as part of the coordinated Plus retirement.
+- Server-default and ChatHeaderTitle component tests also contain fixture/expectation drift. Inspect each failure against production behavior before changing it.
+
+### Verification boundaries
+
+- No local lint, typecheck, Jest, Yarn install, or Android build was run in this continuation.
+- No dependencies or lockfile were changed; `yarn.lock` was not regenerated.
+- No physical-device tests were performed. Model download, persistence across restart, local inference, gallery selection, and offline inference remain unverified.
+- No production source code was changed in this continuation; only the ChatHeaderTitle test fixture was updated.
+- Next: inspect outcomes of CI #163 / Android #151; use the new Jest report to classify failures by retained-feature regression, invalid test fixture, or intentionally retired functionality. Continue ModelStore/ServerStore repair first, then coordinate Plus/voice/Pals removal and dependency audit.
+
