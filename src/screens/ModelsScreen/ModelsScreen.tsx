@@ -335,7 +335,6 @@ export const ModelsScreen: React.FC = observer(() => {
               model={subItem}
               activeModelId={activeModelId}
               onOpenSettings={() => handleOpenSettings(subItem)}
-              onOpenServerDetails={handleOpenServerDetails}
             />
           )}
         />
