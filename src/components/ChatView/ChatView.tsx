@@ -50,8 +50,7 @@ import {CONTEXT_LADDER} from '../../utils/bannerVariantResolver';
 import {
   NEW_CHAT_DRAFT_KEY,
   chatSessionStore,
-} from '../../store/ChatSessionStore';
-import {modelStore} from '../../store';
+} from '../../store';
 import type {UndoneSend} from '../../hooks/useChatSession';
 
 import {MessageType, User} from '../../utils/types';
