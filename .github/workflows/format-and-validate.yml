@@ -57,10 +57,11 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Dispatch CI and Android release validation
+      - name: Dispatch CI after an automated formatting commit
+        if: steps.commit.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/dispatches" -f ref=main
-          echo "Dispatched CI. Android packaging remains gated by successful CI checks."
+          echo "Dispatched CI for the automated formatting commit. Android packaging remains gated by successful CI checks."
