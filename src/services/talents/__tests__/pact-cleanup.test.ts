@@ -145,11 +145,7 @@ describe('PACT cleanup: deriveToolSchemas()', () => {
     expect(schemas).toHaveLength(3);
 
     const names = schemas.map(s => s.function.name).sort();
-    expect(names).toEqual([
-      'calculate',
-      'datetime',
-      'render_html',
-    ]);
+    expect(names).toEqual(['calculate', 'datetime', 'render_html']);
   });
 
   it('each schema has the OpenAI function-calling shape', () => {
