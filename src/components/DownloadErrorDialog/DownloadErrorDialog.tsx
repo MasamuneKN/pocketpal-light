@@ -10,7 +10,7 @@ import {t} from '../../locales';
 import {ErrorState} from '../../utils/errors';
 import {createStyles} from './styles';
 import {CheckCircleIcon} from '../../assets/icons';
-import {hfStore} from '../../store/HFStore';
+import {hfStore} from '../../store';
 
 const CheckIcon = ({color}: {color: string}) => (
   <CheckCircleIcon width={16} height={16} stroke={color} />
