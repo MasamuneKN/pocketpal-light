@@ -994,3 +994,35 @@ The user has now explicitly authorized running the tests and actions considered 
 
 - `fc940e8` and `4af2b1b` are pushed to main after the CI run above. They have not yet been validated by a subsequent full Jest run.
 - Continue from latest main and inspect the new CI before making further test edits. APK remains blocked until all non-APK failures are resolved and verified.
+
+
+## 46. Session update — 2026-11-07 (fresh Jest triage; five suites remain)
+
+### Latest verified CI
+
+- Latest main CI run inspected: `42300385420`, head `f90f08e`.
+- ESLint, TypeScript, localization and font checks passed. Jest: **5 failed suites, 418 passed; 20 failed tests, 8,503 passed, 2 skipped; 310/310 snapshots passed**.
+- Android and iOS build jobs were skipped. No APK was produced.
+- The two earlier fixes (ChatInput `chatSessionStore` import and ChatPalModelPicker `getByText` destructuring) are included in this run and those suites no longer fail.
+
+### Changes made after this CI run
+
+- `b74fa07`: removed the obsolete SquarePalCard purchase-badge suite. The current component accepts only local `Pal` data and contains no purchase/update badge rendering or PalsHub card actions. Preserved the local Pal tests and the separate PalsHub-era cases for a later precise pass.
+- In the same test file, aligned the share-error assertion with the current production message: `Failed to export this Pal. Please try again.`
+- `9012769`: removed the App test for the retired Plus host/accessibility scope, which is not mounted by the current App tree.
+- `d3e3115`: removed the stale ChatScreen test expecting the removed four-slot tool compatibility warning. Retained the positive tool-capability coverage and other reasoning/vision tests.
+- `2b1650a` and `f6b1f5f`: removed imports made unused by those test updates.
+
+### Remaining known failures from run 42300385420
+
+- `SquarePalCard.test.tsx`: remaining PalsHub-specific rendering/tag/protection/action tests are incompatible with the local-only component API. Keep local card, thumbnail, local share/delete, video capability, model warning and local chat navigation tests. Convert/remove only stale PalsHub-only expectations; the share error assertion is corrected.
+- `ChatView.test.tsx`: auto-load test uses an obsolete model ID/fixture; inspect the current effect and model availability semantics before updating the fixture. The Pal-load snackbar test expects a testID/UX affordance absent from current ChatView; inspect current increase-context entry points before changing production or expectation.
+- `ChatView.routerLoading.test.tsx`: expects `chat-router-loading` and an accessibility announcement. Current ChatView documentation says pending UX is derived from `agentUiState.status` and renders PendingIndicator; inspect router state integration before deciding whether a dedicated load affordance is missing.
+- `ChatScreen.test.tsx` and `App.test.tsx` were addressed in the follow-up commits; verify via a new full CI run.
+
+### Next actions
+
+1. Inspect formatter/CI runs for the follow-up commits and wait for the next Jest result. Do not assume the removed stale tests resolve all failures until CI confirms.
+2. Fix the remaining SquarePalCard PalsHub-only tests without weakening local-card coverage.
+3. Trace ChatView auto-load model selection and current context-upgrade UX; only add a router loading UI if the intended product behavior is supported by current router state and user-facing design.
+4. Keep APK production blocked until all non-APK checks and functional issues are clean.
