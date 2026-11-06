@@ -16,6 +16,7 @@ const render = (ui: React.ReactElement, options: any = {}) =>
 jest.mock('react-native-device-info', () => ({
   getVersion: jest.fn().mockReturnValue('1.0.0'),
   getBuildNumber: jest.fn().mockReturnValue('100'),
+  isEmulator: jest.fn().mockResolvedValue(false),
 }));
 
 // Mock Clipboard
