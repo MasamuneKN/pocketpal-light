@@ -33,7 +33,7 @@ describe('ModelsHeaderRight', () => {
   });
 
   it('toggles downloaded filter when pressed', async () => {
-    const {getByTestId, getByText} = render(<ModelsHeaderRight />);
+    const {getByTestId} = render(<ModelsHeaderRight />);
 
     // Open menu
     fireEvent.press(getByTestId('models-menu-button'));
@@ -49,7 +49,7 @@ describe('ModelsHeaderRight', () => {
   });
 
   it('toggles grouped view when pressed', async () => {
-    const {getByTestId, getByText} = render(<ModelsHeaderRight />);
+    const {getByTestId} = render(<ModelsHeaderRight />);
 
     // Open menu
     fireEvent.press(getByTestId('models-menu-button'));
