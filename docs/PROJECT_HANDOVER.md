@@ -955,3 +955,19 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Triage the next Jest report; continue with SquarePalCard's obsolete PalsHub-only tests, then ChatView/router loading and ChatScreen capability banner.
 3. Preserve local inference, model download/gallery selection, session persistence, offline behavior and TTS coverage. Do not remove store/service tests merely because corresponding Settings UI was retired.
 4. APK production remains blocked until all lingering non-APK issues are resolved and verified.
+
+
+## 44. Session update — 2026-11-07 (lint gate correction; Jest rerun still required)
+
+### Current main and CI evidence
+
+- Main advanced to `da7d14e0b18158c6e4cfbc6ac0636d1f8066e385` through the repository formatting workflow. Latest handover was read from main before continuing.
+- CI run `42297211766` on `da7d14e` failed at ESLint before TypeScript or Jest could run. The sole lint error was an unused `Divider` import in `SettingsScreen.test.tsx`; localization and font checks passed. Android and iOS build jobs were skipped; no APK was produced.
+- Removed that unused import in commit `dff759a04fd370549a6ef9adfea451a2e975ba97`. This is a lint-only correction; it does not change app behavior.
+
+### Next actions
+
+1. Inspect formatting/CI runs for `dff759a` and the resulting main commit. Require ESLint and TypeScript to pass before interpreting Jest.
+2. Re-run and inspect the full Jest failure inventory. Do not assume prior counts apply because the latest attempted CI never reached Jest.
+3. Continue the known SquarePalCard/ChatView/router-loading/ChatScreen triage only against fresh test output, preserving local Pal functionality and other retained app paths.
+4. APK creation remains prohibited until all non-APK failures are resolved and verified.
