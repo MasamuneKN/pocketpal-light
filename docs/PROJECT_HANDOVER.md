@@ -634,3 +634,11 @@ No physical-device verification was performed. No production source, dependencie
 2. Complete the source import audit for camera and remaining retired-feature dependencies before any package removal.
 3. Keep the 7-commit feature branch untouched until its unique mock/build changes are individually inspected against the 52 newer main commits.
 4. Preserve local model acquisition, inference, persistence, gallery selection, and offline operation. Avoid Android APK builds unless the required checks pass and a build is actually needed.
+
+## 27. Verified session update — 2026-11-06 (chat voice reachability review)
+
+- Inspected the current production chat path: `src/screens/ChatScreen/ChatScreen.tsx`, `src/components/ChatView/ChatView.tsx`, and `src/components/ChatInput/ChatInput.tsx`. These files do not import or expose the voice-mode controls or voice-capture hooks inspected in this review.
+- The repository still contains substantial disconnected voice implementation: `VoiceModeButton`, `VoiceModeView`, `useVoiceMode`, `useVoiceCapture`, Whisper ASR, TTS engines, voice stores/services, automation adapters, assets, mocks, and tests. The current ChatScreen/ChatView/ChatInput path does not establish a production entry point to these modules.
+- This narrows the likely retirement boundary, but does **not** yet prove every voice module is unreachable: a complete import graph across all production entry points and automation/E2E boundaries is still required. Do not remove the Whisper/TTS dependencies or broad test groups based only on the chat-path inspection.
+- No app source or dependency files were changed. No tests/builds were run; execution remains unavailable through repository-reading tools.
+- Next: finish import-reference tracing for voice entry components and shared stores, then remove only the unreachable production surface and its associated dependencies/tests in coordinated, verifiable changes. Keep local text inference and gallery image selection untouched.
