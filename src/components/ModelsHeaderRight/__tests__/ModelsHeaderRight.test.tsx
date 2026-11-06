@@ -6,7 +6,6 @@ import {ModelsHeaderRight} from '../ModelsHeaderRight';
 
 import {uiStore} from '../../../store';
 
-import {l10n} from '../../../locales';
 
 describe('ModelsHeaderRight', () => {
   beforeEach(() => {
@@ -19,16 +18,13 @@ describe('ModelsHeaderRight', () => {
   });
 
   it('toggles HF filter when pressed', async () => {
-    const {getByTestId, getByText} = render(<ModelsHeaderRight />);
+    const {getByTestId} = render(<ModelsHeaderRight />);
 
     // Open menu
     fireEvent.press(getByTestId('models-menu-button'));
 
     // Press HF filter option
-    const hfOption = getByText(
-      l10n.en.components.modelsHeaderRight.menuTitleHf,
-    );
-    fireEvent.press(hfOption);
+    fireEvent.press(getByTestId('filter-hf'));
 
     expect(uiStore.setValue).toHaveBeenCalledWith(
       'modelsScreen',
@@ -44,10 +40,7 @@ describe('ModelsHeaderRight', () => {
     fireEvent.press(getByTestId('models-menu-button'));
 
     // Press downloaded filter option
-    const downloadedOption = getByText(
-      l10n.en.components.modelsHeaderRight.menuTitleDownloaded,
-    );
-    fireEvent.press(downloadedOption);
+    fireEvent.press(getByTestId('filter-downloaded'));
 
     expect(uiStore.setValue).toHaveBeenCalledWith(
       'modelsScreen',
@@ -63,10 +56,7 @@ describe('ModelsHeaderRight', () => {
     fireEvent.press(getByTestId('models-menu-button'));
 
     // Press group option
-    const groupOption = getByText(
-      l10n.en.components.modelsHeaderRight.menuTitleGrouped,
-    );
-    fireEvent.press(groupOption);
+    fireEvent.press(getByTestId('filter-grouped'));
 
     expect(uiStore.setValue).toHaveBeenCalledWith(
       'modelsScreen',
