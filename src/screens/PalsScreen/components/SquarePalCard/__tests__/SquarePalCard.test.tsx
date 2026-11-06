@@ -13,7 +13,6 @@ import {palStore, chatSessionStore, modelStore} from '../../../../../store';
 import {downloadedModel} from '../../../../../../jest/fixtures/models';
 import type {Pal} from '../../../../../store/PalStore';
 import type {PalsHubPal} from '../../../../../types/palshub';
-import {version} from '../../../../../../jest/fixtures/iap';
 
 // Mock navigation
 const mockNavigate = jest.fn();
