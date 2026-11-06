@@ -742,3 +742,12 @@ No physical-device verification was performed. No production source, dependencie
 - The repository-wide code-search endpoint returned zero matches even for these known symbols, so its results remain unusable as proof of global non-reference. No source files were deleted in this pass; deleting candidate screens or exports without a trustworthy importer inventory could break a hidden route, test, or E2E path.
 - No tests, lint, typecheck, Android builds, or GitHub Actions were run, following the user's explicit instruction. No runtime verification is claimed.
 - Next: use the complete tree/blob inventory to build a source-level reference map for these specific candidate modules and their barrels. Prioritize a safe removal of unmounted legacy UI only after every direct import and E2E/test reference is accounted for; preserve the local Pal model and chat integration.
+
+## 37. Session update — 2026-11-06 (focused reachability recheck)
+
+- Live `main` HEAD at session start: `866c1155395ff079b2b702731549815bc1467a4f` — automated repository Prettier formatting commit.
+- Re-read the current handover and inspected the live `PlusHost`, `PlusScreen`, `PalsScreen`, screen barrel, and component barrel sources.
+- Confirmed `src/screens/index.ts` exports About, Chat, Models, Settings, and debug-only DevTools; it does not export PlusScreen or PalsScreen. The PlusHost component remains exported from `src/components/index.ts`, so absence from `App.tsx` alone does not prove that the host or its dependencies have no other consumer.
+- The component barrel still exports voice/ASR UI alongside retained TTS setup. Removing individual exports without a trustworthy inventory of barrel consumers remains unsafe.
+- This focused pass did not establish a safe production-source deletion. No application code, dependencies, or lockfile were changed. No tests, lint, typecheck, Android builds, or GitHub Actions were run, per user instruction.
+- Next: continue with small, targeted reference checks around one candidate at a time. Prefer direct imports and app composition evidence; do not treat missing GitHub code-search results as proof of unreachability. Preserve TTS, local inference, model acquisition, persistence, and gallery selection.
