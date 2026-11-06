@@ -2,7 +2,7 @@ import React from 'react';
 import {runInAction} from 'mobx';
 
 import {render} from '../../../../jest/test-utils';
-import {modelStore, serverStore} from '../../../store';
+import {chatSessionStore, modelStore, serverStore} from '../../../store';
 import type {ServerType} from '../../../utils/serverTypes';
 import {ChatGenerationSettingsSheet} from '../ChatGenerationSettingsSheet';
 
@@ -11,6 +11,17 @@ const URL = 'http://localhost:8080';
 
 const startSession = (serverType: ServerType) => {
   runInAction(() => {
+    chatSessionStore.activeSessionId = 'session-1';
+    chatSessionStore.sessions = [
+      {
+        id: 'session-1',
+        title: 'Server defaults',
+        date: new Date().toISOString(),
+        messages: [],
+        completionSettings: chatSessionStore.newChatCompletionSettings,
+        settingsSource: 'custom',
+      },
+    ];
     serverStore.servers = [{id: 'srv-1', name: 'llama', url: URL, serverType}];
     serverStore.userSelectedModels = [
       {serverId: 'srv-1', remoteModelId: 'remote-model'},
@@ -33,10 +44,14 @@ describe('ChatGenerationSettingsSheet server defaults', () => {
   const models = modelStore.models;
   const selectedModels = serverStore.userSelectedModels;
   const servers = serverStore.servers;
+  const sessions = chatSessionStore.sessions;
+  const activeSessionId = chatSessionStore.activeSessionId;
 
   afterEach(() => {
     runInAction(() => {
       modelStore.models = models;
+      chatSessionStore.sessions = sessions;
+      chatSessionStore.activeSessionId = activeSessionId;
       serverStore.userSelectedModels = selectedModels;
       serverStore.servers = servers;
       modelStore.activeModelId = undefined;
