@@ -87,50 +87,26 @@ describe('useTheme', () => {
   // Language swap is reactive (typography fallback applies).
   // Hook-level: changing uiStore.language and rerendering produces a Theme
   // whose Fraunces typography token resolves to Inter on the next render.
-  describe('language swap reactivity', () => {
-    it('headlineH1 swaps Fraunces → Inter when language changes to fa', () => {
-      const {result, rerender} = renderHook(() => useTheme());
+  describe('English-only locale typography', () => {
+    it('keeps Fraunces headlines and Inter body text for English', () => {
+      act(() => {
+        uiStore.setLanguage('en');
+      });
+      const {result} = renderHook(() => useTheme());
+
       expect(result.current.typography.headlineH1.fontFamily).toBe(
         FONT_FAMILIES.FRAUNCES_MEDIUM,
       );
-
-      uiStore.setLanguage('fa');
-      rerender({});
-
-      expect(result.current.typography.headlineH1.fontFamily).toBe(
-        FONT_FAMILIES.INTER_MEDIUM,
+      expect(result.current.typography.bodyM.fontFamily).toBe(
+        FONT_FAMILIES.INTER_REGULAR,
       );
-    });
-
-    it('headlineH1 swaps Fraunces → Inter for Cyrillic locales (ru, uk)', () => {
-      // Bundled Fraunces subset is Latin-only — ru/uk must use Inter.
-      for (const lang of ['ru', 'uk'] as const) {
-        uiStore.setLanguage(lang);
-        const {result} = renderHook(() => useTheme());
-        expect(result.current.typography.headlineH1.fontFamily).toBe(
-          FONT_FAMILIES.INTER_MEDIUM,
-        );
-      }
-    });
-
-    it('headlineH1 swaps for every Fraunces-fallback locale', () => {
-      // Derived, not hand-listed — a hardcoded copy silently rots when a
-      // locale joins the fallback set (as pl did).
-      for (const lang of NON_LATIN_LOCALES) {
-        uiStore.setLanguage(lang);
-        const {result} = renderHook(() => useTheme());
-        expect(result.current.typography.headlineH1.fontFamily).toBe(
-          FONT_FAMILIES.INTER_MEDIUM,
-        );
-      }
-    });
-
-    it('codeM stays JetBrainsMono for non-Latin locales (locale-agnostic)', () => {
-      uiStore.setLanguage('ja');
-      const {result} = renderHook(() => useTheme());
       expect(result.current.typography.codeM.fontFamily).toBe(
         FONT_FAMILIES.JETBRAINS_MONO_REGULAR,
       );
+    });
+
+    it('does not define non-Latin fallback locales in PocketPal Lite', () => {
+      expect(NON_LATIN_LOCALES).toEqual([]);
     });
   });
 
