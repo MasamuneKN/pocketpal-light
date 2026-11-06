@@ -671,3 +671,15 @@ No physical-device verification was performed. No production source, dependencie
 - TTS remains retained: `useChatSession.ts` imports `ttsStore` through the store barrel and routes assistant output events into TTS. `AutomationBridge.tsx` also mounts TTS and Voice adapters behind the E2E gate. No TTS source, automation adapter, ASR/voice service, dependency, or lockfile was removed.
 - No Jest command or build was run; repository-reading tools cannot execute tests. This cleanup is based on the confirmed product/source mismatch and must not be reported as a passing test result.
 - Next: trace direct production imports of ASR/VoiceMode components and stores separately from E2E-only adapters; preserve TTS. Continue the dependency/native reachability audit and only regenerate the Yarn lockfile after a complete, evidence-backed removal set is identified.
+
+
+## 31. Verified source review — 2026-11-06 (retired ChatView voice-input test cleanup)
+
+- Current `main` included automated formatting commit `bd681d330324d138aafc5b26d2931695638739c1` after the previous handover update. The ChatScreen voice-mode test removal is recorded in section 30.
+- Inspected the full `src/components/ChatView/ChatView.tsx` (1,208 lines) and its `ChatView.voiceInput.test.tsx` (419 lines). The current ChatView source contains no references to voice, ASR, `MicButton`, or `useVoiceCapture`. Every test in the latter file exercises the absent voice-input or voice-mode seams; its nested message-menu/suggested-prompt cases also assert behavior conditional on the removed voice-mode state.
+- Confirmed current `ChatScreen.tsx`, `ChatInput.tsx`, and `SettingsScreen.tsx` contain no voice/ASR/TTS UI references. This is limited to the inspected files and does not establish global module unreachability.
+- Removed the obsolete 419-line `src/components/ChatView/__tests__/ChatView.voiceInput.test.tsx` in commit `15e21b31ef102ddaf393cc094e552979be336e69` (`test: remove obsolete chat voice-input suite`). No production component or assertion in retained chat functionality was modified.
+- **Do not remove TTS.** `useChatSession.ts` still wires assistant output to `ttsStore`; TTS setup UI and E2E profiling remain in the tree.
+- ASR/MicButton and VoiceMode modules still exist, and the E2E `VoiceAdapter` imports voice automation. The component/store barrels also re-export voice modules. GitHub code-search returned no indexed results for several symbol searches, so that result is not treated as proof of non-use. A complete import graph is still required before removing modules, adapters, native packages, or lockfile entries.
+- Per user instruction, no tests, lint, typecheck, builds, or GitHub Actions were run for this update. Do not imply runtime verification.
+- Next implementation: inspect the full production import graph and E2E boundary; then remove the clearly unreachable ASR/VoiceMode UI and implementation in coherent batches while retaining TTS. Preserve model download/import, local inference, persistence, and gallery selection. Regenerate the Yarn lockfile only when a runnable Yarn Classic 1.22.22 environment is available; do not hand-edit it.
