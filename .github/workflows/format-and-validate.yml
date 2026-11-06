@@ -63,5 +63,4 @@ jobs:
         run: |
           set -euo pipefail
           gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/dispatches" -f ref=main
-          gh api --method POST "repos/${GITHUB_REPOSITORY}/actions/workflows/build-android.yml/dispatches" -f ref=main
-          echo "Dispatched CI and standalone Android APK validation."
+          echo "Dispatched CI. Android packaging remains gated by successful CI checks."
