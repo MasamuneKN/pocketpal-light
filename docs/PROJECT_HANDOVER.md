@@ -614,3 +614,23 @@ No physical-device verification was performed. No production source, dependencie
 3. Audit Plus/IAP and PalsHub imports from production entry points, shared stores, deep links, and native modules; remove unreachable surfaces in coordinated small commits.
 4. Audit voice separately: ChatScreen and ChatView are production routes, so voice/TTS/ASR cannot be removed merely because standalone voice screens are not drawer routes.
 5. Preserve local model download/import, HF acquisition, inference, chat persistence, gallery image selection, and offline behavior. Keep APK packaging manual-only.
+
+## 26. Verified session update — 2026-11-06 (native dependency and branch recheck)
+
+### Live branch state
+- Live `main` HEAD: `c1a088bef59eadfec430d7b13b98756f37bbcdb2` — `chore: apply repository Prettier formatting` (formatting-only commit; parent is the prior handover update).
+- Live `refactor/remove-unreachable-features` HEAD: `69400451b2036ee1066a68cae37d186ce8e3d0d8`.
+- Fresh GitHub compare: branches remain **diverged**; feature branch is 7 commits ahead and **52 commits behind** main, merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`. Its current four-file diff remains limited to the two shared Jest mocks, `android/app/build.gradle`, and `scripts/verify-plus-gate.sh`. Do not merge or cherry-pick the branch wholesale.
+
+### VisionCamera audit update
+- `react-native.config.js` explicitly disables `react-native-vision-camera` autolinking on both Android and iOS.
+- Android manifest contains no camera permission or camera component/service.
+- Repository tree contains no camera-named production source path; only the VisionCamera Jest mock and a camera SVG asset were found under `src`. GitHub code search for the package name and `VisionCamera` returned zero results; treat this as supporting evidence, not a substitute for a local full-text search.
+- `package.json` still declares `react-native-vision-camera@^4.7.2`. `ios/Podfile.lock` still contains VisionCamera 4.7.2 and a local path entry, indicating stale iOS lockfile state. Since the agreed target is Android-only, do not spend time repairing iOS Pods; remove the JS dependency only when a clean Yarn Classic 1.22.22 lockfile regeneration can be performed and verified.
+- No source, dependency, or lockfile changes were made in this review. No Jest or build was run; repository-reading tools cannot execute the test suite.
+
+### Next actions
+1. Obtain a runnable checkout/environment and run focused Jest tests, then classify full-suite failures by shared mock drift versus retained-feature regressions.
+2. Complete the source import audit for camera and remaining retired-feature dependencies before any package removal.
+3. Keep the 7-commit feature branch untouched until its unique mock/build changes are individually inspected against the 52 newer main commits.
+4. Preserve local model acquisition, inference, persistence, gallery selection, and offline operation. Avoid Android APK builds unless the required checks pass and a build is actually needed.
