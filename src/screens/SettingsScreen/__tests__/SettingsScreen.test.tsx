@@ -12,6 +12,7 @@ import {
 } from '../../../../jest/test-utils';
 
 import {SettingsScreen} from '../SettingsScreen';
+import {l10n} from '../../../locales';
 
 import {
   modelStore,
