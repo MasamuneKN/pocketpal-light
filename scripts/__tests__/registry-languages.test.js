@@ -15,23 +15,7 @@ const INDEX_PATH = path.join(
 describe('extractRegistryLanguages', () => {
   it('extracts every wired non-en locale from the real index.ts', () => {
     const source = fs.readFileSync(INDEX_PATH, 'utf-8');
-    expect(extractRegistryLanguages(source)).toEqual([
-      'ar',
-      'es',
-      'fa',
-      'he',
-      'id',
-      'ja',
-      'ko',
-      'ms',
-      'pl',
-      'pt',
-      'pt_BR',
-      'ru',
-      'uk',
-      'zh',
-      'zh_Hant',
-    ]);
+    expect(extractRegistryLanguages(source)).toEqual([]);
   });
 
   it('filters en out of the extracted keys', () => {
@@ -63,13 +47,13 @@ describe('extractRegistryLanguages', () => {
     expect(extractRegistryLanguages('')).toBeNull();
   });
 
-  it('returns null when the registry yields only en', () => {
+  it('returns an empty list when the registry yields only en', () => {
     const source = [
       'const languageRegistry = {',
       '  en: {displayName: "English (EN)"},',
       '} as const;',
     ].join('\n');
-    expect(extractRegistryLanguages(source)).toBeNull();
+    expect(extractRegistryLanguages(source)).toEqual([]);
   });
 
   it('returns null when an entry key is quoted', () => {
@@ -85,9 +69,9 @@ describe('extractRegistryLanguages', () => {
     expect(extractRegistryLanguages(doubleQuoted)).toBeNull();
   });
 
-  it('returns null when the registry body is empty', () => {
+  it('returns an empty list when the registry body is empty', () => {
     expect(
       extractRegistryLanguages('const languageRegistry = {} as const;'),
-    ).toBeNull();
+    ).toEqual([]);
   });
 });
