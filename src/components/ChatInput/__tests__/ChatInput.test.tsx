@@ -1,6 +1,6 @@
 import {fireEvent, waitFor} from '@testing-library/react-native';
 import * as React from 'react';
-import {ScrollView, Alert, StyleSheet, TextInput} from 'react-native';
+import {ScrollView, Alert, StyleSheet} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {runInAction} from 'mobx';
 
@@ -16,7 +16,6 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 // Mock react-native-image-picker
 jest.mock('react-native-image-picker', () => ({
-  launchCamera: jest.fn(),
   launchImageLibrary: jest.fn(),
 }));
 
