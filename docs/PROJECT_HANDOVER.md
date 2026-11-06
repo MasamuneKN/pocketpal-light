@@ -596,3 +596,19 @@ No physical-device verification was performed. No production source, dependencie
 3. Audit `react-native-vision-camera` and other unused native dependencies across source imports, Android autolinking, iOS pods, and lockfile before removal.
 4. Continue coordinated Plus/IAP, PalsHub, and voice/ASR/TTS retirement only after each dependency's reachability is established. Preserve local inference, model download/import, persistence, gallery selection, and offline operation.
 5. Keep `yarn.lock` generated with Yarn Classic 1.22.22; never hand-edit it. Keep APK packaging manual-only.
+## 25. Verified session update — 2026-11-06 (production navigation reachability audit)
+
+- Read live `App.tsx`, `src/screens/index.ts`, `src/utils/navigationConstants.ts`, `useDeepLinking.ts`, `HubRunSheetHost.tsx`, and `SettingsScreen.tsx`.
+- The production drawer registers only Chat, Models, Settings, and App Info; Dev Tools is conditional on `__DEV__`. `src/screens/index.ts` exports only those screens plus DevTools. Pals, Plus, and Benchmark screens are not registered or exported through the production screen barrel.
+- `useDeepLinking` production behavior handles Chat links and the exact `hub/run` model-download link. Automation deep-link dispatch is gated by `__E2E__`; benchmark and Plus test feature routes belong to that E2E boundary. `HubRunSheetHost` remains a production local model acquisition path and must not be removed as part of PalsHub retirement.
+- `ROUTES.PALS` and `ROUTES.BENCHMARK` remain declared in `navigationConstants.ts`, but no production drawer screen uses them. Do not delete constants until all source/tests/automation references are searched and accounted for.
+- `SettingsScreen` is still a substantial retained local model/device/settings surface; preserve it. The app's current production navigation confirms route-level retirement, but not full module/dependency unreachability.
+- Native dependency audit: `package.json` still includes `react-native-vision-camera`, and `ios/Podfile.lock` still resolves VisionCamera 4.7.2. The recursive source-tree inventory found only the VisionCamera Jest mock and a camera SVG under `src`; this is a strong unused-dependency candidate under the gallery-only decision, but a complete source import/autolinking audit and Yarn/Pods lockfile regeneration are still required before removal.
+
+### Next implementation order
+
+1. Obtain a runnable repository execution path and run `FABGroup.test.tsx` followed by full Jest; the undefined test identifier was fixed, but runtime verification remains outstanding.
+2. Finish a complete reference search for VisionCamera and remove it only together with regenerated Yarn and iOS native lockfiles if no production consumer exists.
+3. Audit Plus/IAP and PalsHub imports from production entry points, shared stores, deep links, and native modules; remove unreachable surfaces in coordinated small commits.
+4. Audit voice separately: ChatScreen and ChatView are production routes, so voice/TTS/ASR cannot be removed merely because standalone voice screens are not drawer routes.
+5. Preserve local model download/import, HF acquisition, inference, chat persistence, gallery image selection, and offline behavior. Keep APK packaging manual-only.
