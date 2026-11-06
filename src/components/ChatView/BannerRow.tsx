@@ -8,8 +8,7 @@ import {createStyles} from './styles';
 
 import {AlertIcon} from '../../assets/icons';
 import {useTheme} from '../../hooks/useTheme';
-import {chatSessionStore} from '../../store/ChatSessionStore';
-import {modelStore} from '../../store/ModelStore';
+import {chatSessionStore, modelStore} from '../../store';
 import {L10nContext} from '../../utils';
 import {MessageType, ModelOrigin} from '../../utils/types';
 import {resolveBannerVariant} from '../../utils/bannerVariantResolver';
