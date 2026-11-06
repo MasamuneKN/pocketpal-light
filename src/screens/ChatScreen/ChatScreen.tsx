@@ -12,9 +12,7 @@ import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 import {useChatSession} from '../../hooks/useChatSession';
 import {usePendingMessage} from '../../hooks/useDeepLinking';
 
-import {modelStore} from '../../store/ModelStore';
-import {chatSessionStore} from '../../store/ChatSessionStore';
-import {uiStore} from '../../store/UIStore';
+import {chatSessionStore, modelStore, uiStore} from '../../store';
 
 import {L10nContext} from '../../utils';
 import {
