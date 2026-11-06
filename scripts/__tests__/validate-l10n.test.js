@@ -179,18 +179,19 @@ describe('validate-l10n.js', () => {
     expect(result.output).toContain('INVALID JSON');
   });
 
-  it('warns and falls back to auto-discovery when the registry yields no locales', () => {
+  it('treats an empty registry as an intentional English-only configuration', () => {
     const result = runWithLocales({
       'index.ts': [
         'const languageRegistry = {',
         '  en: {displayName: "English (EN)"},',
         '} as const;',
       ].join('\n'),
+      'ja.json': JSON.stringify({common: {cancel: 'test'}}),
     });
     expect(result.exitCode).toBe(0);
-    expect(result.output).toContain('index.ts');
-    expect(result.output).toContain('falling back to auto-discovery');
-    expect(result.output).toContain('ja.json: valid JSON');
+    expect(result.output).not.toContain('falling back to auto-discovery');
+    expect(result.output).not.toContain('ja.json: valid JSON');
+    expect(result.output).toContain('All l10n files valid');
   });
 
   it('does not validate en.json as a non-en language file', () => {
