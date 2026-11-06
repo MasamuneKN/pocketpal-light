@@ -730,3 +730,16 @@ No physical-device verification was performed. No production source, dependencie
 - These findings show that Plus/IAP and Pals cannot safely be retired by deleting named folders or dependencies in isolation. No source changes were made; the connected repository code-search index remains unavailable, and no reliable full-text import graph is currently exposed.
 - Per user instruction, no tests, lint, typecheck, builds, or Actions were run. No runtime verification is claimed.
 - Next: trace the consumers of `PurchaseStore`, `PalStore`, `PlusHost`, and PalsHub services from screens, onboarding, chat/session state, migrations, and E2E specs. Identify a supported local-Pal contract separately from remote PalsHub functionality before retiring either.
+
+
+## 36. Session update — 2026-11-06 (application entry-point reachability review)
+
+- Re-read the live handover. The latest observed `main` commit before this entry was `6aacb6823a03e076c379634fec82ed8e499bbe9b`, an automated Prettier commit following section 35.
+- Rechecked the actual application composition: `App.tsx` registers Chat, Models, Settings, About, and debug-only Dev Tools. `src/screens/index.ts` exports only those screens; it does not export `PalsScreen` or `PlusScreen`.
+- The live drawer implementation exposes Chat, Models, Settings, About, and debug-only Dev Tools. It does not expose Pals or Plus. `ROUTES.PALS` remains as a route constant, but no registration or drawer entry for it was found in the inspected app path.
+- `SettingsScreen.tsx` imports and renders its own settings controls directly. It does not import `PurchasesCard` or `AccountCard`; the SettingsScreen barrel exports only `SettingsScreen`. The two card files still contain account/PurchaseStore/PalsHub UI code, but no production consumer was established in this review.
+- `PlusHost` is re-exported from the components barrel but is not imported by `App.tsx`; `PlusScreen` is not part of the screens barrel or drawer registration. This establishes that neither is part of the inspected primary app composition, not that no indirect consumer exists elsewhere.
+- `PalsScreen` has a local index file but is absent from the screens barrel and primary drawer registration. `PalStore` itself must remain for local Pal/chat data and default-Pal seeding; the unmounted marketplace screen and remote PalsHub methods are separate concerns.
+- The repository-wide code-search endpoint returned zero matches even for these known symbols, so its results remain unusable as proof of global non-reference. No source files were deleted in this pass; deleting candidate screens or exports without a trustworthy importer inventory could break a hidden route, test, or E2E path.
+- No tests, lint, typecheck, Android builds, or GitHub Actions were run, following the user's explicit instruction. No runtime verification is claimed.
+- Next: use the complete tree/blob inventory to build a source-level reference map for these specific candidate modules and their barrels. Prioritize a safe removal of unmounted legacy UI only after every direct import and E2E/test reference is accounted for; preserve the local Pal model and chat integration.
