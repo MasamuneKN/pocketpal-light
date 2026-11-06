@@ -554,3 +554,18 @@ No physical-device verification was performed. No production source, dependencie
 3. Continue the Plus/purchases, voice, and Pals reachability audit across navigation, imports, native modules, resources, workflows, and package dependencies.
 4. Keep the feature branch unmerged; its current unique changes are stale or behaviorally redundant.
 5. Regenerate `yarn.lock` only after the dependency removal set is established, using Yarn Classic 1.22.22. Keep standalone APK packaging manual-only.
+## 23. Verified session update — 2026-11-06 (CI cancellation root cause and trigger fix)
+
+### CI cancellation diagnosis
+
+- The rerun of CI Pipeline #42165765676 (job `127744912495`) completed dependency installation, localization validation, font validation, ESLint (0 errors; 51 warnings), and TypeScript (`tsc --noEmit`, exit 0). GitHub cancelled the job immediately afterward; Jest was skipped and Android/iOS jobs were cancelled.
+- The workflow's concurrency group is `pocketpal-lite-ci-${{ github.ref }}` with `cancel-in-progress: true`. Every push to `main`, including handover-only commits under `docs/`, therefore starts a new run that can cancel the existing run. The handover commit `cacfa6c7e779417badbe70f810bb152d8874037c` landed while the rerun was active, matching the cancellation window. This is the likely cause; no Jest failure is evidenced.
+- Fixed `.github/workflows/ci.yml` on `main` with commit `c88a025f042a6d5a42889438e84bc52e8408433c`: both `push` and `pull_request` triggers now use `paths-ignore` for `docs/**` and `**/*.md`. Mixed documentation + code changes still trigger CI; manual `workflow_dispatch` remains available.
+- Re-fetched the workflow from live `main` and verified the new trigger filters. Workflow blob SHA: `cf0b4729caa6fcbb6bc44a16126ebafd46af695c`.
+
+### Current validation state and next steps
+
+- The cancellation issue is addressed in workflow configuration, but a fresh complete CI run has not yet been confirmed. Do not report Jest or Android as passing.
+- Next, retrieve the CI run triggered by commit `c88a025f042a6d5a42889438e84bc52e8408433c` if a run ID becomes available; confirm lint, typecheck, Jest, and dependent Android job separately.
+- Once a full Jest run is available, continue root-cause triage without deleting retained-feature tests or weakening assertions.
+- Continue Plus/purchases, voice, and Pals reachability audit only after reliable baseline CI is available. Keep APK packaging manual-only and the feature branch unmerged.
