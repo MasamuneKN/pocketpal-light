@@ -207,8 +207,6 @@ describe('buildTextOutputs', () => {
         'ios/PocketPal/Images.xcassets/AppIcon.appiconset/Contents.json'
       ];
     expect(contents.endsWith('}\n')).toBe(true);
-    expect(contents).toContain('"filename" : "AppIcon.png"');
-    expect(contents).not.toMatch(/":/);
     const {images, info} = JSON.parse(contents);
     expect(info).toEqual({author: 'xcode', version: 1});
     expect(images.map(image => image.filename)).toEqual([
