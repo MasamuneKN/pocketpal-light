@@ -32,13 +32,13 @@ describe('deriveToolSchemas strict-subset filtering', () => {
 
   it('returns all schemas when talentNames is undefined', () => {
     const schemas = deriveToolSchemas();
-    expect(schemas).toHaveLength(5);
+    expect(schemas).toHaveLength(3);
   });
 
-  it('includes the internet-search talents in the full set', () => {
+  it('does not include retired internet-search tools', () => {
     const names = deriveToolSchemas().map(s => s.function.name);
-    expect(names).toContain('web_search');
-    expect(names).toContain('read_url');
+    expect(names).not.toContain('web_search');
+    expect(names).not.toContain('read_url');
   });
 
   it('ignores unknown names and returns only matched ones', () => {
@@ -64,7 +64,7 @@ describe('dispatch error paths produce talentResults entries', () => {
   });
 
   it('pact-miss error message includes talent name', () => {
-    const fnName = 'web_search';
+    const fnName = 'calculate';
     const summary = `Talent "${fnName}" is not enabled for this Pal`;
     expect(summary).toContain(fnName);
   });

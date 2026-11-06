@@ -89,13 +89,11 @@ describe('PACT vocabulary audit', () => {
       resetRegisteredFlag();
     });
 
-    it('registers render_html, calculate, datetime, web_search, read_url', () => {
+    it('registers the retained render_html, calculate, and datetime engines', () => {
       registerDefaultTalents();
       expect(talentRegistry.has('render_html')).toBe(true);
       expect(talentRegistry.has('calculate')).toBe(true);
       expect(talentRegistry.has('datetime')).toBe(true);
-      expect(talentRegistry.has('web_search')).toBe(true);
-      expect(talentRegistry.has('read_url')).toBe(true);
     });
 
     it('engines retrieved by name are executable', async () => {
@@ -126,13 +124,11 @@ describe('PACT vocabulary audit', () => {
 
     it('returns ToolDefinition array for all registered engines', () => {
       const schemas = deriveToolSchemas();
-      expect(schemas).toHaveLength(5);
+      expect(schemas).toHaveLength(3);
       const names = schemas.map(s => s.function.name);
       expect(names).toContain('render_html');
       expect(names).toContain('calculate');
       expect(names).toContain('datetime');
-      expect(names).toContain('web_search');
-      expect(names).toContain('read_url');
     });
 
     it('works without prior registerDefaultTalents call', () => {
