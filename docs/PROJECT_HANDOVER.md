@@ -391,7 +391,6 @@ No physical-device verification was performed. No production source, dependencie
 4. Complete dependency reachability and native Android configuration audit. Do not regenerate `yarn.lock` until the removal set is established; use Yarn Classic 1.22.22 in a clean environment.
 5. Verify Android APK only after passing CI, or on explicit manual dispatch. Keep physical-device checks outstanding until evidence is supplied: install/launch, model download/import, persistence, local inference, gallery selection, and offline inference.
 
-
 ## 18. Verified session update — 2026-11-06 (test-triage corrections and final workflow tuning)
 
 ### Changes committed after section 17
@@ -434,7 +433,6 @@ No physical-device verification was performed. No production source, dependencie
 3. Revisit the remaining ChatHeaderTitle and ChatHeader failures against the current store/component contracts.
 4. Continue Plus/voice/Pals production retirement, dependency reachability audit, selective feature-branch reconciliation, Yarn Classic lockfile regeneration, and Android device verification.
 5. The old automatic APK dispatch path is removed. Use manual dispatch for standalone APK packaging; normal CI builds Android only after successful checks.
-
 
 ## 19. Verified session update — 2026-11-06 (lint recovery and server-default fixture)
 
