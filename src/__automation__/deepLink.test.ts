@@ -31,10 +31,9 @@ describe('automation deep-link dispatcher', () => {
       ),
     ).resolves.toBe(true);
 
-    expect(navigation.navigate).toHaveBeenCalledWith(
-      ROUTES.BENCHMARK_RUNNER,
-      {autostart: false},
-    );
+    expect(navigation.navigate).toHaveBeenCalledWith(ROUTES.BENCHMARK_RUNNER, {
+      autostart: false,
+    });
   });
 
   it('routes the benchmark URL with autostart enabled when requested', async () => {
@@ -43,10 +42,9 @@ describe('automation deep-link dispatcher', () => {
       navigation,
     );
 
-    expect(navigation.navigate).toHaveBeenCalledWith(
-      ROUTES.BENCHMARK_RUNNER,
-      {autostart: true},
-    );
+    expect(navigation.navigate).toHaveBeenCalledWith(ROUTES.BENCHMARK_RUNNER, {
+      autostart: true,
+    });
   });
 
   it('routes the Plus test-feature URL', async () => {
