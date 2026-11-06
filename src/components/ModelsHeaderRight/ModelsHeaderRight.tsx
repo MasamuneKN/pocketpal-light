@@ -10,8 +10,7 @@ import iconHFLight from '../../assets/icon-hf-light.png';
 import {createStyles} from './styles';
 import {ModelsResetDialog} from '../ModelsResetDialog';
 
-import {modelStore} from '../../store/ModelStore';
-import {uiStore} from '../../store/UIStore';
+import {modelStore, uiStore} from '../../store';
 
 import {L10nContext} from '../../utils';
 
