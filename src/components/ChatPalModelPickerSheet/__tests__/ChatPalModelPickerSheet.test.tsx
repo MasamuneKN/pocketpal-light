@@ -1,11 +1,11 @@
 import React from 'react';
 import {render, fireEvent, waitFor} from '@testing-library/react-native';
-import {Alert, Keyboard} from 'react-native';
+import {Keyboard} from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 
 import {ChatPalModelPickerSheet} from '../ChatPalModelPickerSheet';
 import {SheetBackground} from '../../Sheet/SheetBackground';
-import {modelStore, chatSessionStore} from '../../../store';
+import {modelStore} from '../../../store';
 import {user} from '../../../../jest/fixtures';
 import {UserContext, L10nContext} from '../../../utils';
 import {l10n} from '../../../locales';
@@ -115,7 +115,6 @@ const defaultProps = {
   chatInputHeight: 60,
   onClose: jest.fn(),
   onModelSelect: jest.fn(),
-  onPalSelect: jest.fn(),
   keyboardHeight: 0,
 };
 
@@ -135,8 +134,8 @@ describe('ChatPalModelPickerSheet', () => {
 
     expect(getByTestId('bottom-sheet')).toBeTruthy();
     expect(getByTestId('bottom-sheet-flatlist')).toBeTruthy();
-    expect(getByTestId('chat-pal-model-picker-tab-models')).toBeTruthy();
-    expect(getByTestId('chat-pal-model-picker-tab-pals')).toBeTruthy();
+    expect(getByText('Test Model 1')).toBeTruthy();
+    expect(getByText('Test Model 2')).toBeTruthy();
   });
 
   it('does not render when not visible', () => {
@@ -199,8 +198,8 @@ describe('ChatPalModelPickerSheet', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('displays models and pals tabs', () => {
-    const {getByText} = render(
+  it('does not expose the retired Pal-selection tab', () => {
+    const {queryByText, getByText} = render(
       <UserContext.Provider value={user}>
         <L10nContext.Provider value={l10n.en}>
           <ChatPalModelPickerSheet {...defaultProps} />
@@ -208,30 +207,8 @@ describe('ChatPalModelPickerSheet', () => {
       </UserContext.Provider>,
     );
 
-    expect(
-      getByText(l10n.en.components.chatPalModelPickerSheet.modelsTab),
-    ).toBeTruthy();
-    expect(
-      getByText(l10n.en.components.chatPalModelPickerSheet.palsTab),
-    ).toBeTruthy();
-  });
-
-  it('switches tabs when tab is pressed', () => {
-    const {getByText} = render(
-      <UserContext.Provider value={user}>
-        <L10nContext.Provider value={l10n.en}>
-          <ChatPalModelPickerSheet {...defaultProps} />
-        </L10nContext.Provider>
-      </UserContext.Provider>,
-    );
-
-    const palsTab = getByText(
-      l10n.en.components.chatPalModelPickerSheet.palsTab,
-    );
-    fireEvent.press(palsTab);
-
-    // Tab should be active after press
-    expect(palsTab).toBeTruthy();
+    expect(getByText('Test Model 1')).toBeTruthy();
+    expect(queryByText(l10n.en.components.chatPalModelPickerSheet.palsTab)).toBeNull();
   });
 
   it('calls onModelSelect when model is selected', async () => {
@@ -251,67 +228,6 @@ describe('ChatPalModelPickerSheet', () => {
       expect(defaultProps.onModelSelect).toHaveBeenCalledWith('model1');
       expect(defaultProps.onClose).toHaveBeenCalled();
       expect(modelStore.selectModel).toHaveBeenCalled();
-    });
-  });
-
-  it('calls onPalSelect when pal is selected', async () => {
-    const {getByText} = render(
-      <UserContext.Provider value={user}>
-        <L10nContext.Provider value={l10n.en}>
-          <ChatPalModelPickerSheet {...defaultProps} />
-        </L10nContext.Provider>
-      </UserContext.Provider>,
-    );
-
-    // Switch to pals tab first
-    const palsTab = getByText(
-      l10n.en.components.chatPalModelPickerSheet.palsTab,
-    );
-    fireEvent.press(palsTab);
-
-    // Find and press a pal
-    const palItem = getByText('Test Assistant');
-    fireEvent.press(palItem);
-
-    await waitFor(() => {
-      expect(chatSessionStore.setActivePal).toHaveBeenCalledWith('pal1');
-      expect(defaultProps.onPalSelect).toHaveBeenCalledWith('pal1');
-      expect(defaultProps.onClose).toHaveBeenCalled();
-    });
-  });
-
-  it('shows model switch confirmation when pal has different default model', async () => {
-    const {getByText} = render(
-      <UserContext.Provider value={user}>
-        <L10nContext.Provider value={l10n.en}>
-          <ChatPalModelPickerSheet {...defaultProps} />
-        </L10nContext.Provider>
-      </UserContext.Provider>,
-    );
-
-    // Switch to pals tab
-    const palsTab = getByText(
-      l10n.en.components.chatPalModelPickerSheet.palsTab,
-    );
-    fireEvent.press(palsTab);
-
-    // Select pal with different default model
-    const palItem = getByText('Test Roleplay');
-    fireEvent.press(palItem);
-
-    await waitFor(() => {
-      expect(Alert.alert).toHaveBeenCalledWith(
-        l10n.en.components.chatPalModelPickerSheet.confirmationTitle,
-        expect.stringContaining('Test Model 2'),
-        expect.arrayContaining([
-          expect.objectContaining({
-            text: l10n.en.components.chatPalModelPickerSheet.keepButton,
-          }),
-          expect.objectContaining({
-            text: l10n.en.components.chatPalModelPickerSheet.switchButton,
-          }),
-        ]),
-      );
     });
   });
 
