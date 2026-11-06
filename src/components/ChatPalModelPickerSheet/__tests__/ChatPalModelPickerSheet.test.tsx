@@ -1,6 +1,6 @@
 import React from 'react';
 import {render, fireEvent, waitFor} from '@testing-library/react-native';
-import {Keyboard} from 'react-native';
+import {Alert, Keyboard} from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 
 import {ChatPalModelPickerSheet} from '../ChatPalModelPickerSheet';
