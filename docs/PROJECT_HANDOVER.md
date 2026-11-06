@@ -719,3 +719,15 @@ No physical-device verification was performed. No production source, dependencie
 - No production source change was made in this pass: the remaining candidates require a reliable full import graph or lockfile regeneration. This avoids breaking indirect barrel consumers or the E2E build.
 - Per user instruction, no tests, lint, typecheck, Android builds, or GitHub Actions were run. No runtime verification is claimed.
 - Next: obtain a local checkout or another reliable full-text source scan, then enumerate all imports from the three barrels and trace ASR/VoiceMode symbols separately from retained TTS. Continue Plus/IAP and Pals audits only after their production entry points and E2E contracts are mapped.
+
+## 35. Session update — 2026-11-06 (Plus/IAP and Pals coupling review)
+
+- Reviewed the app entry point, `PlusHost`, `PurchaseStore`, `PalStore`, `HubRunSheetHost`, PalsHub service barrel, and E2E IAP/memory adapters.
+- `App.tsx` mounts the local Hugging Face `HubRunSheetHost`; this is part of model acquisition and must be retained. It is not evidence of a PalsHub screen.
+- `PurchaseStore` is not an isolated Plus-only module: it imports IAP services, Plus catalog/gating, PalsHub events/types, and the PalStore; its ledger models both Plus entitlements and paid Pal content. Removing it or its dependencies as a simple Plus cleanup would risk corrupting purchase recovery and PalStore behavior.
+- `PalStore` still contains PalsHub search/library operations, remote Pal conversion and ownership methods, and local default-Pal seeding. These are broad product surfaces, but the current evidence does not establish which store methods are reached by supported chat, migration, or onboarding paths.
+- `PlusHost` imports and renders `PlusScreen`, RAM gating, Plus entitlement checks, and focus-return behavior. The app entry point inspected here does not mount `PlusHost` directly; however, a full consumer/import trace is still required before removing the host, Plus screen, gate, or related tests.
+- E2E `IapAdapter` is explicitly mounted through AutomationBridge and drives the fake store. Preserve it until the E2E IAP contract and all associated specs are intentionally retired. MemoryAdapter is a separate E2E profiling surface.
+- These findings show that Plus/IAP and Pals cannot safely be retired by deleting named folders or dependencies in isolation. No source changes were made; the connected repository code-search index remains unavailable, and no reliable full-text import graph is currently exposed.
+- Per user instruction, no tests, lint, typecheck, builds, or Actions were run. No runtime verification is claimed.
+- Next: trace the consumers of `PurchaseStore`, `PalStore`, `PlusHost`, and PalsHub services from screens, onboarding, chat/session state, migrations, and E2E specs. Identify a supported local-Pal contract separately from remote PalsHub functionality before retiring either.
