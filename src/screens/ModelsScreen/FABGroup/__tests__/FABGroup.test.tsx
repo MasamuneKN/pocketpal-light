@@ -33,7 +33,6 @@ describe('FABGroup', () => {
       <FABGroup
         onAddHFModel={mockOnAddHFModel}
         onAddLocalModel={mockOnAddLocalModel}
-        onAddRemoteModel={mockOnAddRemoteModel}
       />,
       {withNavigation: true},
     );
@@ -51,7 +50,6 @@ describe('FABGroup', () => {
       <FABGroup
         onAddHFModel={mockOnAddHFModel}
         onAddLocalModel={mockOnAddLocalModel}
-        onAddRemoteModel={mockOnAddRemoteModel}
       />,
       {withNavigation: true},
     );
