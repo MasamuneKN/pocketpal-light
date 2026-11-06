@@ -5,10 +5,16 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
   push:
     branches:
       - main
       - local-only-android
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
 
 permissions:
   contents: read
