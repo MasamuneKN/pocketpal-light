@@ -921,3 +921,38 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Use the new Jest report to measure the effect of the store identity fixes and local-only test corrections. Continue by root cause; do not weaken assertions or bulk-delete retained-feature tests.
 3. Reassess remaining PalsHub/Plus/voice-related tests against current production entry points and E2E gates. Preserve TTS, local inference, model acquisition, persistence, gallery selection, and offline operation.
 4. Once the non-APK CI suite is clean, complete the dependency/native audit and device verification before considering APK production.
+
+
+## 43. Session update — 2026-11-07 (Jest failures reduced; latest CI pending)
+
+### Current main and verified failure inventory
+
+- Latest observed main HEAD: `d71936e197fb63aae6fee2962de8edf0eb519c7f` (`test(chat-input): remove unused camera mock and TextInput import`).
+- Completed CI run `42272884566` on `56dbb00`: lint, TypeScript, localization and font checks passed; Jest improved from the prior 33 failing suites / 165 failing tests to **12 failing suites / 63 failing tests**, with 8,507 passing tests and 2 skipped (8,572 total). Android build job was skipped. This is the latest completed Jest evidence before the newest fixes.
+- Later runs were repeatedly cancelled by subsequent commits. CI for `d71936e` is queued as run `42296909528`; formatting workflow run `42296909532` is also queued. Do not claim the latest changes are verified until the current run finishes.
+
+### Changes since the previous handover
+
+- Corrected the generated iOS icon JSON test to assert parsed JSON semantics rather than a brittle whitespace/colon formatting string. The generated JSON was valid; only the string-format expectation was wrong.
+- Added the missing explicit React Native `Alert` import to the ChatPal model-picker test, fixing its suite-level `ReferenceError: Alert is not defined`.
+- Removed the VideoPalScreen test suite because the referenced production screen module no longer exists. The current composer no longer exposes video-camera capture controls; image gallery selection remains supported and is now tested separately.
+- Removed the obsolete SidebarContent Plus-entry test suite because the current drawer has no Plus entry/subtitle route.
+- SettingsScreen test failures referenced TTS/ASR availability switches, hands-free voice settings, Internet Search provider/key rows, and test IDs absent from the current production SettingsScreen (the component contains none of those feature sections). Removed only those retired UI suites and kept the supported model initialization, GPU, speculative decoding, and cache settings coverage. Restored the localization fixture needed by the remaining settings tests.
+- Replaced ChatInput's obsolete camera/video/voice-button tests with tests for the current gallery-only image attachment flow: opening the Gallery menu, selecting an image, and restoring auto-release after gallery errors. Kept image-send and image attachment coverage. Removed obsolete camera/voice-only imports and mocks.
+- Fixed a genuine DownloadBanner behavior gap: failed downloads now display the owning local Pal name when the failed model is a Pal's default model, falling back to the model name otherwise. This matches the existing user-facing requirement and the regression test.
+
+### Remaining known failures from run 42272884566
+
+- `SquarePalCard.test.tsx`: tests still expect retired PalsHub ratings/tags/premium/purchase/update badges and PalsHub card actions. The production component now explicitly accepts a local `Pal` and has no PalsHub/purchase-badge code. Remove or replace only those stale cases; preserve local card rendering, local share/delete, video-capability, and chat navigation tests.
+- `ChatView.test.tsx`: one stale auto-load expectation uses an old default model ID; another expects a removed Pal-load snackbar. Inspect current default model selection and the retained context-increase affordance before updating coverage.
+- `ChatView.routerLoading.test.tsx`: router loading tests expect a pending-slot indicator not currently rendered. Verify the current router/model loading UX before deciding whether to change production or test expectations.
+- `ChatScreen.test.tsx`: tool-compatibility banner expectation likely targets a removed four-slot capability banner; verify current ChatScreen behavior and retain meaningful capability checks if still surfaced elsewhere.
+- `DownloadBanner.test.tsx`: its owner-name assertion is now addressed in production; await CI confirmation.
+- Remaining App/ChatInput/Settings/ChatPalModelPicker failures need review in the newest CI report; do not assume all are obsolete.
+
+### Next actions
+
+1. Wait for CI run `42296909528` on `d71936e`; inspect lint, TypeScript, Jest and ensure Android remains skipped.
+2. Triage the next Jest report; continue with SquarePalCard's obsolete PalsHub-only tests, then ChatView/router loading and ChatScreen capability banner.
+3. Preserve local inference, model download/gallery selection, session persistence, offline behavior and TTS coverage. Do not remove store/service tests merely because corresponding Settings UI was retired.
+4. APK production remains blocked until all lingering non-APK issues are resolved and verified.
