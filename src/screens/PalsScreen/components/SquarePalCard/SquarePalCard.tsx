@@ -13,8 +13,7 @@ import {
 import {useTheme} from '../../../../hooks';
 import {createStyles} from './styles';
 import type {Pal} from '../../../../types/pal';
-import {palStore} from '../../../../store/PalStore';
-import {modelStore} from '../../../../store/ModelStore';
+import {palStore, modelStore} from '../../../../store';
 import {L10nContext} from '../../../../utils';
 import {t} from '../../../../locales';
 import {exportPal} from '../../../../utils/exportUtils';
