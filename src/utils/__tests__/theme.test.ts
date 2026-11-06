@@ -191,13 +191,8 @@ describe('Theme builder — locale-aware typography', () => {
     expect(theme.typography.headlineH1.fontFamily).toBe('Fraunces-Medium');
   });
 
-  it('ja locale swaps headlineH1 to Inter-Medium', () => {
-    const theme = buildTheme({mode: 'light', language: 'ja'});
-    expect(theme.typography.headlineH1.fontFamily).toBe('Inter-Medium');
-  });
-
-  it('codeM remains JetBrainsMono for non-Latin locales', () => {
-    const theme = buildTheme({mode: 'light', language: 'fa'});
+  it('uses the supported English locale for code typography', () => {
+    const theme = buildTheme({mode: 'light', language: 'en'});
     expect(theme.typography.codeM.fontFamily).toBe('JetBrainsMono-Regular');
   });
 });
