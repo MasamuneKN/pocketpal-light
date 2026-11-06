@@ -5,7 +5,7 @@ import {CompletionParams} from '../../utils/completionTypes';
 import {
   chatSessionStore,
   defaultCompletionSettings,
-} from '../../store/ChatSessionStore';
+} from '../../store';
 import {modelStore} from '../../store';
 import {styles} from './styles';
 import {
