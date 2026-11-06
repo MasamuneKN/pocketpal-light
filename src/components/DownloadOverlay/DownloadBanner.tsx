@@ -5,8 +5,7 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 
 import {XIcon} from '../../assets/icons';
 import {useTheme} from '../../hooks/useTheme';
-import {modelStore} from '../../store/ModelStore';
-import {uiStore} from '../../store/UIStore';
+import {modelStore, uiStore} from '../../store';
 import {L10nContext} from '../../utils';
 import {ROUTES} from '../../utils/navigationConstants';
 import {bannerStyles as createStyles} from './styles';
