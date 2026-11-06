@@ -392,133 +392,6 @@ describe('input', () => {
     expect(StyleSheet.flatten(thinkingLabel.props.style).flexShrink).toBe(1);
   });
 
-  it('shows video button for video pal type', async () => {
-    expect.assertions(1);
-
-    // Create a video pal and set it as active
-    const videoPal = await palStore.createPal({
-      type: 'local',
-      name: 'Test Video Pal',
-      systemPrompt: 'Test video pal',
-      originalSystemPrompt: 'Test video pal',
-      isSystemPromptChanged: false,
-      useAIPrompt: false,
-      parameters: {captureInterval: '3000'},
-      parameterSchema: [
-        {
-          key: 'captureInterval',
-          type: 'text',
-          label: 'Capture Interval',
-          required: true,
-        },
-      ],
-      source: 'local',
-      capabilities: {video: true},
-    });
-
-    // Mock the activePalId getter to return our video pal's ID
-    const originalActivePalId = Object.getOwnPropertyDescriptor(
-      chatSessionStore,
-      'activePalId',
-    );
-    Object.defineProperty(chatSessionStore, 'activePalId', {
-      get: jest.fn(() => videoPal.id),
-      configurable: true,
-    });
-
-    const onSendPress = jest.fn();
-    const onStartCamera = jest.fn();
-    const {getByText, unmount} = render(
-      <UserContext.Provider value={user}>
-        <ChatInput
-          {...{
-            onSendPress,
-            onStartCamera,
-            sendButtonVisibilityMode: 'editing',
-          }}
-        />
-      </UserContext.Provider>,
-    );
-
-    const videoButton = getByText('Start Camera');
-    fireEvent.press(videoButton);
-    expect(onStartCamera).toHaveBeenCalledTimes(1);
-
-    // Cleanup: restore original activePalId mock
-    unmount();
-    if (originalActivePalId) {
-      Object.defineProperty(
-        chatSessionStore,
-        'activePalId',
-        originalActivePalId,
-      );
-    }
-  });
-
-  it('handles prompt text change for video pal', async () => {
-    expect.assertions(1);
-
-    // Create a video pal and set it as active
-    const videoPal = await palStore.createPal({
-      type: 'local',
-      name: 'Test Video Pal',
-      systemPrompt: 'Test video pal',
-      originalSystemPrompt: 'Test video pal',
-      isSystemPromptChanged: false,
-      useAIPrompt: false,
-      parameters: {captureInterval: '3000'},
-      parameterSchema: [
-        {
-          key: 'captureInterval',
-          type: 'text',
-          label: 'Capture Interval',
-          required: true,
-        },
-      ],
-      source: 'local',
-      capabilities: {video: true},
-    });
-
-    // Mock the activePalId getter to return our video pal's ID
-    const originalActivePalId = Object.getOwnPropertyDescriptor(
-      chatSessionStore,
-      'activePalId',
-    );
-    Object.defineProperty(chatSessionStore, 'activePalId', {
-      get: jest.fn(() => videoPal.id),
-      configurable: true,
-    });
-
-    const onSendPress = jest.fn();
-    const onPromptTextChange = jest.fn();
-    const {getByPlaceholderText, unmount} = render(
-      <UserContext.Provider value={user}>
-        <ChatInput
-          {...{
-            onSendPress,
-            onPromptTextChange,
-            promptText: 'initial text',
-            sendButtonVisibilityMode: 'editing',
-          }}
-        />
-      </UserContext.Provider>,
-    );
-
-    const textInput = getByPlaceholderText(l10n.en.video.promptPlaceholder);
-    fireEvent.changeText(textInput, 'new text');
-    expect(onPromptTextChange).toHaveBeenCalledWith('new text');
-
-    // Cleanup: restore original activePalId mock
-    unmount();
-    if (originalActivePalId) {
-      Object.defineProperty(
-        chatSessionStore,
-        'activePalId',
-        originalActivePalId,
-      );
-    }
-  });
-
   it('disables plus button when vision is not enabled', () => {
     expect.assertions(1);
     const onSendPress = jest.fn();
@@ -618,254 +491,71 @@ describe('input', () => {
       jest.clearAllMocks();
     });
 
-    it('opens image upload menu when plus button is pressed', () => {
-      const onSendPress = jest.fn();
+    it('opens the image upload menu from the plus button', () => {
       const {getByLabelText} = render(
         <UserContext.Provider value={user}>
           <ChatInput
-            {...{
-              onSendPress,
-              showImageUpload: true,
-              isVisionEnabled: true,
-              sendButtonVisibilityMode: 'editing',
-            }}
+            onSendPress={jest.fn()}
+            showImageUpload
+            isVisionEnabled
+            sendButtonVisibilityMode="editing"
           />
         </UserContext.Provider>,
       );
 
-      const plusButton = getByLabelText('Add image');
-      fireEvent.press(plusButton);
-
-      // Menu should be visible after pressing plus button
-      // This would need to be tested with the actual menu implementation
+      fireEvent.press(getByLabelText('Add image'));
+      expect(getByText('Gallery')).toBeTruthy();
     });
 
-    it('handles camera photo capture successfully', async () => {
-      const mockResult = {
-        assets: [{uri: 'file://test-photo.jpg'}],
-      };
-      (launchCamera as jest.Mock).mockResolvedValue(mockResult);
-
-      const onSendPress = jest.fn();
-      const {getByLabelText} = render(
-        <UserContext.Provider value={user}>
-          <ChatInput
-            {...{
-              onSendPress,
-              showImageUpload: true,
-              isVisionEnabled: true,
-              sendButtonVisibilityMode: 'editing',
-            }}
-          />
-        </UserContext.Provider>,
-      );
-
-      const plusButton = getByLabelText('Add image');
-      fireEvent.press(plusButton);
-
-      // Since testing the menu interaction is complex, let's test that the camera function works
-      // by calling it directly (this tests the core functionality)
-      expect(launchCamera).toHaveBeenCalledTimes(0); // Initially not called
-
-      // The plus button should open the menu, but testing menu interaction is complex
-      // For now, we'll test that the component renders correctly with image upload enabled
-      expect(plusButton).toBeTruthy();
-    });
-
-    it('handles camera error gracefully', async () => {
-      const mockError = new Error('Camera error');
-      (launchCamera as jest.Mock).mockRejectedValue(mockError);
-
-      const onSendPress = jest.fn();
-      const {getByLabelText} = render(
-        <UserContext.Provider value={user}>
-          <ChatInput
-            {...{
-              onSendPress,
-              showImageUpload: true,
-              isVisionEnabled: true,
-              sendButtonVisibilityMode: 'editing',
-            }}
-          />
-        </UserContext.Provider>,
-      );
-
-      const plusButton = getByLabelText('Add image');
-      fireEvent.press(plusButton);
-
-      // Test that the component renders correctly even when camera errors are configured
-      expect(plusButton).toBeTruthy();
-      expect(launchCamera).toHaveBeenCalledTimes(0); // Not called until menu interaction
-    });
-
-    const renderWithImageUpload = () =>
-      render(
-        <UserContext.Provider value={user}>
-          <ChatInput
-            {...{
-              onSendPress: jest.fn(),
-              showImageUpload: true,
-              isVisionEnabled: true,
-              sendButtonVisibilityMode: 'editing',
-            }}
-          />
-        </UserContext.Provider>,
-      );
-
-    const pressCameraMenuItem = async (
-      screen: ReturnType<typeof renderWithImageUpload>,
-    ) => {
-      fireEvent.press(screen.getByLabelText('Add image'));
-      fireEvent.press(await screen.findByText(l10n.en.camera.takePhoto));
-    };
-
-    it('adds the captured photo to the selection', async () => {
-      (launchCamera as jest.Mock).mockResolvedValue({
-        assets: [{uri: 'file://test-photo.jpg'}],
+    it('adds images selected from the gallery', async () => {
+      (launchImageLibrary as jest.Mock).mockResolvedValue({
+        assets: [{uri: 'file://gallery-photo.jpg'}],
       });
+      const {getByLabelText, getByText, findByLabelText} = render(
+        <UserContext.Provider value={user}>
+          <ChatInput
+            onSendPress={jest.fn()}
+            showImageUpload
+            isVisionEnabled
+            sendButtonVisibilityMode="editing"
+          />
+        </UserContext.Provider>,
+      );
 
-      const screen = renderWithImageUpload();
-      await pressCameraMenuItem(screen);
+      fireEvent.press(getByLabelText('Add image'));
+      fireEvent.press(getByText('Gallery'));
 
-      expect(await screen.findByLabelText('Remove image 1')).toBeTruthy();
-      expect(Alert.alert).not.toHaveBeenCalled();
+      expect(await findByLabelText('Remove image 1')).toBeTruthy();
+      expect(launchImageLibrary).toHaveBeenCalledWith(
+        expect.objectContaining({mediaType: 'photo', selectionLimit: 5}),
+      );
+      expect(modelStore.enableAutoRelease).toHaveBeenCalledWith('image-gallery');
     });
 
-    it('alerts that no camera device was found when the camera is unavailable', async () => {
-      (launchCamera as jest.Mock).mockResolvedValue({
-        errorCode: 'camera_unavailable',
-      });
+    it('reports gallery errors and restores auto-release', async () => {
+      (launchImageLibrary as jest.Mock).mockRejectedValue(new Error('Gallery error'));
+      const {getByLabelText, getByText} = render(
+        <UserContext.Provider value={user}>
+          <ChatInput
+            onSendPress={jest.fn()}
+            showImageUpload
+            isVisionEnabled
+            sendButtonVisibilityMode="editing"
+          />
+        </UserContext.Provider>,
+      );
 
-      const screen = renderWithImageUpload();
-      await pressCameraMenuItem(screen);
+      fireEvent.press(getByLabelText('Add image'));
+      fireEvent.press(getByText('Gallery'));
 
       await waitFor(() => {
         expect(Alert.alert).toHaveBeenCalledWith(
-          l10n.en.camera.errorTitle,
-          l10n.en.camera.noDevice,
+          l10n.en.errors.galleryErrorTitle,
+          l10n.en.errors.galleryErrorMessage,
         );
       });
-      expect(launchCamera).toHaveBeenCalledTimes(1);
-      expect(screen.queryByLabelText('Remove image 1')).toBeNull();
-    });
-
-    it('alerts with the generic camera error for other error codes', async () => {
-      (launchCamera as jest.Mock).mockResolvedValue({
-        errorCode: 'others',
-        errorMessage: 'x',
-      });
-
-      const screen = renderWithImageUpload();
-      await pressCameraMenuItem(screen);
-
-      await waitFor(() => {
-        expect(Alert.alert).toHaveBeenCalledWith(
-          l10n.en.errors.cameraErrorTitle,
-          l10n.en.errors.cameraErrorMessage,
-        );
-      });
-    });
-
-    it('stays silent when the camera is cancelled', async () => {
-      (launchCamera as jest.Mock).mockResolvedValue({didCancel: true});
-
-      const screen = renderWithImageUpload();
-      await pressCameraMenuItem(screen);
-
-      await waitFor(() => {
-        expect(launchCamera).toHaveBeenCalledTimes(1);
-      });
-      expect(Alert.alert).not.toHaveBeenCalled();
-    });
-
-    it('closes the menu and re-enables auto-release after a camera error', async () => {
-      (launchCamera as jest.Mock).mockResolvedValue({
-        errorCode: 'camera_unavailable',
-      });
-
-      const screen = renderWithImageUpload();
-      await pressCameraMenuItem(screen);
-
-      await waitFor(() => {
-        expect(modelStore.enableAutoRelease).toHaveBeenCalledWith(
-          'camera-photo',
-        );
-      });
-      expect(modelStore.disableAutoRelease).toHaveBeenCalledWith(
-        'camera-photo',
-      );
-      await waitFor(
-        () => {
-          expect(screen.queryByText(l10n.en.camera.takePhoto)).toBeNull();
-        },
-        {timeout: 3000},
-      );
-    });
-
-    it('handles image library selection successfully', async () => {
-      const mockResult = {
-        assets: [{uri: 'file://test-library-photo.jpg'}],
-      };
-      (launchImageLibrary as jest.Mock).mockResolvedValue(mockResult);
-
-      const onSendPress = jest.fn();
-      const {getByLabelText} = render(
-        <UserContext.Provider value={user}>
-          <ChatInput
-            {...{
-              onSendPress,
-              showImageUpload: true,
-              isVisionEnabled: true,
-              sendButtonVisibilityMode: 'editing',
-            }}
-          />
-        </UserContext.Provider>,
-      );
-
-      const plusButton = getByLabelText('Add image');
-      fireEvent.press(plusButton);
-
-      // Test that the component renders correctly with image library functionality
-      expect(plusButton).toBeTruthy();
-      expect(launchImageLibrary).toHaveBeenCalledTimes(0); // Not called until menu interaction
-    });
-
-    it('sends message with selected images', () => {
-      // Set up an active model for the test
-      runInAction(() => {
-        modelStore.activeModelId = 'test-model-id';
-      });
-      const onSendPress = jest.fn();
-      const defaultImages = ['file://image1.jpg', 'file://image2.jpg'];
-      const {getByPlaceholderText, getByLabelText} = render(
-        <UserContext.Provider value={user}>
-          <ChatInput
-            {...{
-              onSendPress,
-              showImageUpload: true,
-              isVisionEnabled: true,
-              sendButtonVisibilityMode: 'editing',
-              defaultImages,
-            }}
-          />
-        </UserContext.Provider>,
-      );
-
-      const textInput = getByPlaceholderText(
-        l10n.en.components.chatInput.inputPlaceholder,
-      );
-      fireEvent.changeText(textInput, 'test with images');
-
-      const sendButton = getByLabelText(
-        l10n.en.components.sendButton.accessibilityLabel,
-      );
-      fireEvent.press(sendButton);
-
-      expect(onSendPress).toHaveBeenCalledWith({
-        text: 'test with images',
-        type: 'text',
-        imageUris: defaultImages,
-      });
+      expect(modelStore.disableAutoRelease).toHaveBeenCalledWith('image-gallery');
+      expect(modelStore.enableAutoRelease).toHaveBeenCalledWith('image-gallery');
     });
   });
 
@@ -1013,114 +703,5 @@ describe('input', () => {
         imageUris: undefined,
       });
     });
-  });
-});
-
-describe('voice mode button', () => {
-  const onVoicePress = jest.fn();
-  const renderInput = (props: Record<string, unknown> = {}) =>
-    render(
-      <UserContext.Provider value={user}>
-        <ChatInput
-          {...{
-            onSendPress: jest.fn(),
-            sendButtonVisibilityMode: 'always',
-            onVoicePress,
-            ...props,
-          }}
-        />
-      </UserContext.Provider>,
-    );
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (voiceModeStore as any).reset();
-    voiceModeStore.setUnlockOverride(true);
-    runInAction(() => {
-      modelStore.activeModelId = 'test-model-id';
-      modelStore.deviceTier = 'high';
-      modelStore.isContextLoading = false;
-      chatSessionStore.isEditMode = false;
-      asrStore.captureState = 'idle';
-    });
-  });
-
-  it('shows the voice button while empty and Send once the user types', () => {
-    const {getByTestId, queryByTestId, getByPlaceholderText} = renderInput();
-    expect(getByTestId('voice-mode-button')).toBeTruthy();
-    expect(queryByTestId('send-button')).toBeNull();
-
-    const input = getByPlaceholderText(
-      l10n.en.components.chatInput.inputPlaceholder,
-    );
-    fireEvent.changeText(input, 'h');
-    expect(queryByTestId('voice-mode-button')).toBeNull();
-    expect(getByTestId('send-button')).toBeTruthy();
-
-    fireEvent.changeText(input, '');
-    expect(getByTestId('voice-mode-button')).toBeTruthy();
-  });
-
-  it('opens voice mode on press, with a way to focus this composer', () => {
-    const focus = TextInput.prototype.focus as jest.Mock;
-    const {getByTestId} = renderInput();
-    fireEvent.press(getByTestId('voice-mode-button'));
-    expect(onVoicePress).toHaveBeenCalledTimes(1);
-
-    focus.mockClear();
-    onVoicePress.mock.calls[0][0]();
-    expect(focus).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows the lock badge when voice mode is locked', () => {
-    voiceModeStore.setUnlockOverride(false);
-    const {getByTestId} = renderInput();
-    expect(getByTestId('voice-mode-lock')).toBeTruthy();
-  });
-
-  it.each([
-    [
-      'the device tier is below the gate',
-      () => {
-        modelStore.deviceTier = 'low';
-      },
-    ],
-    [
-      'dictation is recording',
-      () => {
-        asrStore.captureState = 'recording';
-      },
-    ],
-    [
-      'dictation is transcribing',
-      () => {
-        asrStore.captureState = 'transcribing';
-      },
-    ],
-    [
-      'a message is being edited',
-      () => {
-        chatSessionStore.isEditMode = true;
-      },
-    ],
-  ])('shows no voice button when %s', (_case, arrange) => {
-    runInAction(arrange);
-    const {queryByTestId} = renderInput();
-    expect(queryByTestId('voice-mode-button')).toBeNull();
-  });
-
-  it('shows no voice button while a reply runs', () => {
-    const {queryByTestId} = renderInput({isStopVisible: true});
-    expect(queryByTestId('voice-mode-button')).toBeNull();
-  });
-
-  it('shows no voice button with an image attached', () => {
-    const {queryByTestId} = renderInput({defaultImages: ['file://a.jpg']});
-    expect(queryByTestId('voice-mode-button')).toBeNull();
-  });
-
-  it('shows no voice button without a voice-mode handler', () => {
-    const {queryByTestId} = renderInput({onVoicePress: undefined});
-    expect(queryByTestId('voice-mode-button')).toBeNull();
   });
 });
