@@ -124,7 +124,7 @@ describe('ChatPalModelPickerSheet', () => {
   });
 
   it('renders correctly when visible', () => {
-    const {getByTestId} = render(
+    const {getByTestId, getByText} = render(
       <UserContext.Provider value={user}>
         <L10nContext.Provider value={l10n.en}>
           <ChatPalModelPickerSheet {...defaultProps} />
