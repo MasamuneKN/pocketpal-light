@@ -5,6 +5,7 @@ import {fireEvent, render, waitFor} from '../../../../jest/test-utils';
 import {ModelsHeaderRight} from '../ModelsHeaderRight';
 
 import {uiStore} from '../../../store';
+import {l10n} from '../../../locales';
 
 describe('ModelsHeaderRight', () => {
   beforeEach(() => {
