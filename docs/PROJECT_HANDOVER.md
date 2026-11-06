@@ -845,3 +845,18 @@ The user has now explicitly authorized running the tests and actions considered 
 2. If the broad UI failure cluster drops, triage the remaining failures from the new report rather than assuming the entire cluster was fixed.
 3. Fix remaining retained-feature regressions by root cause. Preserve local inference, model downloads/import, persistence, gallery image selection, and TTS.
 4. Keep APK production disabled until all source/test/configuration issues are resolved and non-APK checks are clean.
+
+
+## 40. Session update — 2026-11-06 (extended shared-store test alignment)
+
+- Follow-up inspection of the remaining failed UI suites found the same test/runtime store-instance mismatch in additional components: their tests imported mocked stores from the src/store barrel, while production components imported direct store modules.
+- Applied the same consistency correction to ModelSettingsSheet, ChatPalModelPickerSheet, ChatGenerationSettingsSheet, HubRunSheetHost, DownloadBanner, HFTokenSheet, HeaderRight, IncreaseContextSheet, ChatView BannerRow, PalsScreen, ModelAccordion, ModelFileCard, DownloadErrorDialog, and AssistantTurnFooter. Each now imports its store singleton through the barrel used by the shared Jest mock.
+- These changes were staged on a temporary branch and fast-forwarded to main. Final commit: 7830174003a3163bc28170edbfa0f00f8a6b94fa. The previous nine-file correction remains in main. No force-push or history rewrite.
+- This is a test/runtime consistency fix, not a change to store logic or product behavior. The new CI run has not yet been retrieved; do not claim the failures are fixed until the resulting Jest report verifies the changes.
+- No local tests, lint, typecheck, or Android build were run. No APK-producing workflow was dispatched. The hard APK restriction remains in force.
+
+### Next actions
+
+1. Retrieve the CI run triggered by the latest main update and verify the unit-test results, lint, and typecheck separately.
+2. If the store-backed UI failures are reduced, continue with the new report's remaining failures. Do not bulk-delete tests or weaken assertions.
+3. Keep APK builds disabled until all remaining source/test/configuration issues are resolved and non-APK verification is clean.
