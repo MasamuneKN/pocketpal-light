@@ -2,11 +2,9 @@
 name: Build PocketPal Android APK
 
 on:
+  # APK packaging is intentionally opt-in. The CI workflow already builds
+  # Android only after lint, typecheck, and unit tests pass.
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - local-only-android
 
 permissions:
   contents: read
