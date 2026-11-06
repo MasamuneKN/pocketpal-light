@@ -459,3 +459,26 @@ No physical-device verification was performed. No production source, dependencie
 2. If Jest runs, inspect the new failure count and confirm the English-only locale, two-action FAB, HeaderLeft, ModelsHeaderRight, and server-default tests individually.
 3. Continue remaining retained-feature test triage and the coordinated Plus/voice/Pals retirement.
 4. Continue dependency/native reachability audit, selective feature-branch reconciliation, lockfile regeneration, and Android device verification.
+
+## 20. Verified session update — 2026-11-06 (Actions cost control review)
+
+### Live repository state
+
+- Latest main HEAD verified: `89912bb79bdbf014067166edc4dc8077e6a6416e` — `chore: apply repository Prettier formatting`.
+- `refactor/remove-unreachable-features` still exists. GitHub compare reports branches diverged: feature branch **7 commits ahead / 41 behind**; merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`. The current feature-only diff is limited to `__mocks__/services/downloads.ts`, `__mocks__/stores/modelStore.ts`, `android/app/build.gradle`, and `scripts/verify-plus-gate.sh`. No branch changes or integration were performed.
+- The compare endpoint identifies current main as `89912bb79bdbf014067166edc4dc8077e6a6416e`. A commit-workflow lookup for this SHA returned no PR-triggered workflow runs; this endpoint is not a repository-wide Actions run listing, so current CI outcome remains unverified.
+
+### Android build cost-control verification
+
+- Fetched `.github/workflows/build-android.yml` from main. Its only trigger is `workflow_dispatch`; standalone optimized APK packaging is manual-only. It installs with Yarn Classic 1.22.22 and runs `assembleProdRelease`.
+- Fetched `.github/workflows/ci.yml`. The normal `build-android` job declares `needs: [build-and-test, detect-changes]`. GitHub Actions' default success condition means the job is skipped if lint/typecheck/Jest in `build-and-test` fails. It also skips translation-only changes. Thus an APK is not built after a failed required validation job; Android release validation still runs after successful checks for non-translation changes.
+- The separate APK workflow is not automatically dispatched by the format workflow. No workflow edits were needed in this review; the current configuration already implements the requested cost control. Manual dispatch remains available when an APK is actually needed.
+- Important distinction: the CI Android job is a release-build verification job, while the manual workflow packages/uploads a standalone APK. Neither should be described as a device test.
+
+### Verification boundaries and next actions
+
+- No new workflow result or failing-job log was available from the commit-scoped lookup for current main. Do not claim current lint, typecheck, Jest, or Android job outcomes until a repository-wide run result is retrieved.
+- No production code, tests, dependencies, or lockfile were changed in this review. No local commands or physical-device tests were run.
+- Continue with latest Actions run/job inspection when available; then prioritize retained-feature Jest failures, followed by coordinated Plus/purchases/voice/Pals removal, dependency/native reachability audit, and Yarn 1.22.22 lockfile regeneration.
+- Reconcile the diverged feature branch selectively only after inspecting the exact seven commits and their current patches. Keep model download/import, local inference, persistence, gallery selection, and offline behavior covered.
+- Physical-device verification remains outstanding: install/launch, model download/import, restart persistence, local inference, gallery selection, and offline inference.
