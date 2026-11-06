@@ -406,7 +406,6 @@ describe('ChatScreen', () => {
       renderWithToolPal(buildContextWithCaps({toolUseCaps: true}));
       expect(uiStore.setChatWarning).not.toHaveBeenCalled();
     });
-
   });
 });
 

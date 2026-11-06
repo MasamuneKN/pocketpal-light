@@ -995,7 +995,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - `fc940e8` and `4af2b1b` are pushed to main after the CI run above. They have not yet been validated by a subsequent full Jest run.
 - Continue from latest main and inspect the new CI before making further test edits. APK remains blocked until all non-APK failures are resolved and verified.
 
-
 ## 46. Session update — 2026-11-07 (fresh Jest triage; five suites remain)
 
 ### Latest verified CI
