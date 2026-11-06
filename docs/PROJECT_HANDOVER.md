@@ -529,7 +529,7 @@ No physical-device verification was performed. No production source, dependencie
 
 - Inspected CI Pipeline #42165765676 on code SHA `d5f5aaddc379254faedc3f085df4e68cf3c95e96`. Its `build-and-test` job completed ESLint successfully (0 errors, 51 non-fatal warnings) and TypeScript successfully (`tsc --noEmit`, exit 0), but the job was cancelled immediately afterward; Jest was skipped. The Android and iOS jobs were also cancelled. This is **not** a complete passing CI run.
 - Its associated Format/validate run #42165765704 completed successfully.
-- Retried only the cancelled `build-and-test` job using GitHub's job-rerun action. GitHub accepted the request (`success: true`); an immediate jobs query returned no rows while the new attempt was initializing. The rerun outcome is therefore **pending/unverified**. No standalone APK workflow was dispatched.
+- Retried only the cancelled `build-and-test` job using GitHub's job-rerun action. GitHub accepted the request (`success: true`). A subsequent query now shows the new attempt running as job `127744912495`; setup has started and validation/test steps are pending. The rerun outcome is therefore **in progress/unverified**. No standalone APK workflow was dispatched.
 - The earlier run #42165553255 remains a confirmed failure at ESLint; dependent Android was skipped. Do not use it as evidence about Jest.
 
 ### Selective feature-branch review
