@@ -672,7 +672,6 @@ No physical-device verification was performed. No production source, dependencie
 - No Jest command or build was run; repository-reading tools cannot execute tests. This cleanup is based on the confirmed product/source mismatch and must not be reported as a passing test result.
 - Next: trace direct production imports of ASR/VoiceMode components and stores separately from E2E-only adapters; preserve TTS. Continue the dependency/native reachability audit and only regenerate the Yarn lockfile after a complete, evidence-backed removal set is identified.
 
-
 ## 31. Verified source review — 2026-11-06 (retired ChatView voice-input test cleanup)
 
 - Current `main` included automated formatting commit `bd681d330324d138aafc5b26d2931695638739c1` after the previous handover update. The ChatScreen voice-mode test removal is recorded in section 30.
