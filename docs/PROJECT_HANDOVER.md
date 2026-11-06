@@ -896,7 +896,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Not ready for APK production. The project has a functioning Android release workflow from an earlier verified commit, and lint/typecheck plus localization/font checks passed on the latest completed full CI run. However, Jest still had 165 failures on that run, and current source changes have not yet completed CI verification. Dependency/native cleanup and physical-device checks for model acquisition, persistence, local inference, gallery selection, and offline operation remain outstanding.
 - Treat readiness as roughly **55–60%** toward a release candidate, not as a percentage of code written. The estimate is provisional and should move only with verified CI and device evidence.
 
-
 ## 42. Session update — 2026-11-06 (Jest cluster corrections; CI rerun pending)
 
 ### Main branch changes
