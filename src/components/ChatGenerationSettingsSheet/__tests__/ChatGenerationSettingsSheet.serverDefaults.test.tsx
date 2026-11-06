@@ -3,7 +3,6 @@ import {runInAction} from 'mobx';
 
 import {render} from '../../../../jest/test-utils';
 import {modelStore, serverStore} from '../../../store';
-import {ModelOrigin} from '../../../utils/types';
 import type {ServerType} from '../../../utils/serverTypes';
 import {ChatGenerationSettingsSheet} from '../ChatGenerationSettingsSheet';
 
