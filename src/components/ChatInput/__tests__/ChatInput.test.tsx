@@ -492,7 +492,7 @@ describe('input', () => {
     });
 
     it('opens the image upload menu from the plus button', () => {
-      const {getByLabelText} = render(
+      const {getByLabelText, getByText} = render(
         <UserContext.Provider value={user}>
           <ChatInput
             onSendPress={jest.fn()}
