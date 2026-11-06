@@ -4,9 +4,9 @@
  * so the registry block is parsed from source. Entries must open their
  * object literal on the entry line, so nested fields (e.g. displayName)
  * cannot leak into the list. Returns null when the block didn't match,
- * yielded no wired locales, or holds a quoted key (a locale this parser
- * would otherwise drop in silence), so callers can hard-fail instead of
- * operating on a subset, on nothing, or on the wrong set.
+ * holds a quoted key (a locale this parser would otherwise drop in silence),
+ * so callers can hard-fail instead of operating on a subset or the wrong set.
+ * An empty array is valid: PocketPal Lite currently wires English only.
  */
 const REGISTRY_BLOCK =
   /const languageRegistry\s*=\s*\{([\s\S]*?)\}\s*(?:as const|;)/;
@@ -22,7 +22,7 @@ function extractRegistryLanguages(indexSource) {
     return null;
   }
   const languages = entries.map(entry => entry[1]).filter(l => l !== 'en');
-  return languages.length > 0 ? languages : null;
+  return languages;
 }
 
 module.exports = {extractRegistryLanguages};
