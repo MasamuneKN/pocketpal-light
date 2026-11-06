@@ -357,94 +357,39 @@ describe('input', () => {
     expect(plusButton.props.accessibilityState.disabled).toBe(false);
   });
 
-  it('shows pal selector button', () => {
-    expect.assertions(1);
-    const onSendPress = jest.fn();
-    const onPalBtnPress = jest.fn();
+  it('shows the model picker button', () => {
+    const onModelPickerPress = jest.fn();
     const {getByLabelText} = render(
       <UserContext.Provider value={user}>
         <ChatInput
-          {...{
-            onSendPress,
-            onPalBtnPress,
-            sendButtonVisibilityMode: 'editing',
-          }}
+          onSendPress={jest.fn()}
+          onModelPickerPress={onModelPickerPress}
+          sendButtonVisibilityMode="editing"
         />
       </UserContext.Provider>,
     );
 
-    const palButton = getByLabelText('Select Pal');
-    fireEvent.press(palButton);
-    expect(onPalBtnPress).toHaveBeenCalledTimes(1);
+    fireEvent.press(getByLabelText('Select model'));
+    expect(onModelPickerPress).toHaveBeenCalledTimes(1);
   });
 
-  it('lets the pal name and Think label shrink to fit beside the mic', async () => {
-    const pal = await palStore.createPal({
-      type: 'local',
-      name: 'A Pal With A Name Too Long For The Composer Row',
-      systemPrompt: 'Test pal',
-      originalSystemPrompt: 'Test pal',
-      isSystemPromptChanged: false,
-      useAIPrompt: false,
-      parameters: {},
-      parameterSchema: [],
-      source: 'local',
-    });
-    const originalActivePalId = Object.getOwnPropertyDescriptor(
-      chatSessionStore,
-      'activePalId',
+  it('keeps the model selector and thinking label shrinkable in the composer row', () => {
+    const {getByTestId} = render(
+      <UserContext.Provider value={user}>
+        <ChatInput
+          onSendPress={jest.fn()}
+          sendButtonVisibilityMode="editing"
+          showThinkingToggle
+        />
+      </UserContext.Provider>,
     );
-    const originalActiveModelId = modelStore.activeModelId;
-    Object.defineProperty(chatSessionStore, 'activePalId', {
-      get: jest.fn(() => pal.id),
-      configurable: true,
-    });
-    runInAction(() => {
-      modelStore.activeModelId = 'model-1';
-    });
 
-    try {
-      const {getByTestId} = render(
-        <UserContext.Provider value={user}>
-          <ChatInput
-            {...{
-              onSendPress: jest.fn(),
-              sendButtonVisibilityMode: 'editing',
-              showThinkingToggle: true,
-            }}
-          />
-        </UserContext.Provider>,
-      );
-
-      const shrinkOf = (testID: string) =>
-        StyleSheet.flatten(getByTestId(testID).props.style).flexShrink;
-      expect(getByTestId('active-pal-name').props.numberOfLines).toBe(1);
-      expect(getByTestId('thinking-toggle-label').props.numberOfLines).toBe(1);
-      expect(shrinkOf('pal-selector')).toBe(1);
-      expect(
-        StyleSheet.flatten(getByTestId('pal-selector').props.style).minWidth,
-      ).toBe(32);
-      expect(shrinkOf('active-pal-name')).toBe(1);
-      expect(shrinkOf('thinking-toggle')).toBeGreaterThan(0);
-      expect(shrinkOf('thinking-toggle')).toBeLessThan(
-        shrinkOf('pal-selector') / 100,
-      );
-      expect(shrinkOf('thinking-toggle-label')).toBe(1);
-      expect(
-        StyleSheet.flatten(getByTestId('thinking-toggle').props.style).minWidth,
-      ).toBe(32);
-    } finally {
-      runInAction(() => {
-        modelStore.activeModelId = originalActiveModelId;
-      });
-      if (originalActivePalId) {
-        Object.defineProperty(
-          chatSessionStore,
-          'activePalId',
-          originalActivePalId,
-        );
-      }
-    }
+    const selector = getByTestId('model-selector');
+    const thinkingLabel = getByTestId('thinking-toggle-label');
+    expect(thinkingLabel.props.numberOfLines).toBe(1);
+    expect(StyleSheet.flatten(selector.props.style).flexShrink).toBe(1);
+    expect(StyleSheet.flatten(selector.props.style).minWidth).toBe(32);
+    expect(StyleSheet.flatten(thinkingLabel.props.style).flexShrink).toBe(1);
   });
 
   it('shows video button for video pal type', async () => {
