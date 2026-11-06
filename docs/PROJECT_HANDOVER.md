@@ -356,3 +356,38 @@ No physical-device verification was performed. No production source, dependencie
 4. Keep the feature branch untouched until its remaining Plus-gate Gradle difference is reviewed alongside the verifier/workflow contract.
 5. Complete dependency reachability analysis and regenerate `yarn.lock` only with Yarn Classic 1.22.22 in a clean environment.
 6. Physical-device verification remains outstanding for model download/import, persistence, local inference, gallery selection, and offline operation.
+
+
+## 17. Verified session update — 2026-11-06 (Actions cost control and CI triage)
+
+### Repository state and workflow changes
+
+- Session started from main SHA `5ded275b9f605ac730e86dafaa332f0774ad1918` (`fix(lint): remove unused server defaults test import`). The unused `ModelOrigin` import was removed from `src/components/ChatGenerationSettingsSheet/__tests__/ChatGenerationSettingsSheet.serverDefaults.test.tsx`; GitHub fetch confirmed the updated source.
+- Latest main SHA at the time of this note: `22396ee939e4721033f45a811a5ab29c2175a7d2`.
+- Two workflow changes were committed:
+  - `d66231859062b11533e66a15f7f21b0958a33c26` — `ci(android): make standalone APK builds manual-only`. `.github/workflows/build-android.yml` now runs only through `workflow_dispatch`, not on every push to main/local-only-android.
+  - `22396ee939e4721033f45a811a5ab29c2175a7d2` — `ci: stop dispatching APK builds before CI passes`. `.github/workflows/format-and-validate.yml` now dispatches CI only; it no longer separately dispatches the standalone APK workflow.
+- The normal CI workflow already defines `build-android` with `needs: [build-and-test, detect-changes]`. GitHub Actions therefore skips this Android job when lint/typecheck/Jest fail, and runs it only after the checks pass (except translation-only changes). This retains Android release validation on passing code while avoiding a separate APK build for a failing test run.
+- The standalone optimized APK workflow remains available for an intentional manual build from the Actions tab or workflow dispatch. No build/test assertions were removed or weakened.
+
+### Actions evidence
+
+- [CI Pipeline #42158624501](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42158624501), SHA `5ded275b9f605ac730e86dafaa332f0774ad1918`, completed **failure**. ESLint and TypeScript passed; Jest failed: **60 failed / 428 suites; 403 failed / 8,669 tests; 2 skipped; 8,264 passed; 310 snapshots passed**. The dependent CI Android job was skipped.
+- [Standalone Android APK #42158627128](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42158627128), same SHA, completed **success**. This demonstrates the old duplicate-build behavior: a separate APK workflow still built an APK even though Jest failed in CI. The workflow changes above remove that automatic duplicate path going forward.
+- After workflow edits, new CI runs were created for SHAs `d66231859062b11533e66a15f7f21b0958a33c26` (run #42165212502) and `22396ee939e4721033f45a811a5ab29c2175a7d2` (run #42165216942); format/validate runs #42165212498 and #42165217094 were also pending/in progress at the last poll. Their final outcomes must be checked before claiming validation passed.
+- The latest failure log still shows broad test drift: ModelsHeaderRight filter actions expected callbacks that were not called; language-sync could not parse `languageRegistry`; FABGroup tests expected a remote-model FAB; ChatHeader/ChatHeaderTitle and server-default UI expectations failed; talent tests expected retired `web_search` fragments; HeaderLeft tests still exercise the removed Plus focus-return path. These are separate failure clusters and must be checked against current production behavior before changing tests.
+- The CI job summary and logs are the evidence for the Jest counts above. No new physical-device test was performed.
+
+### Branch state
+
+- `refactor/remove-unreachable-features` remains at `69400451b2036ee1066a68cae37d186ce8e3d0d8`.
+- Fresh compare after the workflow commits: branches remain diverged, feature branch **7 commits ahead / 27 behind**, merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`.
+- Current feature-only diff remains limited to `__mocks__/services/downloads.ts`, `__mocks__/stores/modelStore.ts`, `android/app/build.gradle`, and `scripts/verify-plus-gate.sh`. No merge, cherry-pick, reset, force-push, or feature-branch rewrite was performed.
+
+### Remaining work
+
+1. Poll and inspect CI/format runs #42165212502, #42165216942, #42165212498, and #42165217094.
+2. Continue Jest triage by shared root cause. Start with the retained local-model/download/store flows and fixture/setup drift; coordinate removal of Plus, voice, Pals, remote model-management UI, and related tests with actual production/navigation changes. Do not delete a failing test merely because it fails.
+3. Inspect and selectively reconcile the seven feature-branch commits; do not merge the diverged branch wholesale.
+4. Complete dependency reachability and native Android configuration audit. Do not regenerate `yarn.lock` until the removal set is established; use Yarn Classic 1.22.22 in a clean environment.
+5. Verify Android APK only after passing CI, or on explicit manual dispatch. Keep physical-device checks outstanding until evidence is supplied: install/launch, model download/import, persistence, local inference, gallery selection, and offline inference.
