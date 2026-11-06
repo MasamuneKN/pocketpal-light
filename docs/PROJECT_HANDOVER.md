@@ -751,3 +751,13 @@ No physical-device verification was performed. No production source, dependencie
 - The component barrel still exports voice/ASR UI alongside retained TTS setup. Removing individual exports without a trustworthy inventory of barrel consumers remains unsafe.
 - This focused pass did not establish a safe production-source deletion. No application code, dependencies, or lockfile were changed. No tests, lint, typecheck, Android builds, or GitHub Actions were run, per user instruction.
 - Next: continue with small, targeted reference checks around one candidate at a time. Prefer direct imports and app composition evidence; do not treat missing GitHub code-search results as proof of unreachability. Preserve TTS, local inference, model acquisition, persistence, and gallery selection.
+
+## 38. Session update — 2026-11-06 (verification resumed; APK build gated)
+
+- Latest source commit at this update: `e16e92316e6aab756fea58725b5096ba30de1b08`.
+- User has authorized tests and other necessary validation again, with the explicit constraint that **no Android APK build may be created until all lingering issues are resolved**. This supersedes the earlier no-test/no-Actions instruction.
+- Inspected the latest CI failure on `866c115`: Jest reported 55 failed suites, 371 passed; 368 failed tests, 8,270 passed, 2 skipped; all 310 snapshots passed. The failures span retained functionality and old feature tests, so they must be triaged rather than bulk-deleted or weakened.
+- Added an explicit `workflow_dispatch` boolean input, `build_android`, defaulting to false. The CI workflow's Android job now requires a manual dispatch with `build_android: true`; ordinary pushes and pull requests cannot start the APK build. This is a temporary safety gate until the user authorizes the eventual build after issue resolution. Commit: `f9df632a4ef9f7fb43164199715c75c6019c7bf4`.
+- Began repairing stale ModelStore test fixtures to reflect the current remote-model registry: remote models are derived from `ServerStore.userSelectedModels` and configured servers, not inserted into the persisted local `ModelStore.models` list. Updated remote-model capability/sampler test fixtures and marked the active local preset as downloaded. Commit: `e16e92316e6aab756fea58725b5096ba30de1b08`.
+- CI runs for `f9df632` and `e16e923` were pending/in progress at the time of this note. No results are claimed yet. The Android job is gated off for these push-triggered runs.
+- Next: inspect the new Jest results, confirm the Android job was skipped, and continue fixing failure clusters by root cause. Preserve meaningful tests for local inference, model acquisition, persistence, and gallery selection. Do not dispatch the Android job until the user-approved completion gate is met.
