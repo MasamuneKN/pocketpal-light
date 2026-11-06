@@ -10,8 +10,7 @@ import {Alert, Linking} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {deepLinkService, DeepLinkParams} from '../services/DeepLinkService';
 import {isHubLink, parseHubRunURL} from '../services/hubRunLink';
-import {deepLinkStore} from '../store/DeepLinkStore';
-import {uiStore} from '../store/UIStore';
+import {deepLinkStore, uiStore} from '../store';
 import {ROUTES} from '../utils/navigationConstants';
 
 /**
