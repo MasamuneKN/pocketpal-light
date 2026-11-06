@@ -9,9 +9,7 @@ import {l10n} from '../../../locales';
 import {UserContext} from '../../../utils';
 import {ChatInput} from '../ChatInput';
 import {render} from '../../../../jest/test-utils';
-import {
-  modelStore,
-} from '../../../store';
+import {modelStore} from '../../../store';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 // Mock react-native-image-picker
@@ -524,11 +522,15 @@ describe('input', () => {
       expect(launchImageLibrary).toHaveBeenCalledWith(
         expect.objectContaining({mediaType: 'photo', selectionLimit: 5}),
       );
-      expect(modelStore.enableAutoRelease).toHaveBeenCalledWith('image-gallery');
+      expect(modelStore.enableAutoRelease).toHaveBeenCalledWith(
+        'image-gallery',
+      );
     });
 
     it('reports gallery errors and restores auto-release', async () => {
-      (launchImageLibrary as jest.Mock).mockRejectedValue(new Error('Gallery error'));
+      (launchImageLibrary as jest.Mock).mockRejectedValue(
+        new Error('Gallery error'),
+      );
       const {getByLabelText, getByText} = render(
         <UserContext.Provider value={user}>
           <ChatInput
@@ -549,8 +551,12 @@ describe('input', () => {
           l10n.en.errors.galleryErrorMessage,
         );
       });
-      expect(modelStore.disableAutoRelease).toHaveBeenCalledWith('image-gallery');
-      expect(modelStore.enableAutoRelease).toHaveBeenCalledWith('image-gallery');
+      expect(modelStore.disableAutoRelease).toHaveBeenCalledWith(
+        'image-gallery',
+      );
+      expect(modelStore.enableAutoRelease).toHaveBeenCalledWith(
+        'image-gallery',
+      );
     });
   });
 

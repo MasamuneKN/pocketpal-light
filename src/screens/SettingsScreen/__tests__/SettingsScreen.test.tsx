@@ -14,10 +14,7 @@ import {
 import {SettingsScreen} from '../SettingsScreen';
 import {l10n} from '../../../locales';
 
-import {
-  modelStore,
-  uiStore,
-} from '../../../store';
+import {modelStore, uiStore} from '../../../store';
 
 jest.useFakeTimers();
 
@@ -1200,6 +1197,4 @@ describe('SettingsScreen', () => {
       expect(queryByTestId('speculative-no-effect-note')).toBeNull();
     });
   });
-
-
 });

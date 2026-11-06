@@ -922,7 +922,6 @@ The user has now explicitly authorized running the tests and actions considered 
 3. Reassess remaining PalsHub/Plus/voice-related tests against current production entry points and E2E gates. Preserve TTS, local inference, model acquisition, persistence, gallery selection, and offline operation.
 4. Once the non-APK CI suite is clean, complete the dependency/native audit and device verification before considering APK production.
 
-
 ## 43. Session update — 2026-11-07 (Jest failures reduced; latest CI pending)
 
 ### Current main and verified failure inventory
