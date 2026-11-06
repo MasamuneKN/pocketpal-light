@@ -860,7 +860,6 @@ The user has now explicitly authorized running the tests and actions considered 
 2. If the store-backed UI failures are reduced, continue with the new report's remaining failures. Do not bulk-delete tests or weaken assertions.
 3. Keep APK builds disabled until all remaining source/test/configuration issues are resolved and non-APK verification is clean.
 
-
 ## 41. Session update — 2026-11-06 (next Jest failure cluster; APK remains blocked)
 
 ### Live repository and CI state

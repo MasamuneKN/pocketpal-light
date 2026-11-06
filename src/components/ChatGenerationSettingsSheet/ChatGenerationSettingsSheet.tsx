@@ -2,10 +2,7 @@ import React, {useContext, useEffect, useState} from 'react';
 import {Sheet} from '../Sheet/Sheet';
 import {CompletionSettings} from '../CompletionSettings';
 import {CompletionParams} from '../../utils/completionTypes';
-import {
-  chatSessionStore,
-  defaultCompletionSettings,
-} from '../../store';
+import {chatSessionStore, defaultCompletionSettings} from '../../store';
 import {modelStore} from '../../store';
 import {styles} from './styles';
 import {
