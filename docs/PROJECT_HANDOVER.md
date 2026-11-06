@@ -642,3 +642,9 @@ No physical-device verification was performed. No production source, dependencie
 - This narrows the likely retirement boundary, but does **not** yet prove every voice module is unreachable: a complete import graph across all production entry points and automation/E2E boundaries is still required. Do not remove the Whisper/TTS dependencies or broad test groups based only on the chat-path inspection.
 - No app source or dependency files were changed. No tests/builds were run; execution remains unavailable through repository-reading tools.
 - Next: finish import-reference tracing for voice entry components and shared stores, then remove only the unreachable production surface and its associated dependencies/tests in coordinated, verifiable changes. Keep local text inference and gallery image selection untouched.
+
+## 28. Follow-up correction — voice barrel exports remain
+
+- Further inspection found `src/components/index.ts` still re-exports multiple voice components, and `src/store/index.ts` still re-exports `TTSStore`, `ASRStore`, and `VoiceModeStore`.
+- These barrel exports are additional potential import paths. The earlier finding is limited to the direct ChatScreen → ChatView → ChatInput implementation; it is **not** proof that voice modules are globally unreachable.
+- Before removal, trace every import of these barrels and each exported voice symbol, including E2E/automation paths. Remove stale barrel exports only after confirming there are no consumers. Keep the voice feature retirement coordinated with native autolinking, permission setup, dependency declarations, patches, and tests.
