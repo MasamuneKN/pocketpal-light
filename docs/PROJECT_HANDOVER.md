@@ -814,3 +814,35 @@ The user has now explicitly authorized running the tests and actions considered 
 4. Run only targeted non-APK tests/checks while iterating; avoid triggering workflows that could launch APK builds.
 5. Continue feature reachability work only where direct source evidence is available. Preserve TTS, local inference, model acquisition, persistence, and gallery selection.
 6. Keep the APK build deferred until the lingering issues are resolved; no APK was created during the latest session.
+
+
+## 39. Session update — 2026-11-06 (Jest failure root-cause correction; APK remains blocked)
+
+### Repository state and confirmed test evidence
+
+- Latest main HEAD: 29349a6edc698a3b659c9e76795342c16ef168e3.
+- Re-read the handover from live main before work. The current execution restriction remains: **do not create an Android APK or run any APK-producing task until every outstanding issue is resolved**.
+- CI Pipeline #42238536042 on 177b6c981c9942dfc785d4a2462e8c6ab6ecf692 completed with failure: 49 failed suites / 377 passed; 351 failed tests / 8,282 passed / 2 skipped; 310 snapshots passed. ESLint and TypeScript passed. The Android job was skipped.
+- The run's failures include broad UI test clusters in ChatInput, ChatScreen, ChatView, SidebarContent, ModelsScreen, SettingsScreen, ModelCard, ModelsHeaderRight, and ChatHeaderTitle, as well as stale English-only locale expectations.
+
+### Root cause identified and corrective changes
+
+- jest/setup.ts mocks the src/store barrel with shared test stores. Several affected production components imported the real singleton stores directly from files such as store/ModelStore, store/ChatSessionStore, and store/UIStore, while their tests mutated the mocked barrel exports. The component and test therefore observed different store instances. This directly explains representative failures such as ChatInput not seeing the test's active model and ChatHeaderTitle rendering its default title instead of the test session.
+- Updated these components to import their stores through the same src/store barrel used by the Jest mock. Production behavior still resolves to the same real singleton exports; Jest now supplies one consistent mocked store instance to both the component and its test.
+- Files changed: src/components/ChatHeaderTitle/ChatHeaderTitle.tsx, src/components/ChatInput/ChatInput.tsx, src/screens/ChatScreen/ChatScreen.tsx, src/components/ChatView/ChatView.tsx, src/components/ModelsHeaderRight/ModelsHeaderRight.tsx, src/screens/SettingsScreen/SettingsScreen.tsx, src/screens/ModelsScreen/ModelsScreen.tsx, src/screens/ModelsScreen/ModelCard/ModelCard.tsx, and src/components/SidebarContent/SidebarContent.tsx.
+- Source import corrections were committed as a nine-commit sequence on a temporary branch, then fast-forwarded to main. Final commit: 29349a6edc698a3b659c9e76795342c16ef168e3. No force-push or history rewrite.
+- Corrected stale locale tests to reflect PocketPal Lite's English-only locale registry: UIStore.test.ts now checks English and legacy-locale fallback; theme.test.ts no longer expects unsupported Japanese/Persian locales. Commits: 125a56147323c2eb06ff7a0c3c11df718a14b91b and 5c764fa1b52c227ebce980e39df237371bbb1257.
+
+### Verification and safety
+
+- The store-import mismatch is strongly supported by direct inspection of the Jest setup, affected component imports, and corresponding test imports. The corrective source changes have **not yet been verified by a new CI test run**; do not mark the 351 failures resolved until the next Jest report confirms it.
+- Combined commit status for the latest main SHA returned no status entries at the time of this update. This is not evidence of a passing run.
+- No local Jest, lint, or typecheck was run. No physical-device test was performed.
+- Rechecked .github/workflows/ci.yml: its Android job requires workflow_dispatch and inputs.build_android == true; the separate APK workflow is manual-only. The changes were pushed to main without dispatching either APK workflow. **No APK build was started or created.**
+
+### Next actions
+
+1. Retrieve the CI run triggered by 29349a6; confirm lint, typecheck, and Jest outcomes, and verify the Android job remained skipped.
+2. If the broad UI failure cluster drops, triage the remaining failures from the new report rather than assuming the entire cluster was fixed.
+3. Fix remaining retained-feature regressions by root cause. Preserve local inference, model downloads/import, persistence, gallery image selection, and TTS.
+4. Keep APK production disabled until all source/test/configuration issues are resolved and non-APK checks are clean.
