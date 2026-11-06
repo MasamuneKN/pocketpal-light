@@ -77,6 +77,7 @@ export const ModelsHeaderRight = observer(() => {
         {/* Filter section */}
         <Menu.Item label="Filters" isGroupLabel />
         <Menu.Item
+          testID="filter-hf"
           icon={({size}) => (
             <Image
               source={filters.includes('hf') ? iconHF : iconHFLight}
@@ -88,6 +89,7 @@ export const ModelsHeaderRight = observer(() => {
           selected={filters.includes('hf')}
         />
         <Menu.Item
+          testID="filter-downloaded"
           icon={filters.includes('downloaded') ? 'download-circle' : 'download'}
           onPress={() => toggleFilter('downloaded')}
           label={l10n.components.modelsHeaderRight.menuTitleDownloaded}
@@ -97,6 +99,7 @@ export const ModelsHeaderRight = observer(() => {
         {/* View section */}
         <Menu.Item label="View" isGroupLabel />
         <Menu.Item
+          testID="filter-grouped"
           icon={filters.includes('grouped') ? 'layers' : 'layers-outline'}
           onPress={() => toggleFilter('grouped')}
           label={l10n.components.modelsHeaderRight.menuTitleGrouped}
