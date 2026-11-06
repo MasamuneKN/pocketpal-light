@@ -9,7 +9,7 @@ import BottomSheet, {
 
 import {useTheme} from '../../hooks/useTheme';
 import {createStyles} from './styles';
-import {modelStore} from '../../store/ModelStore';
+import {modelStore} from '../../store';
 import {CustomBackdrop} from '../Sheet/CustomBackdrop';
 import {SheetBackground} from '../Sheet/SheetBackground';
 import {getModelSkills, Model} from '../../utils';
