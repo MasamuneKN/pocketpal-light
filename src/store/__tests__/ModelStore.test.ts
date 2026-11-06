@@ -3707,6 +3707,7 @@ describe('ModelStore', () => {
       afterEach(() => {
         runInAction(() => {
           serverStore.servers = [];
+          serverStore.userSelectedModels = [];
           serverStore.remoteCaps = {};
           modelStore.models = [];
           modelStore.activeModelId = undefined;
@@ -3731,13 +3732,18 @@ describe('ModelStore', () => {
           binding: RemoteSessionBinding = bindingOf('llama.cpp'),
         ) => {
           runInAction(() => {
-            modelStore.models = [
+            serverStore.servers = [
               {
-                id: 'srv-1/remote-model',
-                origin: ModelOrigin.REMOTE,
-                serverId: 'srv-1',
-              } as any,
+                id: 'srv-1',
+                name: 'Server',
+                url: binding.url,
+                serverType: binding.serverType,
+              },
             ];
+            serverStore.userSelectedModels = [
+              {serverId: 'srv-1', remoteModelId: 'remote-model'},
+            ];
+            modelStore.models = [];
             modelStore.activeModelId = 'srv-1/remote-model';
             modelStore.activeRemoteBinding = binding;
           });
@@ -3831,13 +3837,18 @@ describe('ModelStore', () => {
 
       it('resolves an active remote model against the stored capabilities', () => {
         runInAction(() => {
-          modelStore.models = [
+          serverStore.servers = [
             {
-              id: 'srv-1/remote-model',
-              origin: ModelOrigin.REMOTE,
-              serverId: 'srv-1',
-            } as any,
+              id: 'srv-1',
+              name: 'Server',
+              url: 'http://localhost:8080',
+              serverType: 'llama.cpp',
+            },
           ];
+          serverStore.userSelectedModels = [
+            {serverId: 'srv-1', remoteModelId: 'remote-model'},
+          ];
+          modelStore.models = [];
           modelStore.activeModelId = 'srv-1/remote-model';
           serverStore.remoteCaps = {
             'srv-1/remote-model': {supportsVision: true, contextLength: 8192},
@@ -3860,7 +3871,11 @@ describe('ModelStore', () => {
         } as any;
         runInAction(() => {
           modelStore.models = [
-            {id: 'active-local', origin: ModelOrigin.PRESET} as any,
+            {
+              id: 'active-local',
+              origin: ModelOrigin.PRESET,
+              isDownloaded: true,
+            } as any,
             other,
           ];
           modelStore.activeModelId = 'active-local';
@@ -3881,15 +3896,11 @@ describe('ModelStore', () => {
           {id: 'remote-model', object: 'model', meta: {n_ctx: nCtx}} as any,
         ];
         runInAction(() => {
-          modelStore.models = [
-            {
-              id: 'srv-1/remote-model',
-              origin: ModelOrigin.REMOTE,
-              serverId: 'srv-1',
-              remoteModelId: 'remote-model',
-            } as any,
-          ];
+          modelStore.models = [];
           modelStore.activeModelId = 'srv-1/remote-model';
+          serverStore.userSelectedModels = [
+            {serverId: 'srv-1', remoteModelId: 'remote-model'},
+          ];
           serverStore.servers = [
             {
               id: 'srv-1',
