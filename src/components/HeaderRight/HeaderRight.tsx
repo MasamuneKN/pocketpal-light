@@ -19,9 +19,7 @@ import {
 import {Menu} from '../Menu';
 import {styles} from './styles';
 
-import {chatSessionStore} from '../../store/ChatSessionStore';
-import {modelStore} from '../../store/ModelStore';
-import {uiStore} from '../../store/UIStore';
+import {chatSessionStore, modelStore, uiStore} from '../../store';
 
 import {L10nContext} from '../../utils';
 import {Model} from '../../utils/types';
