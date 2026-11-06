@@ -815,7 +815,6 @@ The user has now explicitly authorized running the tests and actions considered 
 5. Continue feature reachability work only where direct source evidence is available. Preserve TTS, local inference, model acquisition, persistence, and gallery selection.
 6. Keep the APK build deferred until the lingering issues are resolved; no APK was created during the latest session.
 
-
 ## 39. Session update — 2026-11-06 (Jest failure root-cause correction; APK remains blocked)
 
 ### Repository state and confirmed test evidence
