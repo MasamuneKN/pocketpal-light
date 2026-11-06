@@ -11,7 +11,7 @@ import {
 } from 'react-native-safe-area-context';
 import {getDefaultHeaderHeight} from '@react-navigation/elements';
 import {useTheme} from '../../hooks/useTheme';
-import {chatSessionStore} from '../../store/ChatSessionStore';
+import {chatSessionStore} from '../../store';
 import {HeaderLeft} from '../HeaderLeft';
 
 export const ChatHeader: React.FC = observer(() => {
