@@ -661,3 +661,14 @@ No physical-device verification was performed. No production source, dependencie
 - `src/store/index.ts` barrel exports TTS, ASR, and VoiceMode stores, while `src/components/index.ts` barrel exports multiple voice UI components. The barrel exports alone do not establish that each symbol is consumed. Trace direct imports and automation entry points before deleting exports.
 - **Safe next step:** verify and, if confirmed, remove or rewrite only the obsolete ChatScreen voice-mode test to reflect the current product contract. Do not delete retained TTS coverage. Then continue the ASR/VoiceMode production-import audit and run Jest in a real checkout before dependency cleanup.
 - No app source, test, or dependency files were changed in this review. No Jest or build was run.
+
+
+## 30. Verified session update — 2026-11-06 (obsolete ChatScreen voice-mode test retirement)
+
+- Live `main` before the test cleanup: `8ac5ce6f313b3474fc8767a16952d3223284fb89`. Latest commit after cleanup: `ab507108b6e1373c5d9b875dbb6d8adcf3c3fe56`.
+- Re-read the complete `src/screens/ChatScreen/__tests__/ChatScreen.voiceMode.test.tsx`. Every test in the 8.1 KB file covered the removed ChatScreen voice-mode entry flow: `voice-mode-button`, Plus-gated teaser, VoiceSetupSheet/VoiceMemorySheet, and the full voice view. It did not cover retained text-to-speech.
+- Confirmed against current production sources that `ChatScreen.tsx` has no voice-mode integration and `ChatInput.tsx` has no voice-mode control. `ChatView.tsx` likewise imports no voice-mode UI. The file was therefore an obsolete test suite for a UI no longer present in the product path, not a retained-feature regression test.
+- Removed only that stale test file in commit `ab507108b6e1373c5d9b875dbb6d8adcf3c3fe56` (`test: remove obsolete chat voice-mode suite`). GitHub returned 404 when re-fetching the deleted path, confirming it is absent from `main`.
+- TTS remains retained: `useChatSession.ts` imports `ttsStore` through the store barrel and routes assistant output events into TTS. `AutomationBridge.tsx` also mounts TTS and Voice adapters behind the E2E gate. No TTS source, automation adapter, ASR/voice service, dependency, or lockfile was removed.
+- No Jest command or build was run; repository-reading tools cannot execute tests. This cleanup is based on the confirmed product/source mismatch and must not be reported as a passing test result.
+- Next: trace direct production imports of ASR/VoiceMode components and stores separately from E2E-only adapters; preserve TTS. Continue the dependency/native reachability audit and only regenerate the Yarn lockfile after a complete, evidence-backed removal set is identified.
