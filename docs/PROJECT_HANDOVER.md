@@ -357,7 +357,6 @@ No physical-device verification was performed. No production source, dependencie
 5. Complete dependency reachability analysis and regenerate `yarn.lock` only with Yarn Classic 1.22.22 in a clean environment.
 6. Physical-device verification remains outstanding for model download/import, persistence, local inference, gallery selection, and offline operation.
 
-
 ## 17. Verified session update — 2026-11-06 (Actions cost control and CI triage)
 
 ### Repository state and workflow changes

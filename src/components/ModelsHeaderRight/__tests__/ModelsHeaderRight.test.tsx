@@ -6,7 +6,6 @@ import {ModelsHeaderRight} from '../ModelsHeaderRight';
 
 import {uiStore} from '../../../store';
 
-
 describe('ModelsHeaderRight', () => {
   beforeEach(() => {
     jest.clearAllMocks();
