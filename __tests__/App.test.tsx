@@ -7,9 +7,6 @@ import React from 'react';
 import App from '../App';
 import {useTheme} from '../src/hooks/useTheme';
 import {themeFixtures} from '../jest/fixtures/theme';
-import {openPlus, plusGate} from '../src/services/plus/gate';
-import {setShipOverride} from '../src/services/plus/shipOverride';
-import {runInAction} from 'mobx';
 jest.useFakeTimers(); // Mock all timers
 
 // Note: import explicitly to use the types shipped with jest.
