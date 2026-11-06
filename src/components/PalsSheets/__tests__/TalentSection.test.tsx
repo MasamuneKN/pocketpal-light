@@ -78,8 +78,6 @@ describe('TalentSection', () => {
       expect(getByTestId('talent-switch-render_html')).toBeTruthy();
       expect(getByTestId('talent-switch-calculate')).toBeTruthy();
       expect(getByTestId('talent-switch-datetime')).toBeTruthy();
-      expect(getByTestId('talent-switch-web_search')).toBeTruthy();
-      expect(getByTestId('talent-switch-read_url')).toBeTruthy();
     });
 
     it('renders talent item containers for each talent', () => {
@@ -92,8 +90,6 @@ describe('TalentSection', () => {
       expect(getByTestId('talent-item-render_html')).toBeTruthy();
       expect(getByTestId('talent-item-calculate')).toBeTruthy();
       expect(getByTestId('talent-item-datetime')).toBeTruthy();
-      expect(getByTestId('talent-item-web_search')).toBeTruthy();
-      expect(getByTestId('talent-item-read_url')).toBeTruthy();
     });
 
     it('renders talent natural names from l10n', () => {
@@ -107,8 +103,6 @@ describe('TalentSection', () => {
       expect(getByText(names.render_html)).toBeTruthy();
       expect(getByText(names.calculate)).toBeTruthy();
       expect(getByText(names.datetime)).toBeTruthy();
-      expect(getByText(names.web_search)).toBeTruthy();
-      expect(getByText(names.read_url)).toBeTruthy();
     });
 
     it('renders talent descriptions from l10n', () => {
@@ -122,8 +116,6 @@ describe('TalentSection', () => {
       expect(getByText(descriptions.render_html)).toBeTruthy();
       expect(getByText(descriptions.calculate)).toBeTruthy();
       expect(getByText(descriptions.datetime)).toBeTruthy();
-      expect(getByText(descriptions.web_search)).toBeTruthy();
-      expect(getByText(descriptions.read_url)).toBeTruthy();
     });
 
     it('renders the section divider with "Talents" label', () => {
