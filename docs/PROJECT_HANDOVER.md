@@ -707,7 +707,6 @@ No physical-device verification was performed. No production source, dependencie
 - No source code was changed in this review: a reliable repository-wide import search is still unavailable, and deleting shared-barrel exports without enumerating consumers could break unrelated modules. No tests, lint, typecheck, builds, or Actions were run, per user instruction.
 - Next: establish all importers of the component and hook barrels through direct source inspection or a reliable local repository snapshot. Then remove only dead exports/modules and update E2E fixtures deliberately; keep TTS and supported offline chat functionality untouched.
 
-
 ## 34. Session update — 2026-11-06 (barrel-import audit attempt)
 
 - Re-read the live handover and confirmed current `main` HEAD is `093dae7578a5d233d027b60cc36e7b0d9ba345ce`.
