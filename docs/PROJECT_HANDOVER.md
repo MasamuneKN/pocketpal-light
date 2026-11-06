@@ -570,6 +570,7 @@ No physical-device verification was performed. No production source, dependencie
 - Next, retrieve the CI run triggered by commit `c88a025f042a6d5a42889438e84bc52e8408433c` if a run ID becomes available; confirm lint, typecheck, Jest, and dependent Android job separately.
 - Once a full Jest run is available, continue root-cause triage without deleting retained-feature tests or weakening assertions.
 - Continue Plus/purchases, voice, and Pals reachability audit only after reliable baseline CI is available. Keep APK packaging manual-only and the feature branch unmerged.
+
 ## 24. Verified session update — 2026-11-06 (latest commit and Jest source review)
 
 ### Latest main commit
@@ -596,6 +597,7 @@ No physical-device verification was performed. No production source, dependencie
 3. Audit `react-native-vision-camera` and other unused native dependencies across source imports, Android autolinking, iOS pods, and lockfile before removal.
 4. Continue coordinated Plus/IAP, PalsHub, and voice/ASR/TTS retirement only after each dependency's reachability is established. Preserve local inference, model download/import, persistence, gallery selection, and offline operation.
 5. Keep `yarn.lock` generated with Yarn Classic 1.22.22; never hand-edit it. Keep APK packaging manual-only.
+
 ## 25. Verified session update — 2026-11-06 (production navigation reachability audit)
 
 - Read live `App.tsx`, `src/screens/index.ts`, `src/utils/navigationConstants.ts`, `useDeepLinking.ts`, `HubRunSheetHost.tsx`, and `SettingsScreen.tsx`.
