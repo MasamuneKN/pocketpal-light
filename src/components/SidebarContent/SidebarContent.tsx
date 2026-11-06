@@ -8,7 +8,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {useTheme} from '../../hooks/useTheme';
 import {createStyles} from './styles';
-import {chatSessionStore, SessionMetaData} from '../../store/ChatSessionStore';
+import {chatSessionStore, SessionMetaData} from '../../store';
 import {Menu} from '../Menu';
 import {RenameModal} from '../RenameModal';
 import {Checkbox} from '../Checkbox';
