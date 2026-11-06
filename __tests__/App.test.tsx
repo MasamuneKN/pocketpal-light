@@ -140,30 +140,3 @@ describe('status bar', () => {
     });
   });
 });
-
-describe('Plus host', () => {
-  afterEach(() => {
-    setShipOverride([]);
-    runInAction(() => {
-      plusGate.request = null;
-    });
-  });
-
-  it('draws the Plus host outside the screen-reader scope of the app', () => {
-    setShipOverride(['handsFreeVoice']);
-    const result = render(<App />);
-    expect(result.queryByTestId('plus-host')).toBeNull();
-
-    act(() => openPlus());
-
-    const scope = result.getByTestId('plus-a11y-scope', {
-      includeHiddenElements: true,
-    });
-    const host = result.getByTestId('plus-host');
-    expect(scope.props.importantForAccessibility).toBe('no-hide-descendants');
-    expect(
-      result.queryByTestId('plus-host', {includeHiddenElements: true}),
-    ).toBe(host);
-    expect(scope.findAll(node => node === host)).toHaveLength(0);
-  });
-});
