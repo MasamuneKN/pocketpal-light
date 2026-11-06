@@ -895,3 +895,30 @@ The user has now explicitly authorized running the tests and actions considered 
 
 - Not ready for APK production. The project has a functioning Android release workflow from an earlier verified commit, and lint/typecheck plus localization/font checks passed on the latest completed full CI run. However, Jest still had 165 failures on that run, and current source changes have not yet completed CI verification. Dependency/native cleanup and physical-device checks for model acquisition, persistence, local inference, gallery selection, and offline operation remain outstanding.
 - Treat readiness as roughly **55–60%** toward a release candidate, not as a percentage of code written. The estimate is provisional and should move only with verified CI and device evidence.
+
+
+## 42. Session update — 2026-11-06 (Jest cluster corrections; CI rerun pending)
+
+### Main branch changes
+
+- Latest observed main HEAD: `4e9214de06b3fb46d269b06580d9dcbae925387b` (`chore: apply repository Prettier formatting`).
+- Fixed additional shared Jest-store identity mismatches by changing direct singleton imports to the mocked `src/store` barrel in `ChatView`, `ChatHeader`, `SquarePalCard`, and `useDeepLinking`. This follows the previously confirmed Jest setup contract; it does not change production store logic.
+- Reworked the obsolete Pal-specific completion-settings test file to cover the current Lite contract: global settings, saved-session settings, new-chat thinking override, remote thinking-off payloads, and active-session resolution. Pal-specific completion presets and PACT tool injection are no longer responsibilities of `resolveCompletionSettings`.
+- Updated the PalsScreen suite to exercise its current local-library behavior (local list, search, video-capability filter, empty state) rather than removed marketplace/account/sync UI.
+- Updated model picker and ChatInput tests to reflect the current model-only picker, and updated TalentSection/PACT tests to the three retained built-in engines: `render_html`, `calculate`, and `datetime`.
+- Updated localization/Weblate tests for the valid English-only registry, made the font glyph-guard fixture synthesize a wired Polish locale, and aligned generated app-icon JSON with repository Prettier formatting.
+- Corrected the AboutScreen DeviceInfo mock and ModelsHeaderRight localization fixture. Moved E2E benchmark/Plus dispatcher tests under `src/__automation__` (the only allowed import boundary) and removed obsolete hook tests that incorrectly expected the retired React Native Linking benchmark path.
+
+### CI and verification
+
+- CI Pipeline run `42272125508` on `8c1d6bd0217b67eac271c348cb01a80f93e8ca9b` failed at ESLint only. Localization/font checks passed; TypeScript and Jest were skipped because lint failed. The six lint errors were Prettier-only formatting errors in the new automation dispatcher test.
+- The repository formatting workflow completed successfully and committed `4e9214de06b3fb46d269b06580d9dcbae925387b`, then dispatched CI run `42272404702`. At handover time this new run was still in progress during Node setup; no Jest result is yet available for these changes.
+- The last completed Jest evidence remains the earlier baseline of 33 suites / 165 failed tests before the later fixes. Do not claim any current Jest failures are resolved until the new run completes and its failure inventory is reviewed.
+- No APK-producing workflow or Gradle APK task was triggered. APK production remains strictly blocked.
+
+### Next actions
+
+1. Retrieve CI run `42272404702` and confirm ESLint, TypeScript, localization/font checks, and Jest outcomes. Verify that no Android APK job ran.
+2. Use the new Jest report to measure the effect of the store identity fixes and local-only test corrections. Continue by root cause; do not weaken assertions or bulk-delete retained-feature tests.
+3. Reassess remaining PalsHub/Plus/voice-related tests against current production entry points and E2E gates. Preserve TTS, local inference, model acquisition, persistence, gallery selection, and offline operation.
+4. Once the non-APK CI suite is clean, complete the dependency/native audit and device verification before considering APK production.
