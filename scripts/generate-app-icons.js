@@ -466,7 +466,7 @@ function appIconContents() {
     null,
     2,
   );
-  return `${json.replace(/^(\s*"[^"]+"):/gm, '$1 :')}\n`;
+  return `${json}\n`;
 }
 
 function buildTextOutputs(sources) {
