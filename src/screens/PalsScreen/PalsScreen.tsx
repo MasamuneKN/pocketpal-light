@@ -16,7 +16,7 @@ import {
   createNewVideoPal,
   preparePalForEditing,
 } from '../../utils/pal-templates';
-import {palStore} from '../../store/PalStore';
+import {palStore} from '../../store';
 import type {Pal} from '../../types/pal';
 import {hasVideoCapability} from '../../utils/pal-capabilities';
 
