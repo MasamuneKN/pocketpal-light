@@ -8,7 +8,7 @@ import {Button, Text} from 'react-native-paper';
 
 import {Sheet} from '../Sheet';
 import {useTheme} from '../../hooks/useTheme';
-import {modelStore} from '../../store/ModelStore';
+import {modelStore} from '../../store';
 import {L10nContext, formatBytes} from '../../utils';
 import {t} from '../../locales';
 import {Model} from '../../utils/types';
