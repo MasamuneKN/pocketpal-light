@@ -434,3 +434,30 @@ No physical-device verification was performed. No production source, dependencie
 3. Revisit the remaining ChatHeaderTitle and ChatHeader failures against the current store/component contracts.
 4. Continue Plus/voice/Pals production retirement, dependency reachability audit, selective feature-branch reconciliation, Yarn Classic lockfile regeneration, and Android device verification.
 5. The old automatic APK dispatch path is removed. Use manual dispatch for standalone APK packaging; normal CI builds Android only after successful checks.
+
+
+## 19. Verified session update — 2026-11-06 (lint recovery and server-default fixture)
+
+### Latest CI failure and correction
+
+- [CI Pipeline #42165553255](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42165553255), SHA `9c1e00a71be697f03cc56331b91b214fb73f0183`, completed **failure at ESLint**, before TypeScript or Jest ran.
+- Exact lint errors were two unused `getByText` destructurings in `src/components/ModelsHeaderRight/__tests__/ModelsHeaderRight.test.tsx` (lines 36 and 52). There were 51 additional warnings, but they were not fatal.
+- Commit `980f1fc22d4c2619b7dbd6486e0bb9638c0560dd` — `fix(lint): remove unused menu test queries` — removes the two unused bindings. This commit's CI run #42165757436 was still in progress at the time of this update; its lint result is not yet confirmed.
+- A separate review of the earlier server-default test failure showed that `ChatGenerationSettingsSheet` intentionally passes `serverDefaults` only when an active session exists. The test configured a remote binding but no active session, so it was exercising preset settings while expecting session-specific server defaults.
+- Commit `d5f5aaddc379254faedc3f085df4e68cf3c95e96` — `test(chat-settings): provide active session for server defaults` — now creates a session in the fixture and restores the previous sessions and active-session ID in `afterEach`. This is a fixture correction; the test assertion is unchanged.
+
+### Latest verification and branch state
+
+- Latest main SHA: `d5f5aaddc379254faedc3f085df4e68cf3c95e96`.
+- [CI Pipeline #42165757436](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42165757436) on `980f1fc22d4c2619b7dbd6486e0bb9638c0560dd` was **in progress** at this update.
+- [CI Pipeline #42165765676](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42165765676) on current main SHA `d5f5aaddc379254faedc3f085df4e68cf3c95e96` was **queued**. Its result is the next verification target.
+- [Format/validate #42165757396](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42165757396) on `980f1fc22d4c2619b7dbd6486e0bb9638c0560dd` was **in progress**; [Format/validate #42165765704](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42165765704) on current main was **queued**.
+- The earlier CI failure skipped TypeScript and Jest; do not report those checks as passed or failed from that run.
+- Fresh branch compare: `refactor/remove-unreachable-features` remains diverged, **7 commits ahead / 39 behind**, merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`. Feature-only diff remains the two mocks, `android/app/build.gradle`, and `scripts/verify-plus-gate.sh`. No merge or history rewrite was performed.
+
+### Next actions
+
+1. Poll the current-main CI #42165765676 and the associated formatting workflow. Confirm lint, typecheck, and Jest separately.
+2. If Jest runs, inspect the new failure count and confirm the English-only locale, two-action FAB, HeaderLeft, ModelsHeaderRight, and server-default tests individually.
+3. Continue remaining retained-feature test triage and the coordinated Plus/voice/Pals retirement.
+4. Continue dependency/native reachability audit, selective feature-branch reconciliation, lockfile regeneration, and Android device verification.
