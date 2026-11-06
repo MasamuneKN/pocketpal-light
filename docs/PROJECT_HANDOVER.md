@@ -570,3 +570,29 @@ No physical-device verification was performed. No production source, dependencie
 - Next, retrieve the CI run triggered by commit `c88a025f042a6d5a42889438e84bc52e8408433c` if a run ID becomes available; confirm lint, typecheck, Jest, and dependent Android job separately.
 - Once a full Jest run is available, continue root-cause triage without deleting retained-feature tests or weakening assertions.
 - Continue Plus/purchases, voice, and Pals reachability audit only after reliable baseline CI is available. Keep APK packaging manual-only and the feature branch unmerged.
+## 24. Verified session update — 2026-11-06 (latest commit and Jest source review)
+
+### Latest main commit
+
+- Verified `main` HEAD before this update: `dd82bc6c414c33cfdfe235cc9f2d02e71d979a66` (`chore: apply repository Prettier formatting`). Its only changed file was `docs/PROJECT_HANDOVER.md`, with one blank-line addition. No app source or tests changed in that commit.
+- Reviewed the Jest configuration and targeted test/source pairs. `tsconfig.json` explicitly excludes `**/__tests__/**` and `*.test.ts(x)`, explaining why TypeScript CI could pass despite a test-only undefined identifier.
+
+### Confirmed Jest test defect corrected
+
+- `src/screens/ModelsScreen/FABGroup/__tests__/FABGroup.test.tsx` referenced undeclared `mockOnAddRemoteModel` twice and passed obsolete `onAddRemoteModel` props, although `FABGroup` accepts only `onAddHFModel` and `onAddLocalModel`. These references would throw at test execution and do not belong to the current two-action (Hugging Face + local) FAB contract.
+- Removed both obsolete prop references. The corrected test file was re-fetched from `main` and verified at blob SHA `ce35b5693d71e664ebc253c360b1b203e1f6f513`. Commit: `e403dd891ff5bfbf5e11200ed5a3c7038ed2896b` (`test: remove obsolete remote model FAB prop`).
+- This is a confirmed test defect, not proof that it was the only cause of prior Jest failures. No Jest run was executed from the repository-reading session; all runtime test outcomes remain unverified.
+
+### Additional scope/reachability observations
+
+- Current `FABGroup` implementation exposes only HF and local model actions, matching the corrected test.
+- The repository tree contains a `react-native-vision-camera` Jest mock and a camera SVG asset but no camera-named production component/source path under `src`. `package.json` still declares `react-native-vision-camera`; treat it as a removal candidate, not yet proven safe to remove, until import/native autolinking and lockfile impact are checked.
+- The source tree still contains substantial Plus/IAP, PalsHub/Pals, and voice/TTS/ASR code and corresponding tests. Navigation removal alone does not prove every module unreachable. Continue an import/native/resource/workflow reachability audit before removing packages or test suites.
+
+### Next priorities
+
+1. Run the corrected focused FABGroup Jest test and then the full Jest suite when a repository execution path is available; inspect actual failure output rather than guessing.
+2. Continue targeted test/source triage for previously troublesome ChatHeader, ChatHeaderTitle, ModelsHeaderRight, locale, and talent/web-search tests.
+3. Audit `react-native-vision-camera` and other unused native dependencies across source imports, Android autolinking, iOS pods, and lockfile before removal.
+4. Continue coordinated Plus/IAP, PalsHub, and voice/ASR/TTS retirement only after each dependency's reachability is established. Preserve local inference, model download/import, persistence, gallery selection, and offline operation.
+5. Keep `yarn.lock` generated with Yarn Classic 1.22.22; never hand-edit it. Keep APK packaging manual-only.
