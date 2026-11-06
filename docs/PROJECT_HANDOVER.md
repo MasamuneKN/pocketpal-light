@@ -662,7 +662,6 @@ No physical-device verification was performed. No production source, dependencie
 - **Safe next step:** verify and, if confirmed, remove or rewrite only the obsolete ChatScreen voice-mode test to reflect the current product contract. Do not delete retained TTS coverage. Then continue the ASR/VoiceMode production-import audit and run Jest in a real checkout before dependency cleanup.
 - No app source, test, or dependency files were changed in this review. No Jest or build was run.
 
-
 ## 30. Verified session update — 2026-11-06 (obsolete ChatScreen voice-mode test retirement)
 
 - Live `main` before the test cleanup: `8ac5ce6f313b3474fc8767a16952d3223284fb89`. Latest commit after cleanup: `ab507108b6e1373c5d9b875dbb6d8adcf3c3fe56`.
