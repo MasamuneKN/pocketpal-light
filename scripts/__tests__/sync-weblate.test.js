@@ -100,23 +100,31 @@ describe('sync-weblate.js registry guard', () => {
     expectGuarded(result);
   });
 
-  it('download exits 1 when the registry yields no wired locales', () => {
+  it('download is a successful no-op when only English is wired', () => {
     const result = runWithIndex(ONLY_EN_INDEX, 'download');
-    expectGuarded(result);
+    expect(result.exitCode).toBe(0);
+    expect(result.output).not.toContain('Could not parse languageRegistry');
+    expect(result.output).not.toContain('Downloaded');
+    expect(result.output).not.toContain('Failed to download');
   });
 
-  it('sync exits 1 when the registry yields no wired locales', () => {
+  it('sync uploads the source without requesting retired locale files', () => {
     const result = runWithIndex(ONLY_EN_INDEX, 'sync');
-    expectGuarded(result);
+    expect(result.exitCode).toBe(0);
+    expect(result.output).not.toContain('Could not parse languageRegistry');
+    expect(result.output).toContain('Failed to upload source file');
+    expect(result.output).not.toContain('Downloaded');
+    expect(result.output).not.toContain('Failed to download');
   });
 
-  it('download proceeds on the real registry', () => {
+  it('download is a no-op on the real English-only registry', () => {
     const result = runWithIndex(
       fs.readFileSync(path.join(LOCALES_DIR, 'index.ts'), 'utf-8'),
       'download',
     );
+    expect(result.exitCode).toBe(0);
     expect(result.output).not.toContain('Could not parse languageRegistry');
-    expect(result.output).toMatch(/Failed to download \w+\.json/);
+    expect(result.output).not.toContain('Failed to download');
   });
 
   it('upload does not consult the registry', () => {
