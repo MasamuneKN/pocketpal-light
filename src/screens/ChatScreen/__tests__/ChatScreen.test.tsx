@@ -408,6 +408,7 @@ describe('ChatScreen', () => {
     });
 
   });
+});
 
 describe('ChatScreen reasoning pill visibility', () => {
   let savedModels: any[];
