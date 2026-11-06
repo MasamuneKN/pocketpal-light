@@ -162,15 +162,17 @@ describe('verify-fonts.js', () => {
     );
   });
 
-  it('fails when a Fraunces-rendered locale needs glyphs the subset lacks', () => {
-    // Drop 'pl' from NON_LATIN_LOCALES. Polish is Latin script but needs
-    // Latin Extended-A, which the bundled Fraunces subset does not carry,
-    // so headlines would render with missing glyphs.
-    const src = fs.readFileSync(TYPOGRAPHY_PATH, 'utf-8');
-    const withoutPl = src.replace(/^\s*'pl',\n/m, '');
-    expect(withoutPl).not.toBe(src);
+  it('fails when a wired Polish locale is not exempt from Fraunces glyph coverage', () => {
+    // Polish is not shipped by Lite, but the guard must still catch it if a
+    // future build wires it without adding it to NON_LATIN_LOCALES.
+    const localeIndex = [
+      'const languageRegistry = {',
+      '  en: {displayName: "English (EN)"},',
+      '  pl: {displayName: "Polski (PL)"},',
+      '} as const;',
+    ].join('\n');
     const result = runWithOverrides({
-      files: {'src/theme/tokens/typography.ts': withoutPl},
+      files: {'src/locales/index.ts': localeIndex},
     });
     expect(result.exitCode).not.toBe(0);
     expect(result.output).toContain('not in the bundled Fraunces subset');
