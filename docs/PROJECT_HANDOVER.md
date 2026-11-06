@@ -772,3 +772,45 @@ No physical-device verification was performed. No production source, dependencie
 - Latest completed Jest evidence remains run #42237009063 on `e16e923`: 54 failed suites / 372 passed; 363 failed tests / 8,275 passed / 2 skipped; 310 snapshots passed. The ModelStore suite now passed after the remote-model fixture correction. The remaining failures were not yet re-evaluated after the search-test cleanup.
 - No Android APK build has been dispatched during this resumed work. No physical-device verification has been performed.
 - Next: retrieve CI #42238536042's final Jest report, verify that the ModelStore and retired-search corrections pass, then repair the next retained-feature failure cluster. Keep the APK manual gate closed until all lingering issues are resolved and the user explicitly authorizes packaging.
+
+## 38. Session handover — 2026-11-06 (verification resumed; APK builds deferred)
+
+### Current repository state
+
+- Latest observed `main` HEAD: `0eaccb9a49783aee68c52a6d7e3f3be23ce41589` — `docs: record focused reachability recheck`.
+- The immediately preceding repository formatting commit was `866c1155395ff079b2b702731549815bc1467a4f`.
+- The current handover was re-read from live `main` at the start of this session.
+- The last source inspection revisited `PlusHost.tsx`, the Plus/Pals screen index files, `src/screens/index.ts`, and `src/components/index.ts`. The main screen barrel still exports About, Chat, Models, Settings, and debug-only DevTools; it does not export PlusScreen or PalsScreen. The component barrel still exports PlusHost and numerous voice/ASR components. This limited inspection did not establish a safe source deletion.
+- Commit `0eaccb9` records those findings in section 37. No application source, dependency, or lockfile changes were made in that pass.
+
+### Latest Actions evidence
+
+- Latest listed formatting/validation workflow: [run 42235735099](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42235735099), on `0eaccb9`, completed successfully.
+- Latest listed CI Pipeline: [run 42193271786](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42193271786), on `866c115`, completed with failure.
+- Its `build-and-test` job passed dependency installation, localization validation, font registration, ESLint, and TypeScript typecheck. The **Run unit tests** step failed.
+- In that CI run, the `build-android` job was skipped, along with the performance and iOS jobs. No Android APK build was triggered in this session.
+- The exact current unit-test failure inventory has not yet been retrieved. Do not reuse failure counts from older CI runs as if they describe run 42193271786.
+- No local tests, lint, typecheck, or builds were run in this session.
+
+### Updated execution instructions — supersede earlier no-verification policy
+
+The user has now explicitly authorized running the tests and actions considered necessary to progress. This supersedes the earlier instruction to skip all verification.
+
+**Hard restriction: do not create an Android APK build until all lingering issues have been resolved completely.**
+
+- Resume targeted Jest/test investigation, lint, typecheck, and other non-APK checks as useful.
+- Inspect workflow definitions before dispatching any workflow. Do not trigger an umbrella workflow if it can start an Android build as a dependent job.
+- Do not run the separate Android APK workflow, `assembleProdDebug`, `assembleProdRelease`, or any other APK-producing task while unresolved issues remain.
+- Keep Android APK creation explicitly deferred until the source/test/configuration issues have been fixed and the non-APK verification is clean. Confirm the user's intended timing before starting APK production if there is any ambiguity.
+- Do not weaken assertions, broadly skip suites, or delete retained-feature tests merely to obtain a green run. Diagnose failures by root cause and preserve coverage for local inference, model downloads/import, persistence, and gallery image selection.
+- Small, logically grouped fixes and conventional commits remain preferred. Update this handover after each meaningful milestone.
+- Do not claim any test or build passed unless its actual result is available.
+
+### Next-session priorities
+
+1. Fetch this handover and the latest `main` HEAD again before editing.
+2. Retrieve the failed unit-test step logs for CI run `42193271786` (job `127810208363`) and create a concise failure inventory.
+3. Group failures by shared mock/setup drift, stale tests for intentionally retired features, and genuine regressions in retained functionality. Start with the highest-leverage shared causes.
+4. Run only targeted non-APK tests/checks while iterating; avoid triggering workflows that could launch APK builds.
+5. Continue feature reachability work only where direct source evidence is available. Preserve TTS, local inference, model acquisition, persistence, and gallery selection.
+6. Keep the APK build deferred until the lingering issues are resolved; no APK was created during the latest session.
