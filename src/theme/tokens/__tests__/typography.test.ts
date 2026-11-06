@@ -50,7 +50,7 @@ describe('typography tokens', () => {
     // pt / pt_BR are load-bearing here: Portuguese diacritics are all Latin-1
     // and covered by the bundled Fraunces subset, so these locales must NOT
     // fall back to Inter the way pl does.
-    const latinLocales: AvailableLanguage[] = ['en', 'id', 'ms', 'pt', 'pt_BR'];
+    const latinLocales: AvailableLanguage[] = ['en'];
 
     it.each(latinLocales)(
       'headlineH1 in %s resolves to Fraunces-Medium at 36 / 50',
@@ -70,38 +70,53 @@ describe('typography tokens', () => {
     });
   });
 
-  describe('non-Latin locales fall back to Inter', () => {
-    it.each(NON_LATIN_LOCALES)(
-      'headlineH1 in %s falls back to Inter-Medium at 36 / 50',
-      locale => {
-        const resolved = typographyForLocale('headlineH1', locale);
-        expect(resolved.fontFamily).toBe(FONT_FAMILIES.INTER_MEDIUM);
-        expect(resolved.fontSize).toBe(36);
-        expect(resolved.lineHeight).toBe(50);
-        expect(resolved.fontWeight).toBe('500');
-      },
-    );
+  describe('non-Latin locale fallback coverage', () => {
+    if (NON_LATIN_LOCALES.length === 0) {
+      it('has no non-Latin locales in the English-only Lite registry', () => {
+        expect(NON_LATIN_LOCALES).toEqual([]);
+      });
+    } else {
+      it.each(NON_LATIN_LOCALES)(
+        'headlineH1 in %s falls back to Inter-Medium at 36 / 50',
+        locale => {
+          const resolved = typographyForLocale('headlineH1', locale);
+          expect(resolved.fontFamily).toBe(FONT_FAMILIES.INTER_MEDIUM);
+          expect(resolved.fontSize).toBe(36);
+          expect(resolved.lineHeight).toBe(50);
+          expect(resolved.fontWeight).toBe('500');
+        },
+      );
 
-    it.each(NON_LATIN_LOCALES)(
-      'styledXs in %s falls back to Inter-Medium with synthesised italic',
-      locale => {
-        const resolved = typographyForLocale('styledXs', locale);
-        expect(resolved.fontFamily).toBe(FONT_FAMILIES.INTER_MEDIUM);
-        expect(resolved.fontStyle).toBe('italic');
-        expect(resolved.fontSize).toBe(typography.styledXs.fontSize);
-        expect(resolved.lineHeight).toBe(typography.styledXs.lineHeight);
-      },
-    );
+      it.each(NON_LATIN_LOCALES)(
+        'styledXs in %s falls back to Inter-Medium with synthesised italic',
+        locale => {
+          const resolved = typographyForLocale('styledXs', locale);
+          expect(resolved.fontFamily).toBe(FONT_FAMILIES.INTER_MEDIUM);
+          expect(resolved.fontStyle).toBe('italic');
+          expect(resolved.fontSize).toBe(typography.styledXs.fontSize);
+          expect(resolved.lineHeight).toBe(typography.styledXs.lineHeight);
+        },
+      );
+    }
   });
 
   describe('JetBrains Mono is locale-agnostic', () => {
-    it.each(NON_LATIN_LOCALES)(
-      'codeM in %s remains JetBrainsMono-Regular',
-      locale => {
-        const resolved = typographyForLocale('codeM', locale);
+    if (NON_LATIN_LOCALES.length === 0) {
+      it('uses JetBrains Mono for the only wired locale', () => {
+        const resolved = typographyForLocale('codeM', 'en');
         expect(resolved.fontFamily).toBe(FONT_FAMILIES.JETBRAINS_MONO_REGULAR);
-      },
-    );
+      });
+    } else {
+      it.each(NON_LATIN_LOCALES)(
+        'codeM in %s remains JetBrainsMono-Regular',
+        locale => {
+          const resolved = typographyForLocale('codeM', locale);
+          expect(resolved.fontFamily).toBe(
+            FONT_FAMILIES.JETBRAINS_MONO_REGULAR,
+          );
+        },
+      );
+    }
 
     it('codeS in en is JetBrainsMono-Regular', () => {
       const resolved = typographyForLocale('codeS', 'en');
