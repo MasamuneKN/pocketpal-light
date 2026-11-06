@@ -482,3 +482,35 @@ No physical-device verification was performed. No production source, dependencie
 - Continue with latest Actions run/job inspection when available; then prioritize retained-feature Jest failures, followed by coordinated Plus/purchases/voice/Pals removal, dependency/native reachability audit, and Yarn 1.22.22 lockfile regeneration.
 - Reconcile the diverged feature branch selectively only after inspecting the exact seven commits and their current patches. Keep model download/import, local inference, persistence, gallery selection, and offline behavior covered.
 - Physical-device verification remains outstanding: install/launch, model download/import, restart persistence, local inference, gallery selection, and offline inference.
+
+## 21. Verified session update — 2026-11-06 (fresh repository and CI observability check)
+
+### Live repository state
+
+- Latest `main` HEAD: `9bc5e64b8620225ac446d851388e4845896388e1` — `docs: record Android Actions cost-control review`.
+- Related branch HEAD: `69400451b2036ee1066a68cae37d186ce8e3d0d8`.
+- Fresh compare confirms divergence: feature branch **7 commits ahead / 42 behind**; merge base `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`.
+- The current diff from feature branch to main spans 18 files, including newer CI/workflow, handover, Jest setup, locale, model/server store and test changes. The old feature branch must not be merged wholesale. No merge, cherry-pick, reset, force-push, or history rewrite was performed.
+
+### CI and Android workflow verification
+
+- Re-fetched `.github/workflows/ci.yml` and `.github/workflows/build-android.yml` from live main.
+- Standalone APK workflow trigger remains `workflow_dispatch` only; it builds `assembleProdRelease` with Yarn 1.22.22 and uploads the APK.
+- Normal CI Android release job still depends on `build-and-test` and `detect-changes`, and skips translation-only changes. A failed required check therefore prevents the CI Android build.
+- Commit-scoped workflow lookup for current main returned no PR-triggered runs. Combined commit-status lookups for current main and its preceding main commit returned empty status arrays. These endpoints do not provide a repository-wide Actions run list; **latest CI result remains unverified**, not passed.
+- The available GitHub integration in this session exposes commit-scoped workflow lookup and run/job inspection, but no repository-wide workflow-run listing. The public Actions page could not be retrieved through the available web reader. No workflow run ID could therefore be reliably selected for log inspection.
+
+### Work performed and limits
+
+- Re-verified current branch heads, divergence, Android build triggers/dependencies, package manifest and the latest handover directly from GitHub.
+- No production source, tests, dependencies, or lockfile were changed. No CI run was dispatched, rerun, or cancelled; no unnecessary Android build was started.
+- No current failure logs were available to safely continue Jest root-cause corrections. Avoid speculative test edits or deleting tests without current evidence.
+- No local tests/builds or physical-device verification were performed.
+
+### Next actions
+
+1. Obtain the repository-wide latest Actions runs (CI Pipeline and standalone APK) through an Actions run-list capability, then inspect the latest CI jobs/logs.
+2. Resume retained-feature Jest triage using the current failure evidence; preserve local inference, model download/import, persistence, gallery selection and offline behavior.
+3. Inspect the seven feature-only commits and selectively reconcile only changes still needed; retain the branch divergence until each patch is reviewed.
+4. Continue dependency/native reachability audit and regenerate the lockfile only after the removal set is proven, using Yarn Classic 1.22.22.
+5. Keep APK packaging manual-only and device verification outstanding.
