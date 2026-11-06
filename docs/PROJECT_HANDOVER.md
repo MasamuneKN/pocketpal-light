@@ -846,7 +846,6 @@ The user has now explicitly authorized running the tests and actions considered 
 3. Fix remaining retained-feature regressions by root cause. Preserve local inference, model downloads/import, persistence, gallery image selection, and TTS.
 4. Keep APK production disabled until all source/test/configuration issues are resolved and non-APK checks are clean.
 
-
 ## 40. Session update — 2026-11-06 (extended shared-store test alignment)
 
 - Follow-up inspection of the remaining failed UI suites found the same test/runtime store-instance mismatch in additional components: their tests imported mocked stores from the src/store barrel, while production components imported direct store modules.
