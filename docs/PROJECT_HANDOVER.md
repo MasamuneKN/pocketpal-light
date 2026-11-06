@@ -554,6 +554,7 @@ No physical-device verification was performed. No production source, dependencie
 3. Continue the Plus/purchases, voice, and Pals reachability audit across navigation, imports, native modules, resources, workflows, and package dependencies.
 4. Keep the feature branch unmerged; its current unique changes are stale or behaviorally redundant.
 5. Regenerate `yarn.lock` only after the dependency removal set is established, using Yarn Classic 1.22.22. Keep standalone APK packaging manual-only.
+
 ## 23. Verified session update — 2026-11-06 (CI cancellation root cause and trigger fix)
 
 ### CI cancellation diagnosis
