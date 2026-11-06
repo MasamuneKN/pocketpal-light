@@ -731,7 +731,6 @@ No physical-device verification was performed. No production source, dependencie
 - Per user instruction, no tests, lint, typecheck, builds, or Actions were run. No runtime verification is claimed.
 - Next: trace the consumers of `PurchaseStore`, `PalStore`, `PlusHost`, and PalsHub services from screens, onboarding, chat/session state, migrations, and E2E specs. Identify a supported local-Pal contract separately from remote PalsHub functionality before retiring either.
 
-
 ## 36. Session update — 2026-11-06 (application entry-point reachability review)
 
 - Re-read the live handover. The latest observed `main` commit before this entry was `6aacb6823a03e076c379634fec82ed8e499bbe9b`, an automated Prettier commit following section 35.
