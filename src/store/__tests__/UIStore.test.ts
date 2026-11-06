@@ -63,21 +63,21 @@ describe('UIStore', () => {
       expect(uiStore.language).toBe('en');
     });
 
-    it('should set language correctly', () => {
-      uiStore.setLanguage('ja');
-      expect(uiStore.language).toBe('ja');
-    });
-
-    it('should fall back to en for unknown language', () => {
-      // Simulate a persisted language value that is no longer supported
-      // @ts-ignore - Testing invalid input
-      uiStore._language = 'xx';
+    it('should keep the supported English language selected', () => {
+      uiStore.setLanguage('en');
       expect(uiStore.language).toBe('en');
     });
 
-    it('should return correct l10n translations for selected language', () => {
-      uiStore.setLanguage('ja');
-      expect(uiStore.l10n).toBe(l10n.ja);
+    it.each(['ja', 'xx'])('falls back to en for legacy locale %s', locale => {
+      // Older installs may still have a locale persisted before Lite became English-only.
+      // @ts-ignore - Simulating a legacy persisted value.
+      uiStore._language = locale;
+      expect(uiStore.language).toBe('en');
+    });
+
+    it('should return English translations for the supported language', () => {
+      uiStore.setLanguage('en');
+      expect(uiStore.l10n).toBe(l10n.en);
     });
 
     it('should return en translations when language is en', () => {
