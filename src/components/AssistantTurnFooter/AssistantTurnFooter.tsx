@@ -12,7 +12,7 @@ import {PlayButton} from '../TextMessage/PlayButton';
 
 import {styles} from './styles';
 
-import {chatSessionStore} from '../../store/ChatSessionStore';
+import {chatSessionStore} from '../../store';
 import {L10nContext} from '../../utils';
 import {derivedText} from '../../utils/chat';
 import type {PersistedTurnTimings} from '../../utils/completionTypes';
