@@ -706,3 +706,16 @@ No physical-device verification was performed. No production source, dependencie
 - The manifest still declares `react-native-vision-camera`; the earlier native configuration audit records disabled autolinking and no camera feature path in the tracked production tree. Dependency removal remains deferred until import/config/lockfile regeneration can be done safely.
 - No source code was changed in this review: a reliable repository-wide import search is still unavailable, and deleting shared-barrel exports without enumerating consumers could break unrelated modules. No tests, lint, typecheck, builds, or Actions were run, per user instruction.
 - Next: establish all importers of the component and hook barrels through direct source inspection or a reliable local repository snapshot. Then remove only dead exports/modules and update E2E fixtures deliberately; keep TTS and supported offline chat functionality untouched.
+
+
+## 34. Session update — 2026-11-06 (barrel-import audit attempt)
+
+- Re-read the live handover and confirmed current `main` HEAD is `093dae7578a5d233d027b60cc36e7b0d9ba345ce`.
+- Re-inspected the complete component, hook, and store barrel exports, package manifest, Babel/Metro/TypeScript configuration, and E2E AutomationBridge.
+- The component barrel still exports ASR/VoiceMode UI; the hook barrel exports `useVoiceCapture` and `useVoiceMode`; the store barrel exports ASR, VoiceMode, and retained TTS stores. The TTS store remains required by chat generation and must stay.
+- The E2E AutomationBridge statically imports VoiceAdapter and mounts it behind the compile-time `__E2E__` gate. The E2E deep-link dispatcher and automation handlers remain part of the test contract. Do not remove these paths without an explicit E2E retirement decision.
+- Attempted repository-scoped GitHub code searches for barrel imports and representative voice symbols. The connected search index returned no results for every query, including known barrel and symbol names. As previously established, this index is not reliable enough to prove absence of imports. No export, module, dependency, or test deletion is justified by those empty results.
+- The VisionCamera dependency remains a candidate based on the prior Android-only native audit, but removing it from `package.json` alone would leave `yarn.lock` inconsistent. No lockfile or dependency change was made because a clean Yarn Classic 1.22.22 regeneration environment is unavailable.
+- No production source change was made in this pass: the remaining candidates require a reliable full import graph or lockfile regeneration. This avoids breaking indirect barrel consumers or the E2E build.
+- Per user instruction, no tests, lint, typecheck, Android builds, or GitHub Actions were run. No runtime verification is claimed.
+- Next: obtain a local checkout or another reliable full-text source scan, then enumerate all imports from the three barrels and trace ASR/VoiceMode symbols separately from retained TTS. Continue Plus/IAP and Pals audits only after their production entry points and E2E contracts are mapped.
