@@ -970,3 +970,28 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Re-run and inspect the full Jest failure inventory. Do not assume prior counts apply because the latest attempted CI never reached Jest.
 3. Continue the known SquarePalCard/ChatView/router-loading/ChatScreen triage only against fresh test output, preserving local Pal functionality and other retained app paths.
 4. APK creation remains prohibited until all non-APK failures are resolved and verified.
+
+
+## 45. Session update — 2026-11-07 (Jest rerun: 7 suites / 24 tests failing)
+
+### Verified CI
+
+- Latest main CI run `42298678363` tested formatter-generated commit `3fc8401`.
+- ESLint, TypeScript, localization validation and font registration all passed.
+- Jest completed: **7 failed suites, 416 passed suites (423 total); 24 failed tests, 8,499 passed, 2 skipped (8,525 total); 310/310 snapshots passed.**
+- Android and iOS build jobs were skipped. No APK was produced.
+
+### Confirmed failure causes / current corrections
+
+- `ChatInput.test.tsx`: newly added stop/edit-mode tests referenced `chatSessionStore` without importing it. Fixed in `fc940e8`.
+- `ChatPalModelPickerSheet.test.tsx`: first visible-render test destructured only `getByTestId` but called `getByText`. Fixed in `4af2b1b`.
+- `SquarePalCard.test.tsx`: multiple tests still exercise PalsHub cards, rating/tag/premium/protection/purchase/update badges and props that current `SquarePalCard` does not implement; local card tests remain and must be retained. One share-error assertion also expects obsolete copy. Carefully prune/replace only retired cases and align the retained error assertion to current user-facing behavior.
+- `App.test.tsx`: Plus-host accessibility test expects `plus-host` / `plus-a11y-scope`, neither of which is mounted by current `App.tsx`. Verify Plus host was retired before removing that obsolete test and its now-unused imports.
+- `ChatScreen.test.tsx`: one tool-compatibility banner test expects a removed four-slot warning. Confirm current UI contract and remove/update only the stale assertion.
+- `ChatView.test.tsx`: failures are stale default-model auto-load expectation and retired Pal-load snackbar expectation; retain context-increase sheet coverage and verify current auto-selection behavior.
+- `ChatView.routerLoading.test.tsx`: load-line test expects `chat-router-loading` and an accessibility announcement, neither is currently emitted. Verify intended router loading UX before deciding whether production needs a missing affordance or tests are obsolete.
+
+### Current unverified fixes
+
+- `fc940e8` and `4af2b1b` are pushed to main after the CI run above. They have not yet been validated by a subsequent full Jest run.
+- Continue from latest main and inspect the new CI before making further test edits. APK remains blocked until all non-APK failures are resolved and verified.
