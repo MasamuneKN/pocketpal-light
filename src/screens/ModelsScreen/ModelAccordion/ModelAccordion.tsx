@@ -8,7 +8,7 @@ import {useTheme} from '../../../hooks/useTheme';
 
 import {createStyles} from './styles';
 
-import {modelStore} from '../../../store/ModelStore';
+import {modelStore} from '../../../store';
 
 interface ModelAccordionProps {
   group: any;
