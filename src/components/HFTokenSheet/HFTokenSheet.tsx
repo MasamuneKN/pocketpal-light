@@ -11,7 +11,7 @@ import {observer} from 'mobx-react';
 import {Sheet} from '../Sheet';
 import {TextInput} from '../TextInput';
 import {useTheme} from '../../hooks/useTheme';
-import {hfStore} from '../../store/HFStore';
+import {hfStore} from '../../store';
 import {L10nContext} from '../../utils';
 
 import {createStyles} from './styles';
