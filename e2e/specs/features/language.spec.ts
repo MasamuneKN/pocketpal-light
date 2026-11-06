@@ -1,7 +1,8 @@
 /**
- * Language Switching Test: Verifies all supported languages
+ * Language Switching Test: Verifies the supported locale list.
  *
- * Cycles through each language and asserts the UI updates.
+ * PocketPal Lite currently ships English only; this keeps the E2E
+ * locale fixture aligned with the app's wired locale registry.
  * Does NOT require a model to be loaded.
  *
  * Usage:
@@ -33,89 +34,10 @@ const LANGUAGE_ASSERTIONS: Record<
     screenTitle: 'Settings',
     firstCardTitle: 'Model Initialization Settings',
   },
-  ar: {
-    screenTitle: 'الإعدادات',
-    firstCardTitle: 'إعدادات تهيئة النموذج',
-  },
-  es: {
-    screenTitle: 'Ajustes',
-    firstCardTitle: 'Ajustes de inicialización del modelo',
-  },
-  fa: {
-    screenTitle: 'تنظیمات',
-    firstCardTitle: 'تنظیمات راه‌اندازی مدل',
-  },
-  he: {
-    screenTitle: 'הגדרות',
-    firstCardTitle: 'הגדרות איתחול מודל',
-  },
-  id: {
-    screenTitle: 'Pengaturan',
-    firstCardTitle: 'Pengaturan Inisialisasi Model',
-  },
-  ja: {
-    screenTitle: '設定',
-    firstCardTitle: 'モデル初期化設定',
-  },
-  ko: {
-    screenTitle: '설정',
-    firstCardTitle: '모델 초기화 설정',
-  },
-  ms: {
-    screenTitle: 'Tetapan',
-    firstCardTitle: 'Tetapan Permulaan Model',
-  },
-  pl: {
-    screenTitle: 'Ustawienia',
-    firstCardTitle: 'Ustawienia Inicjalizacji Modelu',
-  },
-  // pt shares both of these strings with pt_BR, so this spec proves the switch
-  // works but not that the two locales are distinct — locales.test.ts covers that.
-  pt: {
-    screenTitle: 'Configurações',
-    firstCardTitle: 'Configurações de Inicialização do Modelo',
-  },
-  pt_BR: {
-    screenTitle: 'Configurações',
-    firstCardTitle: 'Configurações de Inicialização do Modelo',
-  },
-  ru: {
-    screenTitle: 'Настройки',
-    firstCardTitle: 'Настройки инициализации модели',
-  },
-  uk: {
-    screenTitle: 'Налаштування',
-    firstCardTitle: 'Налаштування ініціалізації моделі',
-  },
-  zh: {
-    screenTitle: '设置',
-    firstCardTitle: '模型初始化设置',
-  },
-  zh_Hant: {
-    screenTitle: '設定',
-    firstCardTitle: '模型初始化設定',
-  },
 };
 
-// Order: start with non-English, end with English to restore default state
-const LANGUAGE_ORDER = [
-  'ar',
-  'es',
-  'fa',
-  'he',
-  'id',
-  'ja',
-  'ko',
-  'ms',
-  'pl',
-  'pt',
-  'pt_BR',
-  'ru',
-  'uk',
-  'zh',
-  'zh_Hant',
-  'en',
-];
+// PocketPal Lite currently ships English UI strings only.
+const LANGUAGE_ORDER = ['en'];
 
 describe('Language Switching', () => {
   let chatPage: ChatPage;
