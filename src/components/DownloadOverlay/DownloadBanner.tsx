@@ -5,7 +5,7 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 
 import {XIcon} from '../../assets/icons';
 import {useTheme} from '../../hooks/useTheme';
-import {modelStore, uiStore} from '../../store';
+import {modelStore, palStore, uiStore} from '../../store';
 import {L10nContext} from '../../utils';
 import {ROUTES} from '../../utils/navigationConstants';
 import {bannerStyles as createStyles} from './styles';
@@ -22,9 +22,10 @@ const formatSize = (bytes: number): string => {
 };
 
 // Users think "Pip is downloading", not the filename.
-const ownerOf = (_modelId: string, modelName: string) => ({
-  subject: modelName,
-});
+const ownerOf = (modelId: string, modelName: string) => {
+  const owner = palStore.pals.find(pal => pal.defaultModel?.id === modelId);
+  return {subject: owner?.name || modelName};
+};
 
 /**
  * Sticky single-row banner showing the first non-dismissed active download.
