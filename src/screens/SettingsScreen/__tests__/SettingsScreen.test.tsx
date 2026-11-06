@@ -2,7 +2,6 @@ import React from 'react';
 import {getBackendDevicesInfo} from 'llama.rn';
 import {Platform, Keyboard} from 'react-native';
 import {runInAction} from 'mobx';
-import {Divider} from 'react-native-paper';
 
 import {
   fireEvent,
