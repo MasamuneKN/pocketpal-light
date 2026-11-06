@@ -956,7 +956,6 @@ The user has now explicitly authorized running the tests and actions considered 
 3. Preserve local inference, model download/gallery selection, session persistence, offline behavior and TTS coverage. Do not remove store/service tests merely because corresponding Settings UI was retired.
 4. APK production remains blocked until all lingering non-APK issues are resolved and verified.
 
-
 ## 44. Session update — 2026-11-07 (lint gate correction; Jest rerun still required)
 
 ### Current main and CI evidence
