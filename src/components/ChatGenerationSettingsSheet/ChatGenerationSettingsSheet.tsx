@@ -6,7 +6,7 @@ import {
   chatSessionStore,
   defaultCompletionSettings,
 } from '../../store/ChatSessionStore';
-import {modelStore} from '../../store/ModelStore';
+import {modelStore} from '../../store';
 import {styles} from './styles';
 import {
   COMPLETION_PARAMS_METADATA,
