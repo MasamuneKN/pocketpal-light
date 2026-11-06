@@ -15,7 +15,7 @@ import {
 import {useTheme} from '../../../../../hooks/useTheme';
 import {useMemoryCheck} from '../../../../../hooks/useMemoryCheck';
 import {createStyles} from './styles';
-import {modelStore} from '../../../../../store/ModelStore';
+import {modelStore} from '../../../../../store';
 import {
   formatBytes,
   hfAsModel,
