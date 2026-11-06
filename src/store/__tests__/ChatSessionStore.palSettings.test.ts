@@ -1,5 +1,4 @@
 import {chatSessionStore, defaultCompletionSettings} from '../ChatSessionStore';
-import {CompletionParams} from '../../utils/completionTypes';
 import {bodyExtras} from '../../api/servers';
 
 describe('ChatSessionStore completion settings', () => {
