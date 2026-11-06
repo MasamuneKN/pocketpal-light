@@ -34,9 +34,7 @@ import {useStorageCheck} from '../../../hooks/useStorageCheck';
 
 import {createStyles} from './styles';
 
-import {uiStore} from '../../../store/UIStore';
-import {modelStore} from '../../../store/ModelStore';
-import {serverStore} from '../../../store/ServerStore';
+import {modelStore, serverStore, uiStore} from '../../../store';
 import {t} from '../../../locales';
 
 import {
