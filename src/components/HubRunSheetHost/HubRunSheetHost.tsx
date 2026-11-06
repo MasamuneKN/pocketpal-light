@@ -12,7 +12,7 @@ import {Text, Button, ActivityIndicator} from 'react-native-paper';
 
 import {Sheet} from '../Sheet';
 import {useTheme} from '../../hooks/useTheme';
-import {hfStore} from '../../store/HFStore';
+import {hfStore} from '../../store';
 import {useHubRunSheet} from '../../hooks/useDeepLinking';
 import {
   L10nContext,
