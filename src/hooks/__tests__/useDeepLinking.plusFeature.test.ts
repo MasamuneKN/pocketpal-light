@@ -14,9 +14,9 @@ describe('automation Plus test-feature deep link', () => {
     };
     const navigation = {navigate: jest.fn()};
 
-    await expect(
-      dispatchAutomationDeepLink(params, navigation),
-    ).resolves.toBe(true);
+    await expect(dispatchAutomationDeepLink(params, navigation)).resolves.toBe(
+      true,
+    );
     expect(navigation.navigate).toHaveBeenCalledWith(ROUTES.PLUS_TEST_FEATURE);
   });
 

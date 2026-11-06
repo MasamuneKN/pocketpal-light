@@ -208,7 +208,9 @@ describe('ChatPalModelPickerSheet', () => {
     );
 
     expect(getByText('Test Model 1')).toBeTruthy();
-    expect(queryByText(l10n.en.components.chatPalModelPickerSheet.palsTab)).toBeNull();
+    expect(
+      queryByText(l10n.en.components.chatPalModelPickerSheet.palsTab),
+    ).toBeNull();
   });
 
   it('calls onModelSelect when model is selected', async () => {

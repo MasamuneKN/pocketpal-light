@@ -14,9 +14,9 @@ describe('ChatSessionStore completion settings', () => {
 
   describe('resolveCompletionSettings', () => {
     it('returns system defaults when no user settings are available', async () => {
-      await expect(chatSessionStore.resolveCompletionSettings()).resolves.toEqual(
-        defaultCompletionSettings,
-      );
+      await expect(
+        chatSessionStore.resolveCompletionSettings(),
+      ).resolves.toEqual(defaultCompletionSettings);
     });
 
     it('applies global settings over system defaults', async () => {

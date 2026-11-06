@@ -47,10 +47,7 @@ import {t} from '../../locales';
 import {getModelMemoryRequirement} from '../../utils/memoryEstimator';
 import {CONTEXT_LADDER} from '../../utils/bannerVariantResolver';
 
-import {
-  NEW_CHAT_DRAFT_KEY,
-  chatSessionStore,
-} from '../../store';
+import {NEW_CHAT_DRAFT_KEY, chatSessionStore} from '../../store';
 import type {UndoneSend} from '../../hooks/useChatSession';
 
 import {MessageType, User} from '../../utils/types';
