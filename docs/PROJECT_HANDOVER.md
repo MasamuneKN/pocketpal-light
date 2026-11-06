@@ -859,3 +859,40 @@ The user has now explicitly authorized running the tests and actions considered 
 1. Retrieve the CI run triggered by the latest main update and verify the unit-test results, lint, and typecheck separately.
 2. If the store-backed UI failures are reduced, continue with the new report's remaining failures. Do not bulk-delete tests or weaken assertions.
 3. Keep APK builds disabled until all remaining source/test/configuration issues are resolved and non-APK verification is clean.
+
+
+## 41. Session update — 2026-11-06 (next Jest failure cluster; APK remains blocked)
+
+### Live repository and CI state
+
+- Latest observed main HEAD: `9fcceef3ad5b2d9122febb89eb2633751195d99f` — `test(fonts): exercise glyph guard with wired locale fixture`.
+- The latest completed full CI run available during this review was CI Pipeline #215 on `d3668aebdc99f2162483798c14752124768bbfe0`: ESLint and TypeScript passed; localization/font validation passed; Jest failed with 33 suites / 393 passed and 165 failed tests / 8,468 passed / 2 skipped (8,635 total); 310 snapshots passed.
+- Android job #215 was explicitly skipped. The workflow condition requires a manual dispatch with `build_android: true`; this run had no APK build. The separate Android release workflow was not dispatched.
+- CI runs on the intermediate commits were cancelled by newer pushes. A new CI run for `9fcceef` (run ID `42262454344`) was queued at the time of this update. Do not treat the changes below as verified until that run completes.
+
+### Confirmed failure causes and changes
+
+- The failure log confirms a remaining shared-store mismatch in `ChatGenerationSettingsSheet.tsx`: it imported `chatSessionStore` and `defaultCompletionSettings` directly from `store/ChatSessionStore`, while Jest tests use the mocked `src/store` barrel. Changed the component to import through `src/store`. Commit: `85c5f95a25107388565e487d3d3cdbed3ec42892`.
+- The locale registry helper intentionally returns an empty array when the registry is valid and English-only. Updated `registry-languages.test.js` to assert that contract instead of expecting the old 15-language registry and treating an empty registry as parse failure. Commit: `02bb99fec614483b873b7bb2eabbc77f2cced076`.
+- Updated the localization validator test: an empty English-only registry is a valid configuration, not a reason to fall back to auto-discovery. The separate missing-index test continues to cover fallback behavior. Commit: `cc85f9ca0e020d39ea9db47d2ace0f0a55cc2b65`.
+- Updated the font glyph-coverage test to add Polish as a synthetic wired locale in its temporary fixture. This tests the safety check without claiming Polish is part of Lite's shipped language registry. Commit: `9fcceef3ad5b2d9122febb89eb2633751195d99f`.
+- Remaining failures include stale Plus test-feature deep-link expectations, a VideoPalScreen test importing a production module that no longer exists, old font/locale assumptions, and broader Pals/Plus/settings/chat UI failures. These are not all proven to be obsolete: inspect each product path and retain coverage for supported local inference, model downloads, persistence, gallery image selection, and TTS.
+
+### Verification boundaries
+
+- No local checkout/test execution was available in this session. The CI run on `d3668ae` is the last completed full Jest evidence; the later changes are pending verification.
+- The format/validation workflow on `9fcceef` and its CI pipeline were queued at update time.
+- No Android APK task or APK-producing workflow was run. No physical-device verification was performed.
+
+### Next actions
+
+1. Retrieve the CI result for `9fcceef`; confirm whether the store-barrel fix and locale/font test corrections pass and check the Android job remains skipped.
+2. Remove or rewrite only tests proven to target retired routes/features (for example the missing VideoPalScreen and obsolete Plus test route), while retaining meaningful tests for supported local functionality.
+3. Triage remaining retained UI failures from the newest report; inspect Settings, Chat, model download, persistence, and gallery paths before changing assertions.
+4. Continue the dependency/native configuration audit after test stability; Yarn lockfile regeneration still requires a clean Yarn Classic 1.22.22 environment.
+5. Keep APK production deferred until all source/test/configuration issues are resolved and non-APK verification is clean. Then seek confirmation before the first APK-producing run.
+
+### Preliminary APK-readiness estimate
+
+- Not ready for APK production. The project has a functioning Android release workflow from an earlier verified commit, and lint/typecheck plus localization/font checks passed on the latest completed full CI run. However, Jest still had 165 failures on that run, and current source changes have not yet completed CI verification. Dependency/native cleanup and physical-device checks for model acquisition, persistence, local inference, gallery selection, and offline operation remain outstanding.
+- Treat readiness as roughly **55–60%** toward a release candidate, not as a percentage of code written. The estimate is provisional and should move only with verified CI and device evidence.
