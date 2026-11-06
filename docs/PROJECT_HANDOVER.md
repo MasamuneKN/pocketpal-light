@@ -514,3 +514,43 @@ No physical-device verification was performed. No production source, dependencie
 3. Inspect the seven feature-only commits and selectively reconcile only changes still needed; retain the branch divergence until each patch is reviewed.
 4. Continue dependency/native reachability audit and regenerate the lockfile only after the removal set is proven, using Yarn Classic 1.22.22.
 5. Keep APK packaging manual-only and device verification outstanding.
+
+## 22. Verified session update — 2026-11-06 (GitHub reconnection and selective branch review)
+
+### GitHub access and Actions retrieval
+
+- Reconnected GitHub account `MasamuneKN` is working for repository reads and writes: latest handover, branch search, commit search, file retrieval, branch comparison, commit status, workflow job summaries, job steps, and decoded job logs all returned live results.
+- **The original Actions run-list blocker is only partially resolved.** The available GitHub tool catalog still has no repository-wide workflow-run listing action. `fetch_commit_workflow_runs` is limited to pull-request-triggered runs, so it cannot identify the newest push-triggered CI run by itself. Empty results from it or combined commit status must not be interpreted as a passing build.
+- Workflow job detail/log retrieval now works when a run/job ID is known. This is a meaningful improvement over the previous session; it allows inspection of run IDs already present in the handover or elsewhere.
+- Re-verified current `main` HEAD: `8505d1ca309bdccb40dae7b3945242afb363d947` — `docs: refresh PocketPal Lite repository status`.
+- Re-verified feature branch compare: `refactor/remove-unreachable-features` is **7 commits ahead / 43 behind** main. Merge base remains `ea05e3a2f5c83c7f2944b043c5b3d09ed6e3deaf`.
+
+### Latest known CI run and action taken
+
+- Inspected CI Pipeline #42165765676 on code SHA `d5f5aaddc379254faedc3f085df4e68cf3c95e96`. Its `build-and-test` job completed ESLint successfully (0 errors, 51 non-fatal warnings) and TypeScript successfully (`tsc --noEmit`, exit 0), but the job was cancelled immediately afterward; Jest was skipped. The Android and iOS jobs were also cancelled. This is **not** a complete passing CI run.
+- Its associated Format/validate run #42165765704 completed successfully.
+- Retried only the cancelled `build-and-test` job using GitHub's job-rerun action. GitHub accepted the request (`success: true`); an immediate jobs query returned no rows while the new attempt was initializing. The rerun outcome is therefore **pending/unverified**. No standalone APK workflow was dispatched.
+- The earlier run #42165553255 remains a confirmed failure at ESLint; dependent Android was skipped. Do not use it as evidence about Jest.
+
+### Selective feature-branch review
+
+- Compared the four feature-only files directly between `main` and `refactor/remove-unreachable-features`.
+- `__mocks__/stores/modelStore.ts` is identical between branches.
+- `__mocks__/services/downloads.ts` differs only in explanatory comments; behavior is identical.
+- `scripts/verify-plus-gate.sh` is identical between branches.
+- `android/app/build.gradle` differs because the feature branch removes the `PLUS_STORE_GATE` environment input from Hermes bundle task inputs. Main retains this input, which ensures bundle task invalidation when the store-gate build environment changes. Keep main's current behavior; do not cherry-pick this stale feature-branch version.
+- No feature-branch commit needs to be merged for these four paths. No merge, cherry-pick, reset, force-push, or history rewrite was performed.
+
+### Work and verification boundaries
+
+- No application source, tests, dependencies, Gradle configuration, or lockfile were modified in this session. No Android build or physical-device test was started.
+- No safe production-code cleanup was identified from the available evidence alone. Continue with the retained-feature test run before undertaking coordinated Plus/voice/Pals retirement; confirm every shared/native dependency is unreachable before removal.
+- Product scope remains Android/local-first, gallery-only image selection, compact typography, persistent local data, reliable model download/import, and offline inference.
+
+### Next actions
+
+1. Retrieve the result of the accepted rerun of CI job #127722269655 in run #42165765676. If it completes Jest, inspect the failure summary and logs; if it is still unavailable, obtain the current run ID through a repository-wide Actions listing capability.
+2. Resume Jest root-cause triage without deleting retained-feature coverage or weakening assertions.
+3. Continue the Plus/purchases, voice, and Pals reachability audit across navigation, imports, native modules, resources, workflows, and package dependencies.
+4. Keep the feature branch unmerged; its current unique changes are stale or behaviorally redundant.
+5. Regenerate `yarn.lock` only after the dependency removal set is established, using Yarn Classic 1.22.22. Keep standalone APK packaging manual-only.
