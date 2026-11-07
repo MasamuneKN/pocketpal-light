@@ -1335,7 +1335,6 @@ The user has now explicitly authorized running the tests and actions considered 
 5. Review R8/ProGuard consumer rules and test critical native-module entry points once an authorized test artifact can be built.
 6. Keep APK/AAB production and all packaging workflows prohibited until every pre-build issue is resolved and the user explicitly lifts the restriction.
 
-
 ## 59. Non-packaging CI confirmation and production-signing hardening — 2026-11-08
 
 ### CI confirmation
