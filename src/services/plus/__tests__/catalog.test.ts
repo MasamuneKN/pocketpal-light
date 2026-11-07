@@ -19,12 +19,9 @@ describe('Plus catalog', () => {
     },
   );
 
-  it('ships hands-free voice only', () => {
-    expect(PLUS_FEATURES.map(feature => [feature.id, feature.shipped])).toEqual(
-      [
-        ['handsFreeVoice', true],
-        ['localApiServer', false],
-      ],
-    );
+  it('keeps the local API server unavailable in the current Lite release', () => {
+    expect(PLUS_FEATURES).toEqual([
+      {id: 'localApiServer', shipped: false},
+    ]);
   });
 });

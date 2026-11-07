@@ -11,37 +11,29 @@ const NONE: ReadonlySet<string> = new Set();
 const GB8 = 8e9;
 
 describe('Plus feature status', () => {
-  it('shows hands-free voice ready and the API server coming soon', () => {
+  it('keeps the local API server coming soon', () => {
     const rows = featureRows(PLUS_FEATURES, GB8, NONE);
-    expect(rows).toEqual([
-      {id: 'handsFreeVoice', status: 'ready'},
-      {id: 'localApiServer', status: 'soon'},
-    ]);
-    expect(anyRunnable(rows)).toBe(true);
-    expect(shippedFeatures(PLUS_FEATURES, NONE).map(f => f.id)).toEqual([
-      'handsFreeVoice',
-    ]);
+    expect(rows).toEqual([{id: 'localApiServer', status: 'soon'}]);
+    expect(anyRunnable(rows)).toBe(false);
+    expect(shippedFeatures(PLUS_FEATURES, NONE)).toEqual([]);
   });
 
   it('marks the overridden feature shipped', () => {
     const override = new Set(['localApiServer']);
     const rows = featureRows(PLUS_FEATURES, GB8, override);
-    expect(rows).toEqual([
-      {id: 'handsFreeVoice', status: 'ready'},
-      {id: 'localApiServer', status: 'ready'},
-    ]);
+    expect(rows).toEqual([{id: 'localApiServer', status: 'ready'}]);
   });
 
   it('marks a shipped feature below its device gate as opt-in, still runnable', () => {
+    const table = fakePlusFeatures([{id: 'optInFeature', shipped: true}]);
     const rows = featureRows(
-      PLUS_FEATURES,
+      table,
       GB8,
       NONE,
-      new Map([['handsFreeVoice', 'belowGate']]),
+      new Map([['optInFeature', 'belowGate']]),
     );
     expect(rows).toEqual([
-      {id: 'handsFreeVoice', status: 'optIn', reason: 'belowGate'},
-      {id: 'localApiServer', status: 'soon'},
+      {id: 'optInFeature', status: 'optIn', reason: 'belowGate'},
     ]);
     expect(anyRunnable(rows)).toBe(true);
   });

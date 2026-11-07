@@ -106,7 +106,6 @@ import {resolveModelCaps} from '../utils/modelCaps';
 import type {CapabilityEnv, ModelCapabilityView} from '../utils/modelCaps';
 import {t} from '../locales';
 import {resolveUseMmap} from '../utils/memorySettings';
-import {vtrace} from '../utils/voiceTrace';
 import {
   createContextInitParams,
   createDefaultContextInitParams,
@@ -2484,11 +2483,6 @@ class ModelStore {
     chatSessionStore.exitEditMode();
     this.isReleasingContext = true;
     try {
-      vtrace('abortActive', {
-        by: 'release',
-        clearActiveModel,
-        app: this.appState,
-      });
       await this.generationSlot.abortActive();
       return await this.releaseEngine(clearActiveModel);
     } finally {
@@ -3441,7 +3435,6 @@ class ModelStore {
     this.generationSlot.tryAcquire(this.grantableEngine);
 
   abortActiveGeneration = (): void => {
-    vtrace('abortActive', {by: 'abortActiveGeneration'});
     this.generationSlot.abortActive();
   };
 

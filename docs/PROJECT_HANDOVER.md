@@ -1435,3 +1435,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Before pruning, all 106 remaining root dependency patterns and every transitive dependency pattern resolved in the lockfile graph. After pruning, the graph was re-parsed and verified to have zero missing patterns and zero unreachable blocks.
 - This is a deterministic lockfile-only cleanup; all retained dependency blocks preserve their original content and resolved versions.
 - CI for the current source removal and lockfile update remains pending. No Android APK/AAB packaging was run.
+
+
+## 66. Voice-removal reference repair — 2026-11-08
+
+- The first full CI run after the source/dependency cleanup exposed stale references that remained outside the deleted voice modules: Jest setup mocks, E2E automation adapters, the assistant-turn replay button, hook barrel exports, Plus catalog/shipped-feature logic, and ModelStore voice tracing.
+- Removed those dangling imports and mocks. Removed the voice-only replay button and its test, and removed its slot from the assistant-turn footer while preserving copy, interruption status, and timing metadata.
+- Removed hands-free voice from the Plus feature catalog and updated catalog/feature tests to cover the remaining local API server placeholder and generic opt-in behavior.
+- Removed voice tracing calls from ModelStore without changing generation abort or context-release behavior.
+- CI run 42405949789 on 1dba1a2 failed at TypeScript type-checking with these stale references; Jest was skipped. ESLint, dependency installation, localization validation, and font validation passed. These fixes require fresh TypeScript, Jest, and non-packaging Gradle verification.
+- No APK/AAB packaging was run or authorized. Continue to keep all packaging workflows disabled until every pre-release blocker is resolved and the user explicitly lifts the restriction.

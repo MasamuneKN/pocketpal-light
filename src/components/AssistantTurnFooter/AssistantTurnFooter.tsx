@@ -8,7 +8,6 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 import {CopyIcon} from '../../assets/icons';
 import {useTheme} from '../../hooks/useTheme';
-import {PlayButton} from '../TextMessage/PlayButton';
 
 import {styles} from './styles';
 
@@ -122,7 +121,6 @@ export const AssistantTurnFooter: React.FC<AssistantTurnFooterProps> = observer(
 
     return (
       <View style={componentStyles.container} testID="assistant-turn-footer">
-        <PlayButton message={message} />
         {copyable && (
           <TouchableOpacity onPress={copyToClipboard} testID="footer-copy">
             <CopyIcon
