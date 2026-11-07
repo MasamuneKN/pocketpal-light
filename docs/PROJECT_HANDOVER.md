@@ -1436,7 +1436,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - This is a deterministic lockfile-only cleanup; all retained dependency blocks preserve their original content and resolved versions.
 - CI for the current source removal and lockfile update remains pending. No Android APK/AAB packaging was run.
 
-
 ## 66. Voice-removal reference repair — 2026-11-08
 
 - The first full CI run after the source/dependency cleanup exposed stale references that remained outside the deleted voice modules: Jest setup mocks, E2E automation adapters, the assistant-turn replay button, hook barrel exports, Plus catalog/shipped-feature logic, and ModelStore voice tracing.

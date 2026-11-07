@@ -20,8 +20,6 @@ describe('Plus catalog', () => {
   );
 
   it('keeps the local API server unavailable in the current Lite release', () => {
-    expect(PLUS_FEATURES).toEqual([
-      {id: 'localApiServer', shipped: false},
-    ]);
+    expect(PLUS_FEATURES).toEqual([{id: 'localApiServer', shipped: false}]);
   });
 });
