@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {runInAction} from 'mobx';
 import {useAnimatedStyle} from 'react-native-reanimated';
-import {act} from '@testing-library/react-native';
 
 import {textMessage, user} from '../../../../jest/fixtures';
 import {render} from '../../../../jest/test-utils';
