@@ -1428,7 +1428,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The latest formatting-only commit is `4263ea0`; the icon cleanup follows it.
 - Final source audit must confirm no imports or references remain to deleted voice modules/assets. CI for the locale and source-removal commits is still pending; do not report the Lite release as ready until checks complete.
 
-
 ## 65. Yarn lockfile dependency-graph cleanup — 2026-11-08
 
 - Regenerated the effective Yarn v1 lockfile graph after removing voice packages by pruning only entries proven unreachable from every remaining `dependencies`, `devDependencies`, and `optionalDependencies` root.
