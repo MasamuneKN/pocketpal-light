@@ -34,7 +34,6 @@ import {
 } from '../utils/systemPromptResolver';
 import {convertToChatMessages, removeThinkingParts} from '../utils/chat';
 import {acquireKeepAwake} from '../utils/keepAwake';
-import {vtrace} from '../utils/voiceTrace';
 import {LLAMARN_ERROR_PATTERNS} from '../utils/llamaRnErrors';
 import {
   toApiCompletionParams,
@@ -290,7 +289,6 @@ async function applyEventToStore(
     timeToFirstTokenMs: {value: number | null};
     hasImages: boolean;
     isMultimodalEnabled: boolean;
-    stopped: boolean;
   },
 ): Promise<void> {
   switch (event.type) {
@@ -387,15 +385,6 @@ async function applyEventToStore(
       // (not in the runner) because timings are an observability
       // concern of the hook, not the runner.
       const finalResult = event.result.finalResult;
-      vtrace('run.done', {
-        stopped: ctx.stopped,
-        tokens: finalResult.tokens_predicted,
-        chars: finalResult.content?.length,
-        eos: finalResult.stopped_eos,
-        limit: finalResult.stopped_limit,
-        word: finalResult.stopped_word,
-        interrupted: finalResult.interrupted,
-      });
       const snapshot = deriveSnapshotFromResult(
         finalResult,
         modelStore.activeModel?.origin === ModelOrigin.REMOTE,
@@ -532,7 +521,6 @@ export const useChatSession = (
     }
     leaseRef.current = lease;
     const stopsWhileWaiting = stopsBeforeLease.current - stopsAtSend;
-    vtrace('lease.grant', {stopsWhileWaiting});
     if (stopsWhileWaiting !== 0) {
       lease.abort();
     }
@@ -779,7 +767,6 @@ export const useChatSession = (
           timeToFirstTokenMs,
           hasImages,
           isMultimodalEnabled,
-          stopped: lease.signal.aborted,
         });
 
         if (performance.now() - lastYieldTs >= YIELD_INTERVAL_MS) {
@@ -793,7 +780,6 @@ export const useChatSession = (
       }
     } catch (error) {
       console.error('Completion error:', error);
-      vtrace('run.error', {aborted: lease.signal.aborted});
       // Send stays blocked until an undone turn's rows are gone.
       if (!(error instanceof RemoteModelRequestWithdrawnError)) {
         runUi.stop();
@@ -955,10 +941,6 @@ export const useChatSession = (
   };
 
   const handleStopPress = async () => {
-    vtrace('stopPress', {
-      lease: !!leaseRef.current,
-      stopsBeforeLease: stopsBeforeLease.current,
-    });
     if (leaseRef.current) {
       leaseRef.current.abort();
     } else {

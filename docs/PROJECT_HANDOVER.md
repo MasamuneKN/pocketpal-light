@@ -1404,3 +1404,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - Retained `react-native-nitro-modules` because other installed native dependencies may still require it.
 - The Yarn v1 lockfile may still contain now-orphaned entries until a clean lockfile regeneration is performed. They are not direct dependencies in `package.json`.
 - This deletion/update set is committed but still needs formatting, ESLint, TypeScript, Jest, and full CI verification. No APK/AAB packaging is permitted.
+
+
+## 62. Voice removal follow-through and localization cleanup — 2026-11-08
+
+- Removed the remaining `voiceTrace` import and diagnostic calls from `useChatSession`; the trace helper itself was deleted with the voice-only utilities.
+- Removed the now-unused stopped-state diagnostic field from the chat event context. Normal stop/abort behavior remains handled by the generation lease and run UI.
+- Voice-only translation objects and labels still need removal from all locale JSON files: TTS availability, voice and speech settings, voice input, hands-free voice mode, Phonon notices, and the About-screen notice link. Generic feedback copy and unrelated moderation wording must be retained.
+- Localization key parity and the current full CI are still pending. No Android packaging was run.
+- The lockfile may retain orphaned package resolution blocks; direct dependencies have been removed from `package.json`. A lockfile cleanup will be considered separately if the Yarn v1 workflow can regenerate it safely without changing unrelated resolutions.
