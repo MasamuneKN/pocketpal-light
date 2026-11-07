@@ -1412,3 +1412,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Voice-only translation objects and labels still need removal from all locale JSON files: TTS availability, voice and speech settings, voice input, hands-free voice mode, Phonon notices, and the About-screen notice link. Generic feedback copy and unrelated moderation wording must be retained.
 - Localization key parity and the current full CI are still pending. No Android packaging was run.
 - The lockfile may retain orphaned package resolution blocks; direct dependencies have been removed from `package.json`. A lockfile cleanup will be considered separately if the Yarn v1 workflow can regenerate it safely without changing unrelated resolutions.
+
+
+## 63. Voice localization cleanup — 2026-11-08
+
+- Removed voice-only translation keys across all 23 locale JSON files, including TTS availability, voice/speech settings, dictation, hands-free voice mode, Phonon credits, and the About-screen notices entry.
+- Kept unrelated copy such as the feedback prompt (“Your voice matters”) and moderation’s “Hate Speech” label.
+- Removed voice tracing from the chat hook and the corresponding utility file is no longer present.
+- The latest formatting-only commit is `7a67b15`. The locale cleanup is committed immediately after it; CI must verify localization validation, ESLint, TypeScript, and Jest.
+- Native package dependencies are removed from `package.json`. The Yarn v1 lockfile may still contain unused resolution entries; this is metadata only and does not install packages that are no longer in the dependency graph. A lockfile regeneration should be done only through the project’s normal Yarn workflow.
+- No APK/AAB build or packaging workflow has been started. Keep the release prohibition in force.

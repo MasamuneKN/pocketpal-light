@@ -89,8 +89,6 @@
     "useMmapFalseDescription": "Si consiglia di disabilitarla quando il repacking dei pesi è attivo, per evitare di raddoppiare l'uso di memoria",
     "weightRepacking": "Attiva il repacking dei pesi",
     "weightRepackingDescription": "Elaborazione del prompt più rapida con un sovraccarico di memoria minimo quando la mappatura della memoria è disabilitata. La generazione dei token non è influenzata.",
-    "ttsAvailability": "Sintesi vocale",
-    "ttsAvailabilityDescription": "Legge ad alta voce le risposte dell'assistente.",
     "speculativeDecoding": "Decodifica speculativa",
     "speculativeDecodingDescription": "Usa un piccolo modello draft (o un modello MTP integrato) per prevedere i token e velocizzare la generazione. Sperimentale.",
     "speculativeNotMTPCapable": "Il modello attivo non supporta la decodifica speculativa e non è abbinato alcun draft compatibile, quindi per esso resta disattivata senza alcun effetto. Viene applicata automaticamente ai modelli compatibili.",
