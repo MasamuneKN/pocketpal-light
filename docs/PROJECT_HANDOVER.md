@@ -1151,7 +1151,6 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Continue focused static review of Android storage, gallery selection and local inference paths. Avoid permission or dependency removal unless runtime references are proven absent.
 3. Keep APK production blocked until all outstanding non-APK issues are resolved and the user explicitly lifts the restriction.
 
-
 ## 52. Session update — 2026-11-07 (public multi-ABI target and native compatibility audit)
 
 ### New release requirement
