@@ -1025,3 +1025,29 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Fix the remaining SquarePalCard PalsHub-only tests without weakening local-card coverage.
 3. Trace ChatView auto-load model selection and current context-upgrade UX; only add a router loading UI if the intended product behavior is supported by current router state and user-facing design.
 4. Keep APK production blocked until all non-APK checks and functional issues are clean.
+
+## 47. Session update — 2026-11-07 (remaining stale ChatView and PalsHub tests)
+
+### Latest verified baseline
+
+- CI run `42307893372` on formatter commit `cade785`: ESLint and TypeScript passed; Jest reported **3 failed suites, 420 passed; 11 failed tests, 8,494 passed, 2 skipped; 310/310 snapshots passed**.
+- Remaining failures were isolated to `SquarePalCard.test.tsx` (7 tests), `ChatView.test.tsx` (2 tests), and `ChatView.routerLoading.test.tsx` (2 tests). Android/iOS build jobs were skipped; no APK was produced.
+
+### Changes pushed after that run
+
+- `df730ae`: removed obsolete PalsHub-card expectations from `SquarePalCard.test.tsx`; retained local-card, local share/delete, model warning, video capability and local chat navigation coverage. Corrected the share-error Alert assertion to match the current two-argument production call.
+- `99259ba`: removed ChatView tests for active-Pal auto-load and the Pal-load hint snackbar. The current ChatView source has neither the tested auto-load effect nor the asserted snackbar/testID; no production behavior was changed.
+- `ef9005d`: removed the router-load-line and accessibility-announcement tests. Current ChatView pending UX is driven by `agentUiState.status` and `PendingIndicator`; the asserted router loading line is not implemented. Retained pending-indicator behavior tests.
+- `d67228b`: removed now-unused PalsHub store setup from the SquarePalCard tests.
+
+### Verification in progress
+
+- CI run `42337055453` on `d67228b` is in progress. Its detect-changes job passed; build-and-test is still running. Do not treat the above test removals as verified until this run completes.
+- Formatting run `42337055630` is pending. Automated formatting may create a follow-up commit and CI run; inspect the newest run on main before further edits.
+- APK production remains prohibited. Do not trigger Android APK packaging until all non-APK failures and outstanding functional issues are resolved and verified.
+
+### Next actions
+
+1. Inspect completion of CI run `42337055453` and formatting run `42337055630`; use the newest main SHA if formatting creates a commit.
+2. If Jest passes, review the remaining non-test readiness checks and functional issues before considering APK production. If it fails, fix only the newly reported failures and preserve local/offline coverage.
+3. Keep Android/iOS packaging out of the workflow until the explicit APK restriction is lifted by completion of all lingering issues.
