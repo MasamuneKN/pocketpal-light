@@ -1,0 +1,103 @@
+name: Validate Android Gradle Configuration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'android/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'patches/**'
+      - 'scripts/android-payload-manifest.json'
+      - '.github/workflows/android-config-check.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'android/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'patches/**'
+      - 'scripts/android-payload-manifest.json'
+      - '.github/workflows/android-config-check.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pocketpal-android-config-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  configure:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.0'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android components
+        run: |
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-37.0" \
+            "build-tools;37.0.0" \
+            "ndk;27.3.13750724" \
+            "cmake;3.22.1"
+
+          # Android 17 SDK is published as android-37.0, while this project
+          # declares compileSdkVersion 37 and Gradle looks for android-37.
+          if [ -d "$ANDROID_SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$ANDROID_SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$ANDROID_SDK_ROOT/platforms/android-37"
+          fi
+
+      - name: Set up Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create Android .env file
+        run: |
+          cat > .env <<'EOL'
+          FIREBASE_FUNCTIONS_URL=https://disabled.invalid
+          SUPABASE_URL=https://disabled.invalid
+          SUPABASE_ANON_KEY=disabled
+          PALSHUB_API_BASE_URL=https://disabled.invalid
+          APP_URL=pocketpal://app
+          ENABLE_PALSHUB_INTEGRATION=false
+          ENABLE_AUTHENTICATION=false
+          ENABLE_OFFLINE_MODE=true
+          GOOGLE_IOS_CLIENT_ID=
+          GOOGLE_WEB_CLIENT_ID=
+          EOL
+
+      - name: Validate Android payload manifest
+        run: node scripts/verify-android-payload.js --print-variants
+
+      # This task configures Gradle projects only. It does not compile native
+      # code or invoke any APK/AAB packaging task.
+      - name: Validate Android Gradle configuration (no packaging)
+        run: |
+          cd android
+          ./gradlew help --no-daemon --stacktrace
