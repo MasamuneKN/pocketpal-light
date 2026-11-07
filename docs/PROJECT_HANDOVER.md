@@ -1230,3 +1230,14 @@ The user has now explicitly authorized running the tests and actions considered 
 - The updated Phonon release-gate test passed with the approved `RNSpeech_phononAbis=arm64-v8a,x86_64` configuration.
 - Android and iOS packaging jobs were skipped. No APK/AAB was created.
 - Documentation-only handover update is at the current main commit; next work is static native-payload and 16 KB alignment review, then a non-packaging Gradle configuration check. Do not run any APK/AAB task.
+
+
+## 55. Non-packaging Gradle configuration check — 2026-11-07
+
+- Added `.github/workflows/android-config-check.yml` in commit `a6b9dd49e7675d61ced1bd83e93b57dcc56d6aaf`.
+- The workflow is path-scoped to Android configuration, dependency/patch changes, and the Android payload manifest. It installs JDK 17, the project's Android SDK/NDK/CMake versions, and locked Yarn dependencies.
+- It runs `node scripts/verify-android-payload.js --print-variants` and `./gradlew help --no-daemon --stacktrace` only. It does not compile native code or invoke APK/AAB packaging.
+- The format workflow completed successfully; formatting-only commit `6cbbbb07a857b3aa80d296227508e97ec1a652e0` removed excess blank lines from the handover.
+- Android configuration workflow run `42383704519` is still in progress on `a6b9dd4`; Android SDK setup and dependency installation passed, and the non-packaging Gradle configuration task is running.
+- CI run `42383836524` is running on formatted commit `6cbbbb07`; its Jest/ESLint/TypeScript checks have not yet completed. APK/iOS packaging remains skipped.
+- Do not push another code commit until these active checks finish. Continue with the native payload and 16 KB alignment audit after recording their results. No APK/AAB has been created.
