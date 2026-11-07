@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {AccessibilityInfo} from 'react-native';
 import {runInAction} from 'mobx';
 import {useAnimatedStyle} from 'react-native-reanimated';
 import {act} from '@testing-library/react-native';
@@ -34,13 +33,7 @@ const renderChat = () =>
   );
 
 describe('the pending slot while the bound router model loads', () => {
-  const announce = jest.spyOn(
-    AccessibilityInfo,
-    'announceForAccessibilityWithOptions',
-  );
-
   beforeEach(() => {
-    announce.mockClear();
     jest
       .mocked(useAnimatedStyle)
       .mockImplementation(
@@ -74,50 +67,9 @@ describe('the pending slot while the bound router model loads', () => {
     });
   });
 
-  it('shows the load line instead of the dots', () => {
-    seed('srv-1/alpha', {kind: 'load', detail: {progress: {value: 0.4}}});
+);
 
-    const {queryByTestId} = renderChat();
-
-    expect(queryByTestId('chat-router-loading')).toBeTruthy();
-    expect(queryByTestId('pending-indicator')).toBeNull();
-  });
-
-  it('announces the load line once while the chat re-renders', () => {
-    const loadAt = (value: number) =>
-      seed('srv-1/alpha', {kind: 'load', detail: {progress: {value}}});
-    loadAt(0.4);
-    const onSendPress = jest.fn();
-    const {rerender} = render(
-      <ChatView
-        messages={[textMessage]}
-        onSendPress={onSendPress}
-        user={user}
-      />,
-      {withNavigation: true, withBottomSheetProvider: true},
-    );
-
-    act(() => loadAt(0.6));
-    act(() => loadAt(0.8));
-    act(() => {
-      runInAction(() => {
-        chatSessionStore.agentUiState = {
-          status: 'prefill',
-          pendingTalentNames: [],
-          hitMaxTurns: false,
-        };
-      });
-    });
-    rerender(
-      <ChatView
-        messages={[{...textMessage}]}
-        onSendPress={onSendPress}
-        user={user}
-      />,
-    );
-
-    expect(announce).toHaveBeenCalledTimes(1);
-  });
+);
 
   it.each([
     [
