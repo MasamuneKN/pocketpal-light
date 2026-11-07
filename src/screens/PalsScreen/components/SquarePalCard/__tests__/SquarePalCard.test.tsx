@@ -67,10 +67,6 @@ describe('SquarePalCard', () => {
       expect(getByText('A helpful test assistant')).toBeTruthy();
     });
 
-
-
-
-
     it('renders thumbnail image when available', () => {
       const pal = createLocalPal({
         thumbnail_url: 'https://example.com/thumb.jpg',
@@ -91,7 +87,6 @@ describe('SquarePalCard', () => {
 
       expect(getByText('T')).toBeTruthy(); // First letter
     });
-
   });
 
   describe('User Interactions', () => {
@@ -172,7 +167,6 @@ describe('SquarePalCard', () => {
         expect(mockNavigate).toHaveBeenCalledWith('Chat');
       });
     });
-
   });
 
   describe('Model Warning', () => {
@@ -214,7 +208,6 @@ describe('SquarePalCard', () => {
 
       expect(queryByText('Model not downloaded')).toBeNull();
     });
-
   });
 
   describe('Content Display', () => {
@@ -339,8 +332,6 @@ describe('SquarePalCard', () => {
       // Should have at least 2 icon buttons (share and delete)
       expect(iconButtons.length).toBeGreaterThanOrEqual(2);
     });
-
-
   });
 
   describe('Video Capability', () => {
@@ -376,8 +367,7 @@ describe('SquarePalCard', () => {
     });
   });
 
-  describe('Premium Badge', () => {
-  });
+  describe('Premium Badge', () => {});
 
   describe('Error Handling', () => {
     it('handles share error gracefully', async () => {
