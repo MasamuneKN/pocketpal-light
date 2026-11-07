@@ -1422,7 +1422,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Native package dependencies are removed from `package.json`. The Yarn v1 lockfile may still contain unused resolution entries; this is metadata only and does not install packages that are no longer in the dependency graph. A lockfile regeneration should be done only through the project’s normal Yarn workflow.
 - No APK/AAB build or packaging workflow has been started. Keep the release prohibition in force.
 
-
 ## 64. Voice asset reference cleanup — 2026-11-08
 
 - Removed the remaining microphone and voice-waveform SVG exports from the shared icon barrel after their source assets were deleted.
