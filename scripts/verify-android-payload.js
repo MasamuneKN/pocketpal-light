@@ -38,6 +38,65 @@ const SHT_DYNSYM = 11;
 const SHN_UNDEF = 0;
 const ELF64_SYM_SIZE = 24;
 const ELF64_SHDR_SIZE = 64;
+const PT_LOAD = 1;
+const ELF64_PHDR_SIZE = 56;
+const ANDROID_PAGE_SIZE = 16384;
+
+/**
+ * Check every loadable segment, not just the linker flags of one library.
+ * Android's 16 KB page-size compatibility requires each PT_LOAD segment to
+ * carry at least 16 KB alignment and congruent file/virtual offsets.
+ */
+function readElfLoadSegmentAlignment(buf) {
+  if (buf.length < 64 || buf.readUInt32BE(0) !== 0x7f454c46) {
+    throw new Error('file is too short or is not an ELF object');
+  }
+  if (buf[4] !== 2 || buf[5] !== 1) {
+    throw new Error('file is not a little-endian 64-bit ELF object');
+  }
+  const ehsize = buf.readUInt16LE(0x34);
+  const phoff = Number(buf.readBigUInt64LE(0x20));
+  const phentsize = buf.readUInt16LE(0x36);
+  const phnum = buf.readUInt16LE(0x38);
+  if (ehsize < 64 || phoff === 0 || phnum === 0 || phentsize < ELF64_PHDR_SIZE) {
+    throw new Error('ELF program header table is absent or malformed');
+  }
+  if (!Number.isSafeInteger(phoff) || phoff + phnum * phentsize > buf.length) {
+    throw new Error('ELF program header table is truncated');
+  }
+
+  const loads = [];
+  for (let i = 0; i < phnum; i++) {
+    const at = phoff + i * phentsize;
+    if (buf.readUInt32LE(at) !== PT_LOAD) continue;
+    const offset = Number(buf.readBigUInt64LE(at + 8));
+    const vaddr = Number(buf.readBigUInt64LE(at + 16));
+    const filesz = Number(buf.readBigUInt64LE(at + 32));
+    const memsz = Number(buf.readBigUInt64LE(at + 40));
+    const align = Number(buf.readBigUInt64LE(at + 48));
+    if (![offset, vaddr, filesz, memsz, align].every(Number.isSafeInteger)) {
+      throw new Error(`PT_LOAD segment ${i} contains an out-of-range value`);
+    }
+    if (offset + filesz > buf.length || memsz < filesz) {
+      throw new Error(`PT_LOAD segment ${i} has an invalid file or memory range`);
+    }
+    if (align < ANDROID_PAGE_SIZE) {
+      throw new Error(`PT_LOAD segment ${i} p_align ${align} is below 16 KB`);
+    }
+    if (!Number.isInteger(Math.log2(align))) {
+      throw new Error(`PT_LOAD segment ${i} p_align ${align} is not a power of two`);
+    }
+    if (offset % align !== vaddr % align) {
+      throw new Error(`PT_LOAD segment ${i} file and virtual offsets are incongruent`);
+    }
+    loads.push({index: i, align});
+  }
+  if (loads.length === 0) {
+    throw new Error('ELF has no PT_LOAD segments');
+  }
+  return loads;
+}
+
 
 function usage() {
   return [
@@ -570,6 +629,23 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
         missingLibs.push(entry);
       }
     }
+
+    // Check every native shared object in the ABI tree, including transitive
+    // React Native/Hermes and app-owned libraries not listed in the payload
+    // manifest. A missing or malformed ELF must never be counted as verified.
+    const nativeLibraries = [...entries].filter(
+      entry => entry.startsWith(`${libPrefix}${abi.abi}/`) && entry.endsWith('.so'),
+    );
+    report.push(`    16 KB ELF alignment: ${nativeLibraries.length} shared libraries`);
+    for (const entry of nativeLibraries) {
+      try {
+        const loads = readElfLoadSegmentAlignment(readZipEntry(archive, entry));
+        report.push(`      PASS  ${entry} (${loads.length} PT_LOAD segments)`);
+      } catch (err) {
+        report.push(`      FAIL  ${entry} — ${err.message}`);
+        fail(`${entry} in ${artifactName} is not verified for Android 16 KB pages: ${err.message}.`);
+      }
+    }
     report.push(
       `    libraries: ${abi.requiredLibs.length - missingLibs.length}/${abi.requiredLibs.length} present`,
     );
@@ -721,4 +797,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = {readDynsym, variantsFromManifest};
+module.exports = {readDynsym, readElfLoadSegmentAlignment, variantsFromManifest};

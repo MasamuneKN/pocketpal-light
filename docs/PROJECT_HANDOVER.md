@@ -1275,3 +1275,21 @@ The user has now explicitly authorized running the tests and actions considered 
 3. Extend the non-packaging Android configuration workflow only if needed to assert the exact two-ABI configuration and required dependency versions; do not add compilation or packaging tasks.
 4. Continue static review of release-critical permissions, offline behavior, minification/ProGuard keep rules, signing configuration, and model/audio asset handling.
 5. Keep the explicit no-APK/AAB restriction in force. Do not invoke any assemble, bundle, package, or APK-producing workflow.
+
+
+## 57. ELF 16 KB load-segment verifier — 2026-11-07
+
+### Implementation
+
+- Added ELF64 program-header parsing to `scripts/verify-android-payload.js`.
+- The artifact gate now inspects every `.so` under each shipped Android ABI tree, not only the manifest's required Llama libraries. This includes transitive React Native/Hermes and app-owned shared libraries when present in the APK/AAB.
+- Every `PT_LOAD` segment must have `p_align >= 16384`, a power-of-two alignment, congruent file/virtual offsets, and valid file/memory bounds. Missing, malformed, truncated, or unreadable program-header data fails the artifact gate.
+- Added synthetic ELF fixtures and Jest regression cases for valid 16 KB alignment, 4 KB alignment rejection, absent/truncated program-header tables, and multiple `PT_LOAD` segments.
+- The check is part of the artifact verifier only. No APK/AAB has been generated and no packaging workflow has been invoked.
+
+### Verification status and caveats
+
+- Source changes are prepared against main HEAD `a4d9183209cb12e0548c841ba144407c72f27b71`; CI has not yet verified this change.
+- The synthetic fixtures test parser behavior, not actual native library alignment. Final artifact verification remains mandatory once the no-APK restriction is lifted.
+- The parser currently targets ELF64 little-endian Android ABI libraries, matching the approved `arm64-v8a` and `x86_64` release scope. DSP assets under the app's assets directory are not part of the Android ABI `lib/<abi>/` shared-object scan.
+- Next: run the focused Jest suite and full non-packaging CI, then continue auditing actual native dependency artifact sources and other release blockers. Keep APK/AAB production prohibited.

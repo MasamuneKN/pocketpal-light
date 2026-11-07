@@ -46,7 +46,9 @@ function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
   }
 
   const align8 = n => n + ((8 - (n % 8)) % 8);
-  const dynstrOffset = ELF64_SHDR_SIZE;
+  const programHeaderOffset = 64;
+  const programHeaderSize = 56;
+  const dynstrOffset = ELF64_SHDR_SIZE + programHeaderSize;
   const dynsymOffset = align8(dynstrOffset + dynstr.length);
   const shoff = align8(dynsymOffset + dynsym.length);
   const sectionCount = omitDynsym ? 2 : 3;
@@ -59,8 +61,11 @@ function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
   header.writeUInt16LE(3, 16); // ET_DYN
   header.writeUInt16LE(0xb7, 18); // EM_AARCH64
   header.writeUInt32LE(1, 20);
+  header.writeBigUInt64LE(BigInt(programHeaderOffset), 0x20);
   header.writeBigUInt64LE(BigInt(shoff), 0x28);
   header.writeUInt16LE(ELF64_SHDR_SIZE, 52);
+  header.writeUInt16LE(programHeaderSize, 0x36);
+  header.writeUInt16LE(1, 0x38);
   header.writeUInt16LE(ELF64_SHDR_SIZE, 0x3a);
   header.writeUInt16LE(sectionCount, 0x3c);
 
@@ -89,6 +94,15 @@ function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
   dynstr.copy(out, dynstrOffset);
   dynsym.copy(out, dynsymOffset);
   sections.copy(out, shoff);
+  const ph = programHeaderOffset;
+  out.writeUInt32LE(1, ph); // PT_LOAD
+  out.writeUInt32LE(5, ph + 4); // PF_R | PF_X
+  out.writeBigUInt64LE(0n, ph + 8);
+  out.writeBigUInt64LE(0n, ph + 16);
+  out.writeBigUInt64LE(0n, ph + 24);
+  out.writeBigUInt64LE(BigInt(out.length), ph + 32);
+  out.writeBigUInt64LE(BigInt(out.length), ph + 40);
+  out.writeBigUInt64LE(16384n, ph + 48);
   return out;
 }
 
@@ -238,6 +252,47 @@ describe('the variant allowlist', () => {
 
   it('needs no artifact, so it is safe to call before anything is built', () => {
     expect(runGate(['--print-variants']).status).toBe(0);
+  });
+});
+
+describe('ELF 16 KB load-segment alignment', () => {
+  const {readElfLoadSegmentAlignment} = require('../verify-android-payload');
+
+  it('accepts a valid ELF with 16 KB PT_LOAD alignment', () => {
+    expect(readElfLoadSegmentAlignment(PLAIN_ELF)).toEqual([{index: 0, align: 16384}]);
+  });
+
+  it('rejects a PT_LOAD segment below 16 KB alignment', () => {
+    const elf = Buffer.from(PLAIN_ELF);
+    const phoff = Number(elf.readBigUInt64LE(0x20));
+    elf.writeBigUInt64LE(4096n, phoff + 48);
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('below 16 KB');
+  });
+
+  it('rejects absent and truncated program-header tables', () => {
+    const absent = Buffer.from(PLAIN_ELF);
+    absent.writeBigUInt64LE(0n, 0x20);
+    expect(() => readElfLoadSegmentAlignment(absent)).toThrow('absent or malformed');
+    const truncated = Buffer.from(PLAIN_ELF);
+    truncated.writeBigUInt64LE(BigInt(truncated.length - 8), 0x20);
+    expect(() => readElfLoadSegmentAlignment(truncated)).toThrow('truncated');
+  });
+
+  it('checks every PT_LOAD segment', () => {
+    const elf = Buffer.from(PLAIN_ELF);
+    const phoff = Number(elf.readBigUInt64LE(0x20));
+    const extra = Buffer.alloc(56);
+    extra.writeUInt32LE(1, 0);
+    extra.writeUInt32LE(5, 4);
+    extra.writeBigUInt64LE(0n, 8);
+    extra.writeBigUInt64LE(0n, 16);
+    extra.writeBigUInt64LE(0n, 24);
+    extra.writeBigUInt64LE(BigInt(elf.length), 32);
+    extra.writeBigUInt64LE(BigInt(elf.length), 40);
+    extra.writeBigUInt64LE(4096n, 48);
+    extra.copy(elf, phoff + 56);
+    elf.writeUInt16LE(2, 0x38);
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('below 16 KB');
   });
 });
 
