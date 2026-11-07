@@ -12,7 +12,6 @@ import {
   NEW_SESSION_TITLE,
   palStore,
   serverStore,
-  ttsStore,
   uiStore,
 } from '../store';
 import type {GenerationLease} from '../store/generationLease';
@@ -26,7 +25,6 @@ import {
   MessageType,
   ModelOrigin,
   User,
-  type AgentToolCall,
 } from '../utils/types';
 import {
   RemoteModelNotReadyError,
@@ -41,7 +39,6 @@ import {
 import {
   convertToChatMessages,
   removeThinkingParts,
-  visibleStepContent,
 } from '../utils/chat';
 import {acquireKeepAwake} from '../utils/keepAwake';
 import {vtrace} from '../utils/voiceTrace';
@@ -66,7 +63,6 @@ import {
   runAgent,
   type AgentEvent,
   type AgentUiState,
-  type TokenDelta,
 } from '../services/agent';
 // Helper function to prepare completion parameters using OpenAI-compatible
 // messages API. Creates the empty `assistant_turn` row up-front so the
@@ -82,7 +78,6 @@ const prepareCompletion = async ({
   isMultimodalEnabled,
   l10n,
   currentMessages,
-  spoken,
 }: {
   imageUris: string[];
   message: MessageType.PartialText;
@@ -93,7 +88,6 @@ const prepareCompletion = async ({
   isMultimodalEnabled: boolean;
   l10n: any;
   currentMessages: MessageType.Any[];
-  spoken: boolean;
 }) => {
   const sessionCompletionSettings =
     await chatSessionStore.getCurrentCompletionSettings();
@@ -170,8 +164,6 @@ const prepareCompletion = async ({
 
   const completionParamsWithAppProps = {
     ...sessionCompletionSettings,
-    // A spoken reply must start talking at once, not after a reasoning pass.
-    ...(spoken ? {enable_thinking: false, reasoning: {enabled: false}} : {}),
     messages,
     stop: stopWords,
   };
@@ -242,7 +234,6 @@ const prepareCompletion = async ({
       // run_finished (success/maxTurns) or at the abort catch path with
       // partial content.
       multimodal: hasImages,
-      ...(spoken ? {spoken: true} : {}),
     },
   };
 
@@ -256,109 +247,6 @@ const prepareCompletion = async ({
 
   return {cleanCompletionParams, messageInfo};
 };
-
-// Per-run TTS streaming state. The runner emits content/reasoning
-// CUMULATIVE PER STEP on each `token` event (mirroring llama.rn's
-// callback semantics); the TTS streaming hooks expect per-call deltas,
-// so we diff cumulative against `prev*` (reset at each step) and
-// forward only the new substring.
-// Carried in ctx so a single run keeps a coherent audio stream.
-type TtsRunState = {
-  // Snapshot of ttsStore.streamsReplies at run start; gates the per-chunk
-  // TTS hook. Per-run so mid-stream toggles don't flicker audio.
-  enabled: boolean;
-  started: boolean;
-  mayEcho: boolean;
-  prevContent: string;
-  prevReasoning: string;
-  stepMode: 'undecided' | 'streaming' | 'held';
-  spokeAny: boolean;
-};
-
-const TTS_STEP_SEPARATOR = '\n\n';
-
-function decideTtsStepMode(
-  content: string,
-  mayEcho: boolean,
-): TtsRunState['stepMode'] {
-  const firstChar = content.trimStart()[0];
-  if (!firstChar) {
-    return 'undecided';
-  }
-  return mayEcho && (firstChar === '{' || firstChar === '`')
-    ? 'held'
-    : 'streaming';
-}
-
-function spokenChunk(
-  tts: TtsRunState,
-  text: string,
-  isStepStart: boolean,
-): string {
-  const chunk = isStepStart && tts.spokeAny ? TTS_STEP_SEPARATOR + text : text;
-  tts.spokeAny = true;
-  return chunk;
-}
-
-// Echo-shaped steps are held until step_finished, where the tool calls
-// that decide visibility land; every other step streams per token.
-function forwardTokenToTts(
-  messageId: string,
-  delta: TokenDelta,
-  tts: TtsRunState,
-): void {
-  const cumulativeContent = delta.content ?? tts.prevContent;
-  const cumulativeReasoning = delta.reasoningContent ?? tts.prevReasoning;
-  if (!tts.started && (delta.content || delta.reasoningContent)) {
-    tts.started = true;
-    ttsStore.onAssistantMessageStart(messageId);
-  }
-  if (tts.stepMode === 'undecided') {
-    tts.stepMode = decideTtsStepMode(cumulativeContent, tts.mayEcho);
-  }
-  if (tts.stepMode === 'held') {
-    tts.prevContent = cumulativeContent;
-  }
-  const contentDelta =
-    tts.stepMode === 'streaming' &&
-    cumulativeContent.length > tts.prevContent.length
-      ? cumulativeContent.slice(tts.prevContent.length)
-      : '';
-  const reasoningDelta =
-    cumulativeReasoning.length > tts.prevReasoning.length
-      ? cumulativeReasoning.slice(tts.prevReasoning.length)
-      : '';
-  if (!contentDelta && !reasoningDelta) {
-    return;
-  }
-  const contentChunk = contentDelta
-    ? spokenChunk(tts, contentDelta, tts.prevContent === '')
-    : '';
-  if (tts.stepMode === 'streaming') {
-    tts.prevContent = cumulativeContent;
-  }
-  tts.prevReasoning = cumulativeReasoning;
-  ttsStore.onAssistantMessageChunk(
-    messageId,
-    contentChunk,
-    reasoningDelta || undefined,
-  );
-}
-
-function releaseHeldStepToTts(
-  messageId: string,
-  toolCalls: AgentToolCall[] | undefined,
-  tts: TtsRunState,
-): void {
-  const visible = visibleStepContent({content: tts.prevContent, toolCalls});
-  if (visible) {
-    ttsStore.onAssistantMessageChunk(
-      messageId,
-      spokenChunk(tts, visible, true),
-      undefined,
-    );
-  }
-}
 
 // Normalise a finished turn's result into the snapshot the banner reads.
 // `contextFull` is frozen here as the OR of the native full/truncated flags
@@ -409,7 +297,6 @@ async function applyEventToStore(
     timeToFirstTokenMs: {value: number | null};
     hasImages: boolean;
     isMultimodalEnabled: boolean;
-    tts: TtsRunState;
     stopped: boolean;
   },
 ): Promise<void> {
@@ -420,11 +307,6 @@ async function applyEventToStore(
       // persist here — the message was added before the run started.
       return;
     case 'step_started':
-      if (ctx.tts.enabled) {
-        ctx.tts.prevContent = '';
-        ctx.tts.prevReasoning = '';
-        ctx.tts.stepMode = 'undecided';
-      }
       await chatSessionStore.pushAgentStep(ctx.messageId, ctx.sessionId, {
         partial: true,
       });
@@ -454,14 +336,6 @@ async function applyEventToStore(
             .isReasoning !== 'yes'
         ) {
           modelStore.recordReasoningObserved(activeModel.id);
-        }
-      }
-      // Wrapped so a TTS failure cannot kill the completion stream.
-      if (ctx.tts.enabled) {
-        try {
-          forwardTokenToTts(ctx.messageId, event.delta, ctx.tts);
-        } catch (ttsErr) {
-          console.warn('[useChatSession] TTS stream hook failed:', ttsErr);
         }
       }
       // Per-token writes go through the throttled streaming path so
@@ -502,13 +376,6 @@ async function applyEventToStore(
       );
       return;
     case 'step_finished':
-      if (ctx.tts.enabled && ctx.tts.stepMode === 'held') {
-        try {
-          releaseHeldStepToTts(ctx.messageId, event.toolCalls, ctx.tts);
-        } catch (ttsErr) {
-          console.warn('[useChatSession] TTS stream hook failed:', ttsErr);
-        }
-      }
       // Land step.toolCalls AFTER step_finished with the runner's
       // authoritative normalized ids so they match outcomes' callIds by
       // construction. Skipped for text-only and final-of-chain steps
@@ -570,33 +437,6 @@ async function applyEventToStore(
           '[useChatSession] agent run hit maxTurns; surfacing last available content',
         );
       }
-      // Fire TTS auto-speak after the final text is observable. Store
-      // enforces auto-speak / voice / idempotency gating internally.
-      // A stopped run ends on whatever step it reached, often a tool-call
-      // step, so it speaks nothing more; a stop that bypassed
-      // handleStopPress (model switch, video Pal) still left its stream open.
-      // Wrapped defensively — UI-path errors must not bubble.
-      if (ctx.stopped) {
-        const playback = ttsStore.playbackState;
-        if (
-          playback.mode === 'streaming' &&
-          playback.messageId === ctx.messageId
-        ) {
-          ttsStore.stop('run_stopped').catch(ttsErr => {
-            console.warn('[useChatSession] TTS stop on abort failed:', ttsErr);
-          });
-        }
-        return;
-      }
-      try {
-        ttsStore.onAssistantMessageComplete(
-          ctx.messageId,
-          finalResult.text ?? '',
-          {hadReasoning: !!finalResult.reasoning_content?.trim()},
-        );
-      } catch (ttsErr) {
-        console.warn('[useChatSession] TTS complete hook failed:', ttsErr);
-      }
       return;
     }
     case 'run_failed':
@@ -636,9 +476,6 @@ export type UndoneSend = {
 };
 
 export type SendOptions = {
-  /** The message was spoken in voice mode: both rows are marked, and the
-   * reply runs with thinking off. */
-  spoken?: boolean;
   /** Receives the assistant turn's id as soon as its row exists. */
   onTurnCreated?: (turnId: string) => void;
 };
@@ -702,7 +539,7 @@ export const useChatSession = (
     }
     leaseRef.current = lease;
     const stopsWhileWaiting = stopsBeforeLease.current - stopsAtSend;
-    vtrace('lease.grant', {spoken: !!opts.spoken, stopsWhileWaiting});
+    vtrace('lease.grant', {stopsWhileWaiting});
     if (stopsWhileWaiting !== 0) {
       lease.abort();
     }
@@ -784,7 +621,6 @@ export const useChatSession = (
         conversationId: conversationIdRef.current,
         copyable: true,
         multimodal: hasImages,
-        ...(opts.spoken ? {spoken: true} : {}),
       },
     };
     const wasUntitled =
@@ -821,7 +657,6 @@ export const useChatSession = (
       isMultimodalEnabled,
       l10n,
       currentMessages,
-      spoken: !!opts.spoken,
     });
 
     currentMessageInfo.current = messageInfo;
@@ -845,15 +680,6 @@ export const useChatSession = (
     // later) instead of `marker_seen`.
     const tools =
       (cleanCompletionParams.tools as ToolDefinition[] | undefined) ?? [];
-    const tts: TtsRunState = {
-      enabled: ttsStore.streamsReplies,
-      started: false,
-      mayEcho: tools.length > 0,
-      prevContent: '',
-      prevReasoning: '',
-      stepMode: 'undecided',
-      spokeAny: false,
-    };
     let triggerMarkers: string[] = [];
     // Marker detection reads `grammar_triggers` from a local Jinja
     // `getFormattedChat` call — only meaningful when a local llama.rn
@@ -960,8 +786,7 @@ export const useChatSession = (
           timeToFirstTokenMs,
           hasImages,
           isMultimodalEnabled,
-          tts,
-          stopped: lease.signal.aborted,
+              stopped: lease.signal.aborted,
         });
 
         if (performance.now() - lastYieldTs >= YIELD_INTERVAL_MS) {
@@ -980,12 +805,6 @@ export const useChatSession = (
       if (!(error instanceof RemoteModelRequestWithdrawnError)) {
         runUi.stop();
       }
-
-      // Stop any in-flight TTS — the completion errored, so buffered
-      // audio should not keep playing.
-      ttsStore.stop('run_error').catch(ttsErr => {
-        console.warn('[useChatSession] TTS stop on error failed:', ttsErr);
-      });
 
       const errorMessage = (error as Error).message;
       // Native tool-call parser throws on truncated JSON when the model
@@ -1152,11 +971,6 @@ export const useChatSession = (
     } else {
       stopsBeforeLease.current += 1;
     }
-    // Stop any in-flight TTS so buffered audio doesn't keep playing
-    // after the user tapped Stop.
-    ttsStore.stop('stop_press').catch(err => {
-      console.warn('[useChatSession] TTS stop on user-stop failed:', err);
-    });
   };
 
   return {

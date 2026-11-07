@@ -1369,3 +1369,29 @@ The user has now explicitly authorized running the tests and actions considered 
 3. Obtain a safe, non-packaging inventory of resolved Android AAR/JNI contents and ABI coverage, especially ONNX Runtime, Hermes/React Native, and transitive native libraries.
 4. Review R8/ProGuard consumer rules and keep rules with evidence.
 5. Keep APK/AAB production prohibited until all pre-build issues are resolved and the user explicitly lifts the restriction.
+
+
+## 60. Voice input and speech output removal — 2026-11-08
+
+### User decision
+
+- User confirmed that **voice input, speech output, and hands-free voice mode must be completely removed** from the Lite release.
+- Earlier work disabled native autolinking for speech/Whisper/audio modules and removed microphone permission from the Android manifest, but this was only a partial disable. JavaScript services, stores, UI components, tests, and package dependencies remained.
+- Lite interaction scope remains text chat plus gallery image selection. Do not reintroduce microphone capture, ASR/transcription, TTS playback, voice mode, voice downloads, or voice setup screens.
+
+### First removal slice
+
+- Removed TTS streaming/auto-speak integration from `useChatSession`; normal token streaming, reasoning, tool execution, completion persistence, and stop handling remain.
+- Removed the voice-specific `spoken` send option and message metadata path, which only supported hands-free voice mode.
+- Removed voice/TTS components from the shared component barrel.
+- Removed the TTS-only `useChatSession.ttsSteps` test, which asserted the speech-output integration being deleted.
+- This is the first production-code slice, not yet the full removal. Native package dependencies and orphaned ASR/TTS/voice source, stores, tests, patches, and assets still need cleanup.
+- The final CI result for this slice is pending. No Android packaging task was run.
+
+### Next actions
+
+1. Remove all ASR/Whisper, TTS/Phonon, and voice-mode source modules, stores, hooks, components, tests, mocks, scripts, patches, E2E voice fixtures, and unused voice assets.
+2. Remove speech/Whisper/audio dependencies from `package.json` and clean `yarn.lock` without disturbing remaining native dependencies.
+3. Remove voice-only localization strings and About-screen Phonon notices if no longer referenced; retain general audio playback only if another non-voice app feature depends on it.
+4. Run formatting, ESLint, TypeScript, localization validation, focused Jest, and full CI. Never invoke APK/AAB packaging.
+5. Recheck Android manifest and Gradle configuration for microphone permissions or speech-native build hooks; do not add microphone permissions.
