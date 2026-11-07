@@ -58,7 +58,12 @@ function readElfLoadSegmentAlignment(buf) {
   const phoff = Number(buf.readBigUInt64LE(0x20));
   const phentsize = buf.readUInt16LE(0x36);
   const phnum = buf.readUInt16LE(0x38);
-  if (ehsize < 64 || phoff === 0 || phnum === 0 || phentsize < ELF64_PHDR_SIZE) {
+  if (
+    ehsize < 64 ||
+    phoff === 0 ||
+    phnum === 0 ||
+    phentsize < ELF64_PHDR_SIZE
+  ) {
     throw new Error('ELF program header table is absent or malformed');
   }
   if (!Number.isSafeInteger(phoff) || phoff + phnum * phentsize > buf.length) {
@@ -78,16 +83,22 @@ function readElfLoadSegmentAlignment(buf) {
       throw new Error(`PT_LOAD segment ${i} contains an out-of-range value`);
     }
     if (offset + filesz > buf.length || memsz < filesz) {
-      throw new Error(`PT_LOAD segment ${i} has an invalid file or memory range`);
+      throw new Error(
+        `PT_LOAD segment ${i} has an invalid file or memory range`,
+      );
     }
     if (align < ANDROID_PAGE_SIZE) {
       throw new Error(`PT_LOAD segment ${i} p_align ${align} is below 16 KB`);
     }
     if (!Number.isInteger(Math.log2(align))) {
-      throw new Error(`PT_LOAD segment ${i} p_align ${align} is not a power of two`);
+      throw new Error(
+        `PT_LOAD segment ${i} p_align ${align} is not a power of two`,
+      );
     }
     if (offset % align !== vaddr % align) {
-      throw new Error(`PT_LOAD segment ${i} file and virtual offsets are incongruent`);
+      throw new Error(
+        `PT_LOAD segment ${i} file and virtual offsets are incongruent`,
+      );
     }
     loads.push({index: i, align});
   }
@@ -96,7 +107,6 @@ function readElfLoadSegmentAlignment(buf) {
   }
   return loads;
 }
-
 
 function usage() {
   return [
@@ -634,16 +644,21 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     // React Native/Hermes and app-owned libraries not listed in the payload
     // manifest. A missing or malformed ELF must never be counted as verified.
     const nativeLibraries = [...entries].filter(
-      entry => entry.startsWith(`${libPrefix}${abi.abi}/`) && entry.endsWith('.so'),
+      entry =>
+        entry.startsWith(`${libPrefix}${abi.abi}/`) && entry.endsWith('.so'),
     );
-    report.push(`    16 KB ELF alignment: ${nativeLibraries.length} shared libraries`);
+    report.push(
+      `    16 KB ELF alignment: ${nativeLibraries.length} shared libraries`,
+    );
     for (const entry of nativeLibraries) {
       try {
         const loads = readElfLoadSegmentAlignment(readZipEntry(archive, entry));
         report.push(`      PASS  ${entry} (${loads.length} PT_LOAD segments)`);
       } catch (err) {
         report.push(`      FAIL  ${entry} — ${err.message}`);
-        fail(`${entry} in ${artifactName} is not verified for Android 16 KB pages: ${err.message}.`);
+        fail(
+          `${entry} in ${artifactName} is not verified for Android 16 KB pages: ${err.message}.`,
+        );
       }
     }
     report.push(
@@ -797,4 +812,8 @@ if (require.main === module) {
   }
 }
 
-module.exports = {readDynsym, readElfLoadSegmentAlignment, variantsFromManifest};
+module.exports = {
+  readDynsym,
+  readElfLoadSegmentAlignment,
+  variantsFromManifest,
+};

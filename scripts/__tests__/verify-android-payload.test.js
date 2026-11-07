@@ -259,7 +259,9 @@ describe('ELF 16 KB load-segment alignment', () => {
   const {readElfLoadSegmentAlignment} = require('../verify-android-payload');
 
   it('accepts a valid ELF with 16 KB PT_LOAD alignment', () => {
-    expect(readElfLoadSegmentAlignment(PLAIN_ELF)).toEqual([{index: 0, align: 16384}]);
+    expect(readElfLoadSegmentAlignment(PLAIN_ELF)).toEqual([
+      {index: 0, align: 16384},
+    ]);
   });
 
   it('rejects a PT_LOAD segment below 16 KB alignment', () => {
@@ -272,7 +274,9 @@ describe('ELF 16 KB load-segment alignment', () => {
   it('rejects absent and truncated program-header tables', () => {
     const absent = Buffer.from(PLAIN_ELF);
     absent.writeBigUInt64LE(0n, 0x20);
-    expect(() => readElfLoadSegmentAlignment(absent)).toThrow('absent or malformed');
+    expect(() => readElfLoadSegmentAlignment(absent)).toThrow(
+      'absent or malformed',
+    );
     const truncated = Buffer.from(PLAIN_ELF);
     truncated.writeBigUInt64LE(BigInt(truncated.length - 8), 0x20);
     expect(() => readElfLoadSegmentAlignment(truncated)).toThrow('truncated');
