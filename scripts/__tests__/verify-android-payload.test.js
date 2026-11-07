@@ -286,7 +286,9 @@ describe('ELF 16 KB load-segment alignment', () => {
     const elf = Buffer.from(PLAIN_ELF);
     const phoff = Number(elf.readBigUInt64LE(0x20));
     elf.writeBigUInt64LE(24576n, phoff + 48);
-    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('not a power of two');
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow(
+      'not a power of two',
+    );
   });
 
   it('rejects incongruent file and virtual offsets', () => {
@@ -301,7 +303,9 @@ describe('ELF 16 KB load-segment alignment', () => {
     const phoff = Number(elf.readBigUInt64LE(0x20));
     elf.writeBigUInt64LE(BigInt(Number.MAX_SAFE_INTEGER), phoff + 8);
     elf.writeBigUInt64LE(BigInt(Number.MAX_SAFE_INTEGER), phoff + 32);
-    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('invalid file or memory range');
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow(
+      'invalid file or memory range',
+    );
   });
 
   it('checks every PT_LOAD segment', () => {
