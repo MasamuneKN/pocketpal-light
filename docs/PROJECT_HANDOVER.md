@@ -1240,3 +1240,39 @@ The user has now explicitly authorized running the tests and actions considered 
 - Android configuration workflow run `42383704519` is still in progress on `a6b9dd4`; Android SDK setup and dependency installation passed, and the non-packaging Gradle configuration task is running.
 - CI run `42383836524` is running on formatted commit `6cbbbb07`; its Jest/ESLint/TypeScript checks have not yet completed. APK/iOS packaging remains skipped.
 - Do not push another code commit until these active checks finish. Continue with the native payload and 16 KB alignment audit after recording their results. No APK/AAB has been created.
+
+
+## 56. Session update — 2026-11-07 (ARM64 + x86_64 release-readiness review)
+
+### Current release scope
+
+- First public release remains limited to `arm64-v8a` and `x86_64` only. Defer `armeabi-v7a` and `x86`.
+- Current main at start of this review: `46b48c60f9001cfad0cc8a9416513480c3f20fe6`.
+- Confirmed configuration consistency:
+  - `android/app/build.gradle` ABI filters: `arm64-v8a`, `x86_64`.
+  - `android/gradle.properties` `reactNativeArchitectures=arm64-v8a,x86_64`.
+  - Phonon selector: `RNSpeech_phononAbis=arm64-v8a,x86_64`.
+  - Payload manifest `requiredArtifactAbis`: both architectures.
+  - Payload manifest declares required Llama libraries and patch markers for both ABIs.
+
+### Verification results
+
+- Non-packaging Android Gradle configuration workflow `42383704519` on `a6b9dd49` passed, including SDK/NDK setup, dependency installation, payload-manifest variant validation, and `./gradlew help --no-daemon --stacktrace`. This is configuration-only; no APK/AAB task was invoked.
+- Latest CI run `42384049932` on `46b48c60` passed. ESLint, TypeScript, localization, font registration, and Jest passed.
+- Jest result: **423 suites passed; 8,493 tests passed; 2 skipped; 310 snapshots passed**.
+- Android and iOS packaging jobs were skipped. No APK/AAB was produced.
+
+### Remaining native verification gap
+
+- The ONNX Runtime JSI CMake patch adds `-Wl,-z,max-page-size=16384` to the `onnxruntimejsi` target. This does not independently prove that every prebuilt or transitive native library in the final app has 16 KB-compatible ELF load-segment alignment.
+- `scripts/verify-android-payload.js` currently reads ELF64 section/dynamic-symbol information for payload and patch-marker checks. It does not currently inspect ELF program headers / `PT_LOAD` `p_align` values.
+- Before release, add a non-bypassable 16 KB ELF alignment check to the artifact verifier (at minimum all shipped `.so` files, including app-owned `libappmodules.so`, Hermes/React Native, llama, whisper, ONNX Runtime, and Phonon). Validate both ZIP/APK alignment requirements and ELF load-segment alignment as applicable. This cannot be fully proven until an artifact exists, so keep APK production blocked until the user lifts the restriction after all pre-build issues are resolved; the first authorized artifact can then be subjected to the full gate.
+- Static dependency/source review is not equivalent to testing inference, transcription, TTS, downloads, and offline operation on ARM64 and x86_64 devices/emulators.
+
+### Next actions
+
+1. Inspect the full dependency resolution graph and native AAR/JNI payload sources for ARM64 and x86_64; identify any dependency whose binaries or build scripts silently omit one ABI.
+2. Implement and unit-test ELF64 program-header parsing and 16 KB alignment validation in the payload verifier. Keep this check strict for every shipped native library and make malformed/unreadable ELF a hard failure.
+3. Extend the non-packaging Android configuration workflow only if needed to assert the exact two-ABI configuration and required dependency versions; do not add compilation or packaging tasks.
+4. Continue static review of release-critical permissions, offline behavior, minification/ProGuard keep rules, signing configuration, and model/audio asset handling.
+5. Keep the explicit no-APK/AAB restriction in force. Do not invoke any assemble, bundle, package, or APK-producing workflow.
