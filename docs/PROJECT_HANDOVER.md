@@ -1150,3 +1150,38 @@ The user has now explicitly authorized running the tests and actions considered 
 1. Verify CI and formatting for commit `c1cc7e8` and the following handover update.
 2. Continue focused static review of Android storage, gallery selection and local inference paths. Avoid permission or dependency removal unless runtime references are proven absent.
 3. Keep APK production blocked until all outstanding non-APK issues are resolved and the user explicitly lifts the restriction.
+
+
+## 52. Session update — 2026-11-07 (public multi-ABI target and native compatibility audit)
+
+### New release requirement
+
+- User approved expanding public Android distribution beyond the previous personal-use arm64-only target.
+- Desired Android ABIs: `arm64-v8a`, `armeabi-v7a`, `x86`, and `x86_64`.
+- Preferred distribution remains architecture-specific APKs or an Android App Bundle/splits, rather than one oversized universal APK.
+- This is a release requirement, not permission to create APKs. The explicit no-APK restriction remains active until all outstanding issues are resolved and user authorizes packaging.
+
+### Latest verification
+
+- Current main: `bff4b9148faf2107bf1da85d7b3db2d7d136556d`.
+- CI run `42369182705` completed successfully on that exact commit.
+- ESLint, TypeScript, localization validation and font registration passed.
+- Jest: **423 suites passed; 8,493 tests passed; 2 skipped; 310/310 snapshots passed**.
+- Android and iOS packaging jobs were skipped. No APK was produced.
+
+### Native ABI audit — blockers and findings
+
+- `android/app/build.gradle` currently sets `abiFilters "arm64-v8a"`; `android/gradle.properties` also sets `reactNativeArchitectures=arm64-v8a`.
+- `llama.rn@0.13.0-rc.9` officially supports Android `arm64-v8a` and `x86_64` only. Its README explicitly says other platforms cannot initialize a context. Therefore 32-bit `armeabi-v7a` and `x86` cannot currently be advertised as supporting local LLM inference through this dependency. Do not simply add those ABIs to Gradle and claim full feature parity.
+- Existing payload manifest has detailed rules for arm64 and x86_64, but `requiredArtifactAbis` currently requires only arm64. No payload rules yet exist for armeabi-v7a or x86.
+- `scripts/verify-android-payload.js` currently parses ELF64 dynamic symbol tables only. Adding 32-bit ABI rules requires ELF32-aware symbol parsing (or an equally strong validation design) before the verifier can validate 32-bit native libraries correctly.
+- `onnxruntime-react-native` is pinned through the Android root Gradle resolution strategy to the matching ONNX Runtime package version (currently 1.24.3). ONNX Runtime upstream documents Android builds for arm64 and armeabi-v7a; actual packaged AAR ABI contents and x86/x86_64 availability still need direct verification.
+- `whisper.rn@0.7.4` downloads prebuilt Android native archives during postinstall. The current upstream README documents the prebuilt-library mechanism, but exact ABI coverage for this pinned release has not yet been confirmed. Inspect the matching v0.7.4 release archive contents rather than inferring support from newer upstream source.
+- Public multi-ABI target must be treated as conditional on **all required core native functionality**, especially llama inference. A 32-bit app that installs but cannot initialize local LLM inference is not a successful full-featured public target.
+
+### Next actions
+
+1. Continue native compatibility audit: inspect the exact `llama.rn@0.13.0-rc.9`, `whisper.rn@0.7.4`, and ONNX Runtime 1.24.3 Android artifacts and determine which ABIs each actually ships/supports.
+2. Decide whether to retain four-ABI app installation with explicitly limited 32-bit inference, or keep full local-LLM support as the priority and initially ship only arm64 + x86_64. Do not silently downgrade feature availability.
+3. Extend the payload manifest and verifier to cover any approved ABIs, including ELF32 validation, before changing Gradle ABI filters.
+4. Continue existing non-APK functional and Android static review. Never run APK/AAB packaging or dispatch the manual APK workflow under the current restriction.
