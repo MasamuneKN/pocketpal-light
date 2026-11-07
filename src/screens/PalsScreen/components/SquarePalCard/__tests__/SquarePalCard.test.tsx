@@ -9,7 +9,7 @@ import {
 } from '../../../../../../jest/test-utils';
 import {SquarePalCard} from '../SquarePalCard';
 
-import {palStore, chatSessionStore, modelStore} from '../../../../../store';
+import {chatSessionStore, modelStore} from '../../../../../store';
 import {downloadedModel} from '../../../../../../jest/fixtures/models';
 import type {Pal} from '../../../../../store/PalStore';
 
@@ -54,7 +54,6 @@ describe('SquarePalCard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockNavigate.mockClear();
-    palStore.pals = [];
   });
 
   describe('Rendering', () => {
