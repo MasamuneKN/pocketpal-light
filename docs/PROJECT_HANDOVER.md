@@ -1051,3 +1051,31 @@ The user has now explicitly authorized running the tests and actions considered 
 1. Inspect completion of CI run `42337055453` and formatting run `42337055630`; use the newest main SHA if formatting creates a commit.
 2. If Jest passes, review the remaining non-test readiness checks and functional issues before considering APK production. If it fails, fix only the newly reported failures and preserve local/offline coverage.
 3. Keep Android/iOS packaging out of the workflow until the explicit APK restriction is lifted by completion of all lingering issues.
+
+
+## 48. Session update — 2026-11-07 (ChatView test cleanup verified)
+
+### Latest verified baseline
+
+- Current code commit: `f8ee6d5f2b6b5b195135d3b575bb978ff40d85d8` on `main`.
+- CI run `42342579711` completed successfully against that exact commit.
+- ESLint passed.
+- TypeScript type check passed.
+- Jest passed: **423 suites passed; 8,490 tests passed, 2 skipped; 310/310 snapshots passed**.
+- Localization validation and font-registration checks passed.
+- Formatting workflow `42342579710` also succeeded and made no additional formatting commit.
+- Android and iOS packaging jobs were skipped. No APK was created.
+
+### Follow-up cleanup
+
+- `951acf8`: restored the router-loading test file's suite structure after the earlier test cleanup.
+- `feb6bef`: restored the ChatView test file's suite structure.
+- `7b94ac6`: removed an unused `act` import from `ChatView.routerLoading.test.tsx`.
+- `f8ee6d5`: removed an unused `DeviceInfo` import from `ChatView.test.tsx`.
+- CI for `7b94ac6` was cancelled when the next commit arrived; the complete successful CI run is `42342579711` on `f8ee6d5`.
+
+### Next actions
+
+1. With lint, TypeScript and Jest green, continue the non-APK readiness review: inspect remaining CI/workflow gates, Android configuration and local/offline core flows for unresolved functional issues. Do not start APK packaging.
+2. Prioritize actionable failures or concrete risks; avoid broad test deletions or unrelated refactors. Preserve local inference, model download/storage, persistence and gallery image selection.
+3. Reassess APK readiness only after all non-APK checks and functional issues have been reviewed and verified. The user's no-APK restriction remains in force until explicitly lifted.
