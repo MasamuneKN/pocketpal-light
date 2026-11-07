@@ -781,5 +781,4 @@ describe('useChatSession', () => {
       ),
     ).toBe(false);
   });
-
 });

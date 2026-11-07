@@ -186,5 +186,4 @@ describe('dispatchAutomationDeepLink', () => {
       expect(navigate).not.toHaveBeenCalled();
     });
   });
-
 });
