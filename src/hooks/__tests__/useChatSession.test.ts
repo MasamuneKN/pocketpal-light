@@ -13,7 +13,6 @@ import {
 } from '../../../jest/fixtures/models';
 
 import {useChatSession} from '../useChatSession';
-import {bodyExtras} from '../../api/servers';
 
 import {
   chatSessionStore,

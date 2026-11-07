@@ -1454,3 +1454,11 @@ The user has now explicitly authorized running the tests and actions considered 
 - Removed the iOS-only Metal test suites from Jest because the agreed release target is Android only. This does not change Android native code or packaging.
 - Plus/purchase UI and automation tests also remain stale after the hands-free feature was removed; their retirement and associated purchase/cloud service cleanup are the next source-scope task.
 - No APK/AAB packaging was run.
+
+
+## 68. Jest cleanup lint correction — 2026-11-08
+
+- The first CI attempt for the voice-test cleanup was cancelled by the formatting workflow, as expected.
+- The formatted follow-up run `42411414439` stopped at ESLint because removing the obsolete chat voice tests left one unused `bodyExtras` import in `useChatSession.test.ts`. No TypeScript or Jest result was produced for that commit.
+- Removed the unused test import. The next CI run must verify ESLint, TypeScript, and the reduced Jest failure set.
+- No Android packaging was run.
