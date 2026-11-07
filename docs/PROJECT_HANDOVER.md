@@ -1444,3 +1444,14 @@ The user has now explicitly authorized running the tests and actions considered 
 - Removed voice tracing calls from ModelStore without changing generation abort or context-release behavior.
 - CI run 42405949789 on 1dba1a2 failed at TypeScript type-checking with these stale references; Jest was skipped. ESLint, dependency installation, localization validation, and font validation passed. These fixes require fresh TypeScript, Jest, and non-packaging Gradle verification.
 - No APK/AAB packaging was run or authorized. Continue to keep all packaging workflows disabled until every pre-release blocker is resolved and the user explicitly lifts the restriction.
+
+
+## 67. Retired voice test and automation cleanup — 2026-11-08
+
+- The follow-up CI run `42410759840` on formatted commit `141935f` passed dependency installation, localization validation, font registration, ESLint, and TypeScript.
+- Jest completed with **355 suites passed, 11 failed; 7,143 tests passed, 74 failed, 2 skipped; 310 snapshots passed**.
+- Confirmed stale failures included spoken-send and TTS-streaming tests in `useChatSession.test.ts`, ASR/voice deep-link tests for deleted automation modules, and iOS/Whisper Metal tests that still required the removed `whisper.rn` package.
+- Removed the voice-only chat tests and ASR/voice automation routes/tests. Reworked the GGML environment-name test to cover Android's llama.rn integration only; it no longer inspects removed Whisper or out-of-scope iOS paths.
+- Removed the iOS-only Metal test suites from Jest because the agreed release target is Android only. This does not change Android native code or packaging.
+- Plus/purchase UI and automation tests also remain stale after the hands-free feature was removed; their retirement and associated purchase/cloud service cleanup are the next source-scope task.
+- No APK/AAB packaging was run.

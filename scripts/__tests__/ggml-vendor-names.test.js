@@ -11,12 +11,10 @@ const VENDORED_GGML = path.join(
   'ggml',
 );
 const HEXAGON_HEADER = path.join(VENDORED_GGML, 'include', 'ggml-hexagon.h');
-const WHISPER_CPP = path.join(ROOT, 'node_modules', 'whisper.rn', 'cpp');
 const MAIN_APPLICATION = path.join(
   ROOT,
   'android/app/src/main/java/com/pocketpalai/MainApplication.kt',
 );
-const APP_DELEGATE = path.join(ROOT, 'ios/PocketPal/AppDelegate.swift');
 const MANIFEST = JSON.parse(
   fs.readFileSync(
     path.join(__dirname, '..', 'android-payload-manifest.json'),
@@ -24,21 +22,13 @@ const MANIFEST = JSON.parse(
   ),
 );
 
-/**
- * Files under these roots are where the app sets or passes a name to native
- * code. The bench's log parser is exempt: it reads old raw reports, whose
- * lines keep the prefixed names.
- */
-const APP_ROOTS = ['android/app/src', 'ios/PocketPal', 'src'];
-const APP_FILES = [
-  'ios/PocketPal.xcodeproj/project.pbxproj',
-  ...fs
-    .readdirSync(path.join(ROOT, 'scripts'))
-    .filter(name => name.endsWith('.json'))
-    .map(name => `scripts/${name}`),
-];
+const APP_ROOTS = ['android/app/src', 'src'];
+const APP_FILES = fs
+  .readdirSync(path.join(ROOT, 'scripts'))
+  .filter(name => name.endsWith('.json'))
+  .map(name => `scripts/${name}`);
 const EXEMPT = new Set(['src/__automation__/logSignals.ts']);
-const SOURCE_EXT = /\.(kt|java|gradle|mm|m|h|swift|ts|tsx|js|json)$/;
+const SOURCE_EXT = /\.(kt|java|gradle|h|ts|tsx|js|json)$/;
 
 function walk(dir) {
   return fs.readdirSync(dir, {withFileTypes: true}).flatMap(entry => {
@@ -79,14 +69,8 @@ const androidSetenvNames = [
     .matchAll(/Os\.setenv\(\s*"([^"]+)"/g),
 ].map(match => match[1]);
 
-const iosSetenvNames = [
-  ...fs.readFileSync(APP_DELEGATE, 'utf-8').matchAll(/\bsetenv\(\s*"([^"]+)"/g),
-].map(match => match[1]);
-
-const setenvNames = [...androidSetenvNames, ...iosSetenvNames];
-const llamaSetenvNames = setenvNames.filter(name => name.startsWith('GGML_'));
-const whisperSetenvNames = setenvNames.filter(name =>
-  name.startsWith('WSP_GGML_'),
+const llamaSetenvNames = androidSetenvNames.filter(name =>
+  name.startsWith('GGML_'),
 );
 
 const hexagonMustExport = MANIFEST.abis.flatMap(abi =>
@@ -95,52 +79,25 @@ const hexagonMustExport = MANIFEST.abis.flatMap(abi =>
     .flatMap(rule => rule.mustExport),
 );
 
-describe('the parse itself', () => {
-  // Without these, a rename on either side makes every assertion below pass
-  // over an empty set.
-  it('finds the env vars Android sets for ggml', () => {
-    expect(androidSetenvNames.length).toBeGreaterThan(0);
-  });
-
-  it('finds the env vars iOS sets for ggml', () => {
-    expect(iosSetenvNames.length).toBeGreaterThan(0);
-  });
-
-  it("finds env vars for both llama.rn's and whisper.rn's ggml, and no other prefix", () => {
+describe('the Android app names shared with vendored ggml', () => {
+  it('sets GGML environment variables in the Android application', () => {
     expect(llamaSetenvNames.length).toBeGreaterThan(0);
-    expect(whisperSetenvNames.length).toBeGreaterThan(0);
-    expect(
-      setenvNames.filter(
-        name =>
-          !llamaSetenvNames.includes(name) &&
-          !whisperSetenvNames.includes(name),
-      ),
-    ).toEqual([]);
+    expect(androidSetenvNames).toEqual(llamaSetenvNames);
   });
 
-  it('finds the Hexagon symbols the payload gate requires', () => {
-    expect(hexagonMustExport.length).toBe(2);
-  });
-});
-
-describe('names the app shares with the vendored ggml', () => {
-  it('requires only Hexagon symbols the vendored header declares', () => {
-    const header = fs.readFileSync(HEXAGON_HEADER, 'utf-8');
-    for (const symbol of hexagonMustExport) {
-      expect(header).toMatch(new RegExp(`\\b${symbol}\\s*\\(`));
-    }
-  });
-
-  it("sets only GGML_ env vars llama.rn's vendored ggml reads", () => {
+  it("sets only GGML_ env vars that llama.rn's vendored ggml reads", () => {
     const read = getenvNames(
       sources(path.join(VENDORED_GGML, 'src'), /\.(c|cpp|h|hpp)$/),
     );
     expect(llamaSetenvNames.filter(name => !read.has(name))).toEqual([]);
   });
 
-  it("sets only WSP_GGML_ env vars whisper.rn's ggml reads", () => {
-    const read = getenvNames(sources(WHISPER_CPP, /\.(c|cpp|h|hpp|m)$/));
-    expect(whisperSetenvNames.filter(name => !read.has(name))).toEqual([]);
+  it('finds the Hexagon symbols the Android payload gate requires', () => {
+    expect(hexagonMustExport.length).toBe(2);
+    const header = fs.readFileSync(HEXAGON_HEADER, 'utf-8');
+    for (const symbol of hexagonMustExport) {
+      expect(header).toMatch(new RegExp(`\\b${symbol}\\s*\\(`));
+    }
   });
 
   it('sets or passes no lm_-prefixed ggml name', () => {

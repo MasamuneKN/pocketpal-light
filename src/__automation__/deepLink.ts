@@ -5,14 +5,8 @@
  * Supported protocols in v1:
  *   pocketpal://memory?cmd=snap::<label>
  *   pocketpal://memory?cmd=clear::snapshots
- *   pocketpal://tts?cmd=download::<engine>
- *   pocketpal://tts?cmd=synthesize::<engine>
- *   pocketpal://tts?cmd=release
- *   pocketpal://asr?cmd=state::<ready|not-installed|unsupported|recording|
  *                              transcribing|waiting-chat|error-capture|
  *                              error-blocked|error-memory|error-disk>
- *   pocketpal://asr?cmd=tiers::<none|csv of base,small,large-turbo>
- *   pocketpal://voice?cmd=<verb>::<arg>   (voice mode, see voiceAutomation.ts)
  *   pocketpal://iap?cmd=<verb>::<arg>   (FakeStore script, see fakeStore.ts)
  *   pocketpal://e2e/plus-feature   (locked feature behind Plus; Android
  *                                   routes it in useDeepLinking.ts too)
@@ -46,21 +40,6 @@ export async function dispatchAutomationDeepLink(
     } else if (cmd === 'clear::snapshots') {
       await clearMemorySnapshots();
     }
-    return true;
-  }
-  if (params.host === 'tts' && params.queryParams?.cmd) {
-    const {runTtsCommand} = require('./ttsAutomation');
-    await runTtsCommand(params.queryParams.cmd);
-    return true;
-  }
-  if (params.host === 'asr' && params.queryParams?.cmd) {
-    const {runAsrCommand} = require('./asrAutomation');
-    await runAsrCommand(params.queryParams.cmd);
-    return true;
-  }
-  if (params.host === 'voice' && params.queryParams?.cmd) {
-    const {runVoiceCommand} = require('./voiceAutomation');
-    await runVoiceCommand(params.queryParams.cmd);
     return true;
   }
   if (params.host === 'iap' && params.queryParams?.cmd) {
