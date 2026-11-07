@@ -60,26 +60,12 @@ describe('AboutScreen', () => {
     );
   });
 
-  it('opens the bundled open-source notices in a sheet without a network link', () => {
-    const {getByTestId, getByText} = render(<AboutScreen />);
-
-    fireEvent.press(getByTestId('about-open-source-notices'));
-
-    expect(getByTestId('about-open-source-notices-sheet')).toBeTruthy();
-    expect(getByText(l10n.en.about.phononNoticesCredit)).toBeTruthy();
-    expect(getByText(/^## Licenses used/)).toBeTruthy();
-    expect(Linking.openURL).not.toHaveBeenCalled();
-  });
-
   it('gives each legal link a 44pt tap target with its role', () => {
     const {getByRole} = render(<AboutScreen />);
 
     const privacy = getByRole('link', {name: l10n.en.about.privacyPolicy});
     const terms = getByRole('link', {name: l10n.en.about.termsOfService});
-    const notices = getByRole('button', {
-      name: l10n.en.about.openSourceNotices,
-    });
-    for (const target of [privacy, terms, notices]) {
+    for (const target of [privacy, terms]) {
       expect(target).toHaveStyle({minHeight: 44});
     }
 
@@ -89,7 +75,6 @@ describe('AboutScreen', () => {
       'https://pocketpal.dev/privacy-policy',
     );
     expect(Linking.openURL).toHaveBeenCalledWith('https://pocketpal.dev/terms');
-    expect(notices.props.testID).toBe('about-open-source-notices');
   });
 
   it('hides the separator before a legal link that wraps to the next line', () => {
@@ -102,14 +87,13 @@ describe('AboutScreen', () => {
     act(() => {
       layoutAt(0, 0);
       layoutAt(1, 0);
-      layoutAt(2, 20);
+      layoutAt(1, 20);
     });
 
-    const [first, second] = getAllByText('·', {
+    const [separator] = getAllByText('·', {
       includeHiddenElements: true,
     });
-    expect(first).not.toHaveStyle({opacity: 0});
-    expect(second).toHaveStyle({opacity: 0});
+    expect(separator).toHaveStyle({opacity: 0});
   });
 
   it('opens GitHub URL when GitHub button is pressed', () => {

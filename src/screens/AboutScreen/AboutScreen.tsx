@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -15,7 +15,6 @@ import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import {BuildInfo} from 'llama.rn';
 
 import {submitFeedback} from '../../api/feedback';
-import phononNotices from '../../assets/licenses/phononThirdPartyNotices.json';
 import {REPO_URL} from '../../config/urls';
 
 import {CopyIcon, GithubIcon, ChevronRightIcon} from '../../assets/icons';
@@ -25,7 +24,6 @@ import {useTheme} from '../../hooks';
 import {createStyles} from './styles';
 import {L10nContext} from '../../utils';
 import {uiStore} from '../../store';
-import {reflowNotice} from './reflowNotice';
 
 const GithubButtonIcon = ({color}: {color: string}) => (
   <GithubIcon stroke={color} />
@@ -41,14 +39,12 @@ export const AboutScreen: React.FC = () => {
   const styles = createStyles(theme, insets);
   const l10n = useContext(L10nContext);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showNotices, setShowNotices] = useState(false);
-  const noticeSections = useMemo(() => phononNotices.map(reflowNotice), []);
   const [legalItemTops, setLegalItemTops] = useState<Record<number, number>>(
     {},
   );
 
   const legalLinks: {
-    id: 'privacy' | 'terms' | 'notices';
+    id: 'privacy' | 'terms';
     label: string;
     role: 'link' | 'button';
     onPress: () => void;
@@ -65,13 +61,6 @@ export const AboutScreen: React.FC = () => {
       label: l10n.about.termsOfService,
       role: 'link',
       onPress: () => Linking.openURL('https://pocketpal.dev/terms'),
-    },
-    {
-      id: 'notices',
-      label: l10n.about.openSourceNotices,
-      role: 'button',
-      onPress: () => setShowNotices(true),
-      testID: 'about-open-source-notices',
     },
   ];
 
@@ -329,24 +318,6 @@ export const AboutScreen: React.FC = () => {
         </Sheet.Actions>
       </Sheet>
 
-      <Sheet
-        title={l10n.about.openSourceNotices}
-        isVisible={showNotices}
-        displayFullHeight
-        onClose={() => setShowNotices(false)}>
-        <Sheet.ScrollView
-          contentContainerStyle={styles.noticesContent}
-          testID="about-open-source-notices-sheet">
-          <Text style={styles.noticesCredit}>
-            {l10n.about.phononNoticesCredit}
-          </Text>
-          {noticeSections.map((section, i) => (
-            <Text key={i} selectable style={styles.noticesText}>
-              {section}
-            </Text>
-          ))}
-        </Sheet.ScrollView>
-      </Sheet>
     </SafeAreaView>
   );
 };

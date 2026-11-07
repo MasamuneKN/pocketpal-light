@@ -1394,3 +1394,14 @@ The user has now explicitly authorized running the tests and actions considered 
 3. Remove voice-only localization strings and About-screen Phonon notices if no longer referenced; retain general audio playback only if another non-voice app feature depends on it.
 4. Run formatting, ESLint, TypeScript, localization validation, focused Jest, and full CI. Never invoke APK/AAB packaging.
 5. Recheck Android manifest and Gradle configuration for microphone permissions or speech-native build hooks; do not add microphone permissions.
+
+
+## 61. Full voice feature cleanup — 2026-11-08
+
+- Removed ASR, Whisper, TTS, Phonon, and hands-free voice-mode source modules, stores, hooks, components, tests, mocks, automation adapters, E2E voice fixtures, native patches, and voice-only assets.
+- Removed speech/Whisper/audio package dependencies from `package.json`, and removed their autolinking-disable entries because those packages are no longer direct dependencies.
+- Removed TTS/ASR/VoiceMode stores from the app store barrel. Removed the Phonon third-party notices from About and their tests.
+- Removed the Phonon ABI Gradle property. Android manifest already had no microphone permission; it remains unchanged.
+- Retained `react-native-nitro-modules` because other installed native dependencies may still require it.
+- The Yarn v1 lockfile may still contain now-orphaned entries until a clean lockfile regeneration is performed. They are not direct dependencies in `package.json`.
+- This deletion/update set is committed but still needs formatting, ESLint, TypeScript, Jest, and full CI verification. No APK/AAB packaging is permitted.
