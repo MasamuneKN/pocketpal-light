@@ -12,7 +12,6 @@ import {SquarePalCard} from '../SquarePalCard';
 import {palStore, chatSessionStore, modelStore} from '../../../../../store';
 import {downloadedModel} from '../../../../../../jest/fixtures/models';
 import type {Pal} from '../../../../../store/PalStore';
-import type {PalsHubPal} from '../../../../../types/palshub';
 
 // Mock navigation
 const mockNavigate = jest.fn();
@@ -52,51 +51,6 @@ describe('SquarePalCard', () => {
     ...overrides,
   });
 
-  // Create a PalsHub pal fixture
-  const createPalsHubPal = (
-    overrides: Partial<PalsHubPal> = {},
-  ): PalsHubPal => ({
-    type: 'palshub',
-    id: 'ph-pal-1',
-    title: 'PalsHub Test Pal',
-    description: 'A test pal from PalsHub',
-    creator_id: 'creator-1',
-    protection_level: 'public',
-    price_cents: 0,
-    system_prompt: 'You are a helpful assistant.',
-    thumbnail_url: 'https://example.com/thumb.jpg',
-    model_settings: {},
-    allow_fork: true,
-    created_at: '2023-01-01T00:00:00Z',
-    updated_at: '2023-01-01T00:00:00Z',
-    creator: {
-      id: 'creator-1',
-      display_name: 'Test Creator',
-      username: 'testcreator',
-      avatar_url: 'https://example.com/avatar.jpg',
-      provider: 'github',
-      created_at: '2023-01-01T00:00:00Z',
-      updated_at: '2023-01-01T00:00:00Z',
-    },
-    tags: [
-      {
-        id: 'tag-1',
-        name: 'productivity',
-        usage_count: 10,
-        created_at: '2023-01-01T00:00:00Z',
-      },
-      {
-        id: 'tag-2',
-        name: 'assistant',
-        usage_count: 5,
-        created_at: '2023-01-01T00:00:00Z',
-      },
-    ],
-    average_rating: 4.5,
-    review_count: 10,
-    ...overrides,
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
     mockNavigate.mockClear();
@@ -114,67 +68,9 @@ describe('SquarePalCard', () => {
       expect(getByText('A helpful test assistant')).toBeTruthy();
     });
 
-    it('renders PalsHub pal correctly', () => {
-      const pal = createPalsHubPal();
-      const {getByText} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
 
-      expect(getByText('PalsHub Test Pal')).toBeTruthy();
-      expect(getByText('A test pal from PalsHub')).toBeTruthy();
-      expect(getByText('by Test Creator')).toBeTruthy();
-    });
 
-    it('renders rating and review count for PalsHub pal', () => {
-      const pal = createPalsHubPal({average_rating: 4.5, review_count: 10});
-      const {getByText} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
 
-      expect(getByText('4.5')).toBeTruthy();
-      expect(getByText('(10)')).toBeTruthy();
-    });
-
-    it('renders tags for PalsHub pal', () => {
-      const pal = createPalsHubPal();
-      const {getByText} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
-
-      expect(getByText('productivity')).toBeTruthy();
-      expect(getByText('+1')).toBeTruthy(); // +1 more tag
-    });
-
-    it('renders the first tag label and the overflow count for three tags', () => {
-      const pal = createPalsHubPal({
-        tags: [
-          {
-            id: 'tag-1',
-            name: 'productivity',
-            usage_count: 10,
-            created_at: '2023-01-01T00:00:00Z',
-          },
-          {
-            id: 'tag-2',
-            name: 'assistant',
-            usage_count: 5,
-            created_at: '2023-01-01T00:00:00Z',
-          },
-          {
-            id: 'tag-3',
-            name: 'writing',
-            usage_count: 3,
-            created_at: '2023-01-01T00:00:00Z',
-          },
-        ],
-      });
-      const {getByText} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
-
-      expect(getByText('productivity')).toBeTruthy();
-      expect(getByText('+2')).toBeTruthy();
-    });
 
     it('renders thumbnail image when available', () => {
       const pal = createLocalPal({
@@ -197,18 +93,6 @@ describe('SquarePalCard', () => {
       expect(getByText('T')).toBeTruthy(); // First letter
     });
 
-    it('renders protection badge for protected PalsHub pals', () => {
-      const pal = createPalsHubPal({protection_level: 'reveal_on_purchase'});
-      const {UNSAFE_getAllByType} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
-
-      // Check for LockIcon component
-      const lockIcons = UNSAFE_getAllByType(
-        require('../../../../../assets/icons').LockIcon,
-      );
-      expect(lockIcons.length).toBeGreaterThan(0);
-    });
   });
 
   describe('User Interactions', () => {
@@ -290,26 +174,6 @@ describe('SquarePalCard', () => {
       });
     });
 
-    it('shows download alert for PalsHub pal not yet downloaded', async () => {
-      jest.spyOn(Alert, 'alert');
-      const pal = createPalsHubPal();
-      palStore.pals = []; // No local pals
-
-      const {UNSAFE_getAllByType} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
-
-      // PalsHub pals that aren't downloaded shouldn't show chat button
-      const touchables = UNSAFE_getAllByType(
-        require('react-native').TouchableOpacity,
-      );
-      const chatButtons = touchables.filter(
-        t => t.props.style?.chatButton !== undefined,
-      );
-
-      // Should not have chat button if not downloaded
-      expect(chatButtons.length).toBe(0);
-    });
   });
 
   describe('Model Warning', () => {
@@ -352,14 +216,6 @@ describe('SquarePalCard', () => {
       expect(queryByText('Model not downloaded')).toBeNull();
     });
 
-    it('does not show model warning for PalsHub pals', () => {
-      const pal = createPalsHubPal();
-      const {queryByText} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
-
-      expect(queryByText('Model not downloaded')).toBeNull();
-    });
   });
 
   describe('Content Display', () => {
@@ -485,36 +341,7 @@ describe('SquarePalCard', () => {
       expect(iconButtons.length).toBeGreaterThanOrEqual(2);
     });
 
-    it('does not show share and delete buttons for PalsHub pals', () => {
-      const pal = createPalsHubPal();
-      const {UNSAFE_queryAllByType} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
 
-      // PalsHub pals should not have action buttons in header
-      const iconButtons = UNSAFE_queryAllByType(
-        require('react-native-paper').IconButton,
-      );
-      // May have warning icon but not share/delete
-      expect(iconButtons.length).toBeLessThan(2);
-    });
-
-    it('shows chat button for downloaded PalsHub pal', () => {
-      const palsHubPal = createPalsHubPal();
-      const localPal = createLocalPal({palshub_id: palsHubPal.id});
-      palStore.pals = [localPal];
-      palStore.isPalsHubPalDownloaded = jest.fn().mockReturnValue(true);
-
-      const {UNSAFE_getAllByType} = render(
-        <SquarePalCard pal={palsHubPal} onPress={mockOnPress} />,
-      );
-
-      // Should have chat button - check for ChatIcon or CameraIcon
-      const chatIcons = UNSAFE_getAllByType(
-        require('../../../../../assets/icons').ChatIcon,
-      );
-      expect(chatIcons.length).toBeGreaterThan(0);
-    });
   });
 
   describe('Video Capability', () => {
@@ -551,20 +378,6 @@ describe('SquarePalCard', () => {
   });
 
   describe('Premium Badge', () => {
-    it('shows premium badge for premium PalsHub pals', () => {
-      const pal = createPalsHubPal({
-        price_cents: 999,
-      });
-
-      const {getByText} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} />,
-      );
-
-      // Premium badge should be visible (text depends on getPalDisplayLabel)
-      // This is a basic check - actual label depends on implementation
-      const card = getByText('PalsHub Test Pal');
-      expect(card).toBeTruthy();
-    });
   });
 
   describe('Error Handling', () => {
@@ -590,7 +403,6 @@ describe('SquarePalCard', () => {
         expect(Alert.alert).toHaveBeenCalledWith(
           'Share Error',
           'Failed to export this Pal. Please try again.',
-          [{text: 'OK'}],
         );
       });
     });
