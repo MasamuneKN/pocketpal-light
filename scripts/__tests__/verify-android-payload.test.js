@@ -282,6 +282,28 @@ describe('ELF 16 KB load-segment alignment', () => {
     expect(() => readElfLoadSegmentAlignment(truncated)).toThrow('truncated');
   });
 
+  it('rejects non-power-of-two alignment', () => {
+    const elf = Buffer.from(PLAIN_ELF);
+    const phoff = Number(elf.readBigUInt64LE(0x20));
+    elf.writeBigUInt64LE(24576n, phoff + 48);
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('not a power of two');
+  });
+
+  it('rejects incongruent file and virtual offsets', () => {
+    const elf = Buffer.from(PLAIN_ELF);
+    const phoff = Number(elf.readBigUInt64LE(0x20));
+    elf.writeBigUInt64LE(1n, phoff + 16);
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('incongruent');
+  });
+
+  it('rejects overflowing segment ranges', () => {
+    const elf = Buffer.from(PLAIN_ELF);
+    const phoff = Number(elf.readBigUInt64LE(0x20));
+    elf.writeBigUInt64LE(BigInt(Number.MAX_SAFE_INTEGER), phoff + 8);
+    elf.writeBigUInt64LE(BigInt(Number.MAX_SAFE_INTEGER), phoff + 32);
+    expect(() => readElfLoadSegmentAlignment(elf)).toThrow('invalid file or memory range');
+  });
+
   it('checks every PT_LOAD segment', () => {
     const elf = Buffer.from(PLAIN_ELF);
     const phoff = Number(elf.readBigUInt64LE(0x20));

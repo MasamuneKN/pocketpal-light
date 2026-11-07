@@ -1292,3 +1292,46 @@ The user has now explicitly authorized running the tests and actions considered 
 - The synthetic fixtures test parser behavior, not actual native library alignment. Final artifact verification remains mandatory once the no-APK restriction is lifted.
 - The parser currently targets ELF64 little-endian Android ABI libraries, matching the approved `arm64-v8a` and `x86_64` release scope. DSP assets under the app's assets directory are not part of the Android ABI `lib/<abi>/` shared-object scan.
 - Next: run the focused Jest suite and full non-packaging CI, then continue auditing actual native dependency artifact sources and other release blockers. Keep APK/AAB production prohibited.
+
+
+## 58. ELF verifier CI confirmation and native dependency review — 2026-11-08
+
+### CI result
+
+- The formatting workflow `42397580204` completed successfully and created formatting-only commit `fdab9cbf96c7bbca2493f22c1f9896135fec268d`.
+- The follow-up CI run `42397677669` on that commit passed all non-packaging checks:
+  - 423 Jest suites passed.
+  - 8,497 tests passed; 2 skipped.
+  - 310 snapshots passed.
+  - ESLint, TypeScript, localization validation, and font registration passed.
+  - Android and iOS packaging jobs were skipped.
+- The initial CI run on the unformatted source commit failed at ESLint; Prettier corrected the formatting and the subsequent CI passed.
+- No APK/AAB build or packaging task was invoked.
+
+### Additional ELF parser hardening
+
+- After the green run, source review found two edge cases worth closing: safe-integer overflow when adding segment file offset and size, and exact power-of-two validation for large alignment values.
+- Added strict safe-range addition and BigInt-based power-of-two validation.
+- Added regression tests for non-power-of-two alignment, incongruent file/virtual offsets, and overflowing segment ranges.
+- These latest hardening changes are prepared but are **not yet committed or CI-verified** at the time this handover entry is written. Their focused Jest and full non-packaging CI results must be recorded after the commit.
+
+### Native dependency/configuration review
+
+- Confirmed `arm64-v8a,x86_64` in both `android/app/build.gradle` ABI filters and `android/gradle.properties` React Native architecture selection.
+- Confirmed Phonon ABI selector is also `arm64-v8a,x86_64`.
+- `react-native.config.js` explicitly disables Android/iOS autolinking for Apple authentication, Vision Camera, audio PCM streaming, PocketPal speech/Phonon, Whisper, IAP, Firebase App/App Check, and Google Sign-In. This is consistent with the current Lite offline/no-camera/no-cloud-auth direction, but verify the final intended audio/speech feature scope before removing any package dependencies from `package.json`.
+- Several of those packages remain listed in `package.json`; disabling autolinking does not remove JavaScript packages or guarantee Metro will omit their code. Audit imports and feature flags before deciding whether safe package removal is possible.
+- ONNX Runtime is pinned through the package version read by `android/build.gradle`, which forces the matching `com.microsoft.onnxruntime:onnxruntime-android` artifact. The manifest/package lock and resolved AAR contents still need a direct ABI inventory; no native AAR artifact was inspected in this review.
+- Release build minification and resource shrinking are enabled, but `android/app/proguard-rules.pro` is currently empty. Review dependency consumer rules and add only evidence-backed keep rules; do not disable minification just to mask a failure.
+- Release signing currently falls back to the debug keystore when production credentials are absent. This is not acceptable for a public store release and must be changed to a fail-closed production-signing gate before release packaging is authorized. Do not add secrets to the repository.
+- Manifest permissions are currently limited to INTERNET, RUN_USER_INITIATED_JOBS, POST_NOTIFICATIONS, and legacy storage permissions capped at API 28. No camera or microphone permission is declared. Cleartext HTTP is enabled for user-configured LAN model-server connections; retain only if that local-server workflow remains in scope.
+- Backup rules exclude downloaded model, TTS, and ASR directories from cloud backup and device transfer. Legacy backup is include-only and restricts selected app state to client-side encrypted backups.
+
+### Next actions
+
+1. Commit the ELF parser hardening and regression tests, then verify focused Jest and full CI.
+2. Inspect the package-lock resolution and actual Android AAR/JNI artifact contents for every native dependency, especially ONNX Runtime, llama.rn, Hermes/React Native, Whisper/Phonon (if retained), and transitive libraries. Do not infer ABI support from package metadata alone.
+3. Audit JS imports and feature flags for disabled auth, cloud, camera, speech, and purchase packages before proposing removals; preserve explicitly retained local features.
+4. Add a production-signing guard so a public release cannot silently use the debug keystore. Keep credentials outside Git.
+5. Review R8/ProGuard consumer rules and test critical native-module entry points once an authorized test artifact can be built.
+6. Keep APK/AAB production and all packaging workflows prohibited until every pre-build issue is resolved and the user explicitly lifts the restriction.

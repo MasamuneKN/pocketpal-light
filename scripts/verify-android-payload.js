@@ -82,7 +82,11 @@ function readElfLoadSegmentAlignment(buf) {
     if (![offset, vaddr, filesz, memsz, align].every(Number.isSafeInteger)) {
       throw new Error(`PT_LOAD segment ${i} contains an out-of-range value`);
     }
-    if (offset + filesz > buf.length || memsz < filesz) {
+    if (
+      !Number.isSafeInteger(offset + filesz) ||
+      offset + filesz > buf.length ||
+      memsz < filesz
+    ) {
       throw new Error(
         `PT_LOAD segment ${i} has an invalid file or memory range`,
       );
@@ -90,7 +94,8 @@ function readElfLoadSegmentAlignment(buf) {
     if (align < ANDROID_PAGE_SIZE) {
       throw new Error(`PT_LOAD segment ${i} p_align ${align} is below 16 KB`);
     }
-    if (!Number.isInteger(Math.log2(align))) {
+    const alignment = BigInt(align);
+    if ((alignment & (alignment - 1n)) !== 0n) {
       throw new Error(
         `PT_LOAD segment ${i} p_align ${align} is not a power of two`,
       );
