@@ -67,10 +67,6 @@ describe('the pending slot while the bound router model loads', () => {
     });
   });
 
-);
-
-);
-
   it.each([
     [
       'an unload of the bound model',
