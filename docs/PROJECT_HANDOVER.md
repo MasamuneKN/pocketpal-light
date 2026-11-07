@@ -1184,3 +1184,41 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Decide whether to retain four-ABI app installation with explicitly limited 32-bit inference, or keep full local-LLM support as the priority and initially ship only arm64 + x86_64. Do not silently downgrade feature availability.
 3. Extend the payload manifest and verifier to cover any approved ABIs, including ELF32 validation, before changing Gradle ABI filters.
 4. Continue existing non-APK functional and Android static review. Never run APK/AAB packaging or dispatch the manual APK workflow under the current restriction.
+
+
+## 53. Session update — 2026-11-07 (first public ABI target: ARM64 + x86_64)
+
+### Release target decision
+
+- User confirmed to focus on the first public release target only: `arm64-v8a` and `x86_64`.
+- Defer `armeabi-v7a` and `x86` until a later decision. Do not add 32-bit ABIs now.
+- No APK/AAB packaging or APK-producing workflow has been triggered. Existing no-APK restriction remains active until all outstanding issues are resolved and user explicitly authorizes packaging.
+
+### Configuration changes
+
+- Commit `9a153633d90353dce7b5de56d2e12d5f0f0907b5` updates `android/app/build.gradle` ABI filters to `arm64-v8a,x86_64`, updates `android/gradle.properties` `reactNativeArchitectures` to the same pair, and updates `scripts/android-payload-manifest.json` `requiredArtifactAbis` to require both.
+- The existing x86_64 Llama payload rules were already present; the verifier now requires x86_64 rather than treating it as optional. Regression test replaces the old arm64-only pass case with a failure when x86_64 is missing.
+- Phonon pinned package v0.1.3's lock metadata declares both `arm64-v8a` and `x86_64` Android binaries. Its Gradle plugin defaults to arm64 only, so `RNSpeech_phononAbis=arm64-v8a,x86_64` was added to `android/gradle.properties` to package the available binary and build its shim for both.
+- Existing ONNX Runtime 1.24.3 patch includes the Android 16 KB JSI linker alignment option. It remains subject to final artifact verification.
+
+### Native compatibility audit
+
+- `llama.rn@0.13.0-rc.9`: Android supports `arm64-v8a` and `x86_64`; its Gradle logic excludes 32-bit ABIs. This matches the selected target.
+- `whisper.rn@0.7.4`: Android CMake supports `x86_64`; the repository patch also adds an ARM64 dot-product optimized variant with runtime detection.
+- `onnxruntime-react-native@1.24.3`: Gradle's architecture selection includes x86_64; the Android runtime is pinned to the matching ONNX Runtime version by root Gradle resolution strategy.
+- `@pocketpalai/react-native-speech-phonon@0.1.3`: its pinned binary release metadata includes x86_64 and the Gradle/CMake code supports the selected 64-bit pair. The explicit ABI property is therefore an ABI-selection setting, not a local binary path override.
+- Further work remains to validate the complete native dependency payload and 16 KB ELF alignment, and to execute a non-packaging Gradle configuration check. Source-level compatibility is not equivalent to a successful native build.
+
+### CI history for this change
+
+- CI run `42382743111` on `9a153633` failed one Jest suite because `publishGate.test.ts` prohibited every `RNSpeech_phonon*` property, including the approved ABI-selection property. 422 suites passed; 1 failed.
+- Commit `da5a1878a7248f40e86a45156cfa78b64ebeb4fe` narrowed the test guard: it now explicitly requires `reactNativeArchitectures=arm64-v8a,x86_64` and `RNSpeech_phononAbis=arm64-v8a,x86_64`, while still rejecting local Phonon binary paths and debug bypasses.
+- CI run `42383137128` failed at ESLint because Prettier wanted the new assertion on one line. The format workflow succeeded and created formatting-only commit `f1f73d1e2d853c15eab2b94ff6de1d711b14a88d`.
+- Current CI run `42383238306` is running on `f1f73d1e`. Localization, font validation, ESLint, and TypeScript have passed; Jest is still running. Android and iOS packaging jobs are skipped. Do not commit code while this run is active.
+
+### Next actions
+
+1. Wait for CI run `42383238306`; inspect the Phonon publish-gate test and full Jest totals.
+2. If CI passes, continue a static native-payload and 16 KB alignment audit, including app-owned `libappmodules.so` and all required LLM/ASR/TTS libraries.
+3. Add a non-packaging Gradle configuration validation (`./gradlew help` or equivalent) if it can be added without invoking any APK/AAB task. This is needed because current CI does not evaluate Android Gradle configuration.
+4. Update this handover after CI completes. Keep APK/AAB production blocked.
