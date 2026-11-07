@@ -1231,7 +1231,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Android and iOS packaging jobs were skipped. No APK/AAB was created.
 - Documentation-only handover update is at the current main commit; next work is static native-payload and 16 KB alignment review, then a non-packaging Gradle configuration check. Do not run any APK/AAB task.
 
-
 ## 55. Non-packaging Gradle configuration check — 2026-11-07
 
 - Added `.github/workflows/android-config-check.yml` in commit `a6b9dd49e7675d61ced1bd83e93b57dcc56d6aaf`.
