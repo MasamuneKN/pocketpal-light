@@ -15,7 +15,6 @@ import {act, fireEvent, render} from '../../../../jest/test-utils';
 import {ChatEmptyPlaceholder} from '../../ChatEmptyPlaceholder';
 import {NEW_CHAT_DRAFT_KEY, chatSessionStore, modelStore} from '../../../store';
 import {registerDefaultTalents} from '../../../services/talents';
-import DeviceInfo from 'react-native-device-info';
 import * as memoryEstimator from '../../../utils/memoryEstimator';
 
 // talentRegistry (src/services/talents) is the real singleton in Jest; register
