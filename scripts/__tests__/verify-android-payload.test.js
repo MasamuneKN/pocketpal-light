@@ -249,6 +249,38 @@ describe('a conforming artifact', () => {
     expect(output).toContain('extra rnllama libraries: none');
   });
 
+  it('passes an arm64-only artifact when optional x86_64 is not shipped', () => {
+    const entries = conformingEntries();
+    for (const name of Object.keys(entries)) {
+      if (name.startsWith('lib/x86_64/')) delete entries[name];
+    }
+    const {status, output} = gateApk(entries);
+    expect(status).toBe(0);
+    expect(output).toContain('ABIs in the artifact: arm64-v8a');
+    expect(output).not.toContain('  x86_64');
+  });
+
+  it('fails when the required arm64 ABI is missing even if x86_64 ships', () => {
+    const entries = conformingEntries();
+    for (const name of Object.keys(entries)) {
+      if (name.startsWith('lib/arm64-v8a/')) delete entries[name];
+    }
+    const {status, output} = gateApk(entries);
+    expect(status).toBe(1);
+    expect(output).toContain('MISSING REQUIRED ABI  lib/arm64-v8a/');
+    expect(output).toContain('is missing required artifact ABI arm64-v8a');
+  });
+
+  it('fails when an artifact contains no native ABI library trees', () => {
+    const entries = conformingEntries();
+    for (const name of Object.keys(entries)) {
+      if (name.startsWith('lib/')) delete entries[name];
+    }
+    const {status, output} = gateApk(entries);
+    expect(status).toBe(1);
+    expect(output).toContain('contains no native ABI library trees');
+  });
+
   it('passes as an app bundle, whose entries sit under base/', () => {
     const archive = writeArchive(
       'app-prod-release.aab',

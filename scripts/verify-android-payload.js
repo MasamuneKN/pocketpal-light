@@ -218,6 +218,25 @@ function loadManifest(manifestPath) {
       `${manifestPath} declares no ABIs, so it would pass any artifact.`,
     );
   }
+  const requiredArtifactAbis =
+    manifest.requiredArtifactAbis || manifest.abis.map(abi => abi.abi);
+  if (
+    !Array.isArray(requiredArtifactAbis) ||
+    requiredArtifactAbis.length === 0 ||
+    new Set(requiredArtifactAbis).size !== requiredArtifactAbis.length
+  ) {
+    throw new Error(
+      `${manifestPath} must declare a non-empty, unique requiredArtifactAbis list.`,
+    );
+  }
+  const declaredAbis = new Set(manifest.abis.map(abi => abi.abi));
+  for (const abi of requiredArtifactAbis) {
+    if (!declaredAbis.has(abi)) {
+      throw new Error(
+        `${manifestPath} requires artifact ABI ${abi}, but declares no payload rules for it.`,
+      );
+    }
+  }
   for (const abi of manifest.abis) {
     assertAbiStructure(abi, manifestPath);
   }
@@ -502,11 +521,9 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     return;
   }
 
-  // The manifest says what each declared ABI must contain; it cannot say
-  // anything about an ABI nobody declared. Adding one to abiFilters or
-  // reactNativeArchitectures would otherwise ship a tree this check never
-  // opens — and the variant allowlist is matched by exact name, so that tree
-  // would carry only the generic portable-C pair.
+  // The manifest defines the payload floor for every ABI it knows about.
+  // requiredArtifactAbis distinguishes architectures this product must ship
+  // from additional declared architectures checked only when actually present.
   const declaredAbis = new Set(manifest.abis.map(entry => entry.abi));
   const libPrefix = `${prefix}lib/`;
   const shippedAbis = [
@@ -518,6 +535,15 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     ),
   ].sort();
   report.push(`  ABIs in the artifact: ${shippedAbis.join(', ') || 'none'}`);
+  if (shippedAbis.length === 0) {
+    fail(`${artifactName} contains no native ABI library trees.`);
+  }
+  const requiredArtifactAbis =
+    manifest.requiredArtifactAbis || manifest.abis.map(abi => abi.abi);
+  for (const abi of requiredArtifactAbis.filter(name => !shippedAbis.includes(name))) {
+    report.push(`    MISSING REQUIRED ABI  ${libPrefix}${abi}/`);
+    fail(`${artifactName} is missing required artifact ABI ${abi}.`);
+  }
   for (const abi of shippedAbis.filter(name => !declaredAbis.has(name))) {
     report.push(`    UNDECLARED  ${libPrefix}${abi}/`);
     fail(
@@ -530,7 +556,7 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     );
   }
 
-  for (const abi of manifest.abis) {
+  for (const abi of manifest.abis.filter(entry => shippedAbis.includes(entry.abi))) {
     report.push(`  ${abi.abi}`);
 
     const missingLibs = [];
