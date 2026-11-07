@@ -1120,3 +1120,33 @@ The user has now explicitly authorized running the tests and actions considered 
 1. Confirm CI run `42365424436` completes and record its Jest totals.
 2. Continue static review of Android native configuration, model payload and retained local/offline flows; do not execute Gradle packaging.
 3. Keep APK creation blocked until all remaining non-APK issues are resolved and the user explicitly lifts the restriction. Physical-device verification of model download/storage, local inference, persistence, gallery selection and offline operation remains outstanding.
+
+## 51. Session update — 2026-11-07 (CI verified; APK payload verification added)
+
+### Verification completed
+
+- CI run `42365424436` on `5e62f8f` completed successfully.
+- ESLint, TypeScript, localization validation and font registration passed.
+- Jest passed: **423 suites passed; 8,490 tests passed; 2 skipped; 310 snapshots passed**.
+- Android and iOS packaging jobs were skipped. No APK was created.
+- Formatter run `42365596237` on `5131421` completed successfully without creating another formatting commit.
+
+### Additional release-workflow safeguard
+
+- Commit `c1cc7e8` adds a post-build Android payload verification step to the standalone manual APK workflow.
+- Once a manual release build is eventually authorized, the workflow must locate the generated production APK and run `scripts/verify-android-payload.js --apk ...` before uploading it. The payload report is retained with build diagnostics.
+- This complements the pre-build validation gates added in `5e62f8f`: source checks run before Gradle, and native library/asset/symbol checks run against the actual APK after Gradle.
+- The workflow was edited only; it was not dispatched. No APK was produced.
+
+### Static Android review
+
+- The main manifest declares INTERNET, RUN_USER_INITIATED_JOBS, POST_NOTIFICATIONS, and legacy external-storage permissions capped at API 28. No camera or microphone permission is declared.
+- The manifest's download job service and the registered native DownloadModule/DownloadWorker are present; WorkManager-backed model downloads remain part of the supported local workflow.
+- The app is configured for arm64-v8a only, with prod/e2e product flavors and a narrowed release variant matrix. The release task remains `assembleProdRelease`; the package script targets `bundleProdRelease`.
+- These are source-level findings only. Native compilation, actual APK payload verification, runtime permission behavior and device-level model-download/inference checks remain unverified.
+
+### Next actions
+
+1. Verify CI and formatting for commit `c1cc7e8` and the following handover update.
+2. Continue focused static review of Android storage, gallery selection and local inference paths. Avoid permission or dependency removal unless runtime references are proven absent.
+3. Keep APK production blocked until all outstanding non-APK issues are resolved and the user explicitly lifts the restriction.
