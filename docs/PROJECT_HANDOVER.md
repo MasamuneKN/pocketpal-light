@@ -1413,7 +1413,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Localization key parity and the current full CI are still pending. No Android packaging was run.
 - The lockfile may retain orphaned package resolution blocks; direct dependencies have been removed from `package.json`. A lockfile cleanup will be considered separately if the Yarn v1 workflow can regenerate it safely without changing unrelated resolutions.
 
-
 ## 63. Voice localization cleanup — 2026-11-08
 
 - Removed voice-only translation keys across all 23 locale JSON files, including TTS availability, voice/speech settings, dictation, hands-free voice mode, Phonon credits, and the About-screen notices entry.
