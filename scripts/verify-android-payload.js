@@ -540,7 +540,9 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
   }
   const requiredArtifactAbis =
     manifest.requiredArtifactAbis || manifest.abis.map(abi => abi.abi);
-  for (const abi of requiredArtifactAbis.filter(name => !shippedAbis.includes(name))) {
+  for (const abi of requiredArtifactAbis.filter(
+    name => !shippedAbis.includes(name),
+  )) {
     report.push(`    MISSING REQUIRED ABI  ${libPrefix}${abi}/`);
     fail(`${artifactName} is missing required artifact ABI ${abi}.`);
   }
@@ -556,7 +558,9 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     );
   }
 
-  for (const abi of manifest.abis.filter(entry => shippedAbis.includes(entry.abi))) {
+  for (const abi of manifest.abis.filter(entry =>
+    shippedAbis.includes(entry.abi),
+  )) {
     report.push(`  ${abi.abi}`);
 
     const missingLibs = [];
