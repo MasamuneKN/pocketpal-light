@@ -1405,7 +1405,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The Yarn v1 lockfile may still contain now-orphaned entries until a clean lockfile regeneration is performed. They are not direct dependencies in `package.json`.
 - This deletion/update set is committed but still needs formatting, ESLint, TypeScript, Jest, and full CI verification. No APK/AAB packaging is permitted.
 
-
 ## 62. Voice removal follow-through and localization cleanup — 2026-11-08
 
 - Removed the remaining `voiceTrace` import and diagnostic calls from `useChatSession`; the trace helper itself was deleted with the voice-only utilities.
