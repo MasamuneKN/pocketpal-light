@@ -104,12 +104,23 @@ jobs:
           cd android
           ./gradlew assembleProdRelease --stacktrace --info 2>&1 | tee android-build.log
 
+      - name: Verify Android release payload
+        run: |
+          APK_PATH="$(find android/app/build/outputs/apk/prod/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          if [ -z "$APK_PATH" ]; then
+            echo "No production release APK was found to verify."
+            exit 1
+          fi
+          node scripts/verify-android-payload.js --apk "$APK_PATH" --report android/android-payload-report.txt
+
       - name: Upload Android build diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-build-diagnostics
-          path: android/android-build.log
+          path: |
+            android/android-build.log
+            android/android-payload-report.txt
           if-no-files-found: ignore
           retention-days: 7
 
