@@ -21,11 +21,7 @@ import {
   resolveReasoningCapability,
 } from '../utils/reasoningCapability';
 
-import {
-  MessageType,
-  ModelOrigin,
-  User,
-} from '../utils/types';
+import {MessageType, ModelOrigin, User} from '../utils/types';
 import {
   RemoteModelNotReadyError,
   RemoteModelRequestWithdrawnError,
@@ -36,10 +32,7 @@ import {
   assembleMessages,
   resolveSystemMessages,
 } from '../utils/systemPromptResolver';
-import {
-  convertToChatMessages,
-  removeThinkingParts,
-} from '../utils/chat';
+import {convertToChatMessages, removeThinkingParts} from '../utils/chat';
 import {acquireKeepAwake} from '../utils/keepAwake';
 import {vtrace} from '../utils/voiceTrace';
 import {LLAMARN_ERROR_PATTERNS} from '../utils/llamaRnErrors';
@@ -786,7 +779,7 @@ export const useChatSession = (
           timeToFirstTokenMs,
           hasImages,
           isMultimodalEnabled,
-              stopped: lease.signal.aborted,
+          stopped: lease.signal.aborted,
         });
 
         if (performance.now() - lastYieldTs >= YIELD_INTERVAL_MS) {

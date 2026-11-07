@@ -1370,7 +1370,6 @@ The user has now explicitly authorized running the tests and actions considered 
 4. Review R8/ProGuard consumer rules and keep rules with evidence.
 5. Keep APK/AAB production prohibited until all pre-build issues are resolved and the user explicitly lifts the restriction.
 
-
 ## 60. Voice input and speech output removal — 2026-11-08
 
 ### User decision
