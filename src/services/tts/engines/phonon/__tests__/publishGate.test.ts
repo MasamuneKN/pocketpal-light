@@ -46,9 +46,7 @@ describe('Phonon release pins', () => {
     expect(gradleProperties).toMatch(
       /^reactNativeArchitectures=arm64-v8a,x86_64$/m,
     );
-    expect(gradleProperties).toMatch(
-      /^RNSpeech_phononAbis=arm64-v8a,x86_64$/m,
-    );
+    expect(gradleProperties).toMatch(/^RNSpeech_phononAbis=arm64-v8a,x86_64$/m);
 
     const forbiddenOverride =
       /RNSpeech_phononLibDir|RN_SPEECH_PHONON|\bphonon(LibDir|ForceReason|SkipHwcapGate)\b/;
