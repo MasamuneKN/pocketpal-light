@@ -1334,3 +1334,39 @@ The user has now explicitly authorized running the tests and actions considered 
 4. Add a production-signing guard so a public release cannot silently use the debug keystore. Keep credentials outside Git.
 5. Review R8/ProGuard consumer rules and test critical native-module entry points once an authorized test artifact can be built.
 6. Keep APK/AAB production and all packaging workflows prohibited until every pre-build issue is resolved and the user explicitly lifts the restriction.
+
+
+## 59. Non-packaging CI confirmation and production-signing hardening — 2026-11-08
+
+### CI confirmation
+
+- Formatting workflow `42400213373` completed successfully for `8217bf8` and created formatting-only commit `5148df03653c2f520b6d5d3e667e1012b0a649f9`.
+- Follow-up CI run [`42400315264`](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42400315264) passed on `5148df0`.
+- Confirmed checks: ESLint, TypeScript, localization validation, font registration, and Jest.
+- Jest result: **423 suites passed; 8,500 tests passed; 2 skipped; 310 snapshots passed**.
+- Android and iOS packaging jobs were skipped. No APK/AAB was produced.
+- The preceding CI run `42400213367` failed only at ESLint formatting; TypeScript and Jest were skipped in that run. The formatter-created follow-up commit passed.
+
+### Production signing guard
+
+- Removed the production `release` build type's fallback to the debug keystore. It now always references the dedicated release signing configuration.
+- Added a task-graph gate for production-release packaging/signing tasks. It refuses to proceed unless the keystore file, store password, key alias, and key password are all configured.
+- Added optional `APP_RELEASE_STORE_FILE` and `APP_RELEASE_KEY_ALIAS` inputs, with the previous keystore filename and alias retained as defaults. Passwords and keystore remain external to Git.
+- The E2E release build type explicitly retains debug signing; this guard targets only the public `prodRelease` variant.
+- This Gradle change is committed but **not yet CI-verified**. No Gradle packaging task was run.
+
+### Dependency audit findings
+
+- Yarn lockfile resolves `onnxruntime-react-native` to **1.24.3**, `llama.rn` to **0.13.0-rc.9**, `whisper.rn` to **0.7.4**, React Native to **0.87.1**, and Nitro Modules to **0.37.1**.
+- The ONNX Gradle resolution rule forces the Android Maven artifact to the installed JS package version. This confirms version pinning, not the contents or ABI coverage of the resolved AAR.
+- Native AAR/JNI binary contents for ONNX Runtime, React Native/Hermes, and other transitive dependencies remain uninspected. Do not claim 16 KB compatibility from version numbers or CMake flags alone.
+- Several speech, Whisper, IAP, and other modules are disabled for autolinking in `react-native.config.js`, while related JS source, tests, mocks, and package dependencies remain in the repository. Do not delete those dependencies until each runtime import and the agreed retained feature scope are traced.
+- The successful Jest log includes non-fatal asynchronous teardown / React Native mock warnings. They did not fail the suite, but should be reviewed if they recur or obscure genuine test failures.
+
+### Next actions
+
+1. Verify this signing guard with non-packaging Gradle configuration/checks only; do not invoke assemble, bundle, package, sign, or any APK/AAB-producing workflow.
+2. Inspect source imports and feature flags for disabled native packages; preserve retained local functionality and remove dependencies only after reachability is established.
+3. Obtain a safe, non-packaging inventory of resolved Android AAR/JNI contents and ABI coverage, especially ONNX Runtime, Hermes/React Native, and transitive native libraries.
+4. Review R8/ProGuard consumer rules and keep rules with evidence.
+5. Keep APK/AAB production prohibited until all pre-build issues are resolved and the user explicitly lifts the restriction.

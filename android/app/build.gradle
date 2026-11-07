@@ -108,14 +108,17 @@ android {
             keyPassword 'android'
         }
         release {
-            // Read signing credentials from .env file or environment variables
+            // Read signing credentials from .env file or environment variables.
+            // Keep the keystore and passwords outside Git.
             def releaseStorePassword = project.env.get("APP_RELEASE_STORE_PASSWORD") ?: System.getenv("APP_RELEASE_STORE_PASSWORD")
             def releaseKeyPassword = project.env.get("APP_RELEASE_KEY_PASSWORD") ?: System.getenv("APP_RELEASE_KEY_PASSWORD")
+            def releaseStoreFile = project.env.get("APP_RELEASE_STORE_FILE") ?: System.getenv("APP_RELEASE_STORE_FILE") ?: "pocketpal-release-key.keystore"
+            def releaseKeyAlias = project.env.get("APP_RELEASE_KEY_ALIAS") ?: System.getenv("APP_RELEASE_KEY_ALIAS") ?: "pocketpal_key_alias"
 
             if (releaseStorePassword && releaseKeyPassword) {
-                storeFile file("pocketpal-release-key.keystore")
+                storeFile file(releaseStoreFile)
                 storePassword releaseStorePassword
-                keyAlias "pocketpal_key_alias"
+                keyAlias releaseKeyAlias
                 keyPassword releaseKeyPassword
             }
         }
@@ -129,16 +132,8 @@ android {
             buildConfigField "boolean", "USE_DEV_SUPPORT", "true"
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            // Only use release signing config if credentials are available, otherwise use debug
-            if (signingConfigs.release.storeFile != null) {
-                signingConfig signingConfigs.release
-            } else {
-                // Fall back to debug signing for CI builds without credentials
-                signingConfig signingConfigs.debug
-                println "Warning: Release signing credentials not found, using debug keystore"
-            }
+            // Production variants must never silently use the debug keystore.
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
@@ -195,6 +190,44 @@ android {
         }
         if (flavors.contains('prod') && buildType == 'releaseE2e') {
             setIgnore(true)
+        }
+    }
+}
+
+// Fail closed before any production release APK/AAB packaging task can run.
+gradle.taskGraph.whenReady { taskGraph ->
+    def productionReleaseArtifactTasks = taskGraph.allTasks.findAll { task ->
+        task.project == project &&
+            task.name.toLowerCase(Locale.ROOT).contains("prodrelease") &&
+            (task.name.startsWith("package") ||
+                task.name.startsWith("bundle") ||
+                task.name.startsWith("assemble") ||
+                task.name.startsWith("sign"))
+    }
+
+    if (!productionReleaseArtifactTasks.isEmpty()) {
+        def releaseSigning = android.signingConfigs.getByName("release")
+        def missingSigningInputs = []
+
+        if (!releaseSigning.storeFile?.isFile()) {
+            missingSigningInputs << "APP_RELEASE_STORE_FILE (existing keystore file)"
+        }
+        if (!releaseSigning.storePassword) {
+            missingSigningInputs << "APP_RELEASE_STORE_PASSWORD"
+        }
+        if (!releaseSigning.keyAlias) {
+            missingSigningInputs << "APP_RELEASE_KEY_ALIAS"
+        }
+        if (!releaseSigning.keyPassword) {
+            missingSigningInputs << "APP_RELEASE_KEY_PASSWORD"
+        }
+
+        if (!missingSigningInputs.isEmpty()) {
+            throw new GradleException(
+                "Refusing to package prodRelease without production signing inputs: " +
+                    missingSigningInputs.join(", ") +
+                    ". Configure these outside Git; debug signing is not permitted for prodRelease."
+            )
         }
     }
 }
