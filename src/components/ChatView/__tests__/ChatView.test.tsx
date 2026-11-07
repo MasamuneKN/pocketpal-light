@@ -222,8 +222,6 @@ describe('chat', () => {
   // boundary. Two assertions: gate-off triggers the load; gate-on suppresses.
   // ---------------------------------------------------------------------------
 
-);
-
   // ---------------------------------------------------------------------------
   // Pal-load hint "More room" action → opens the IncreaseContextSheet.
   //
@@ -232,7 +230,6 @@ describe('chat', () => {
   // be hidden, so the sheet is never a dead-end from this entry point. The
   // sheet's content (its testIDs) only mounts once the host opens it.
   // ---------------------------------------------------------------------------
-);
 
   describe('composer draft across a chat switch', () => {
     const drafts = new Map<string, string>();
