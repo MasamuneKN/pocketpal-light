@@ -1098,3 +1098,25 @@ The user has now explicitly authorized running the tests and actions considered 
 1. Confirm CI run `42364384210` completes successfully on `df9c2d5`; inspect the Jest summary if it fails.
 2. Continue static Android configuration review without invoking Gradle packaging. The production Gradle task itself remains unexecuted under the no-APK restriction.
 3. Before APK production is reconsidered, complete the native Android build/payload validation and physical-device checks for model download/storage, local inference, persistence, gallery selection and offline operation. Do not create an APK or trigger an APK-producing workflow until all outstanding issues are resolved and the user explicitly lifts the restriction.
+
+## 50. Session update — 2026-11-07 (manual Android workflow validation gate)
+
+### Repository change
+
+- Commit `5e62f8f` adds the same pre-package validation gates to the standalone manual Android APK workflow: localization validation, font registration, ESLint, TypeScript, Jest, and Android payload-manifest variant validation.
+- This closes a workflow bypass: previously, the standalone manual APK workflow could reach Gradle packaging without first running the CI test gates. The workflow remains manual-only; packaging still cannot run unless all new checks pass.
+- The package script correction from `03dfc8f` remains on main: `build:android:release` targets `bundleProdRelease`.
+- Static Android manifest review confirms no camera permission is declared. INTERNET, notification, user-initiated-job, and legacy API-28-and-below storage permissions remain; their runtime usage still needs a final reachability review before removing anything.
+
+### Verification
+
+- CI run `42364623140` on `07573bc` completed successfully: ESLint, TypeScript and localization/font checks passed; Jest passed with **423 suites, 8,490 tests, 2 skipped, and 310 snapshots**. Android/iOS packaging jobs were skipped.
+- Formatting run `42365424438` on `5e62f8f` completed successfully without creating a formatting commit.
+- CI run `42365424436` on `5e62f8f` is still running at the time of this update. Detect-changes, localization validation, font registration, ESLint and TypeScript have passed; Jest is in progress.
+- No Android Gradle packaging workflow was triggered. No APK was created.
+
+### Next actions
+
+1. Confirm CI run `42365424436` completes and record its Jest totals.
+2. Continue static review of Android native configuration, model payload and retained local/offline flows; do not execute Gradle packaging.
+3. Keep APK creation blocked until all remaining non-APK issues are resolved and the user explicitly lifts the restriction. Physical-device verification of model download/storage, local inference, persistence, gallery selection and offline operation remains outstanding.
