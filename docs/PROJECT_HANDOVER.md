@@ -1052,7 +1052,6 @@ The user has now explicitly authorized running the tests and actions considered 
 2. If Jest passes, review the remaining non-test readiness checks and functional issues before considering APK production. If it fails, fix only the newly reported failures and preserve local/offline coverage.
 3. Keep Android/iOS packaging out of the workflow until the explicit APK restriction is lifted by completion of all lingering issues.
 
-
 ## 48. Session update — 2026-11-07 (ChatView test cleanup verified)
 
 ### Latest verified baseline
