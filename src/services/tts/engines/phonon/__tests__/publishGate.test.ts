@@ -41,15 +41,20 @@ describe('Phonon release pins', () => {
     );
   });
 
-  it('commits no local Phonon binary override', () => {
-    for (const file of [
-      'android/gradle.properties',
-      'android/build.gradle',
-      'ios/Podfile',
-    ]) {
-      expect(read(file)).not.toMatch(
-        /RNSpeech_phonon|RN_SPEECH_PHONON|\bphonon(LibDir|Abis|ForceReason|SkipHwcapGate)\b/,
-      );
+  it('selects the supported 64-bit ABIs without a local binary override', () => {
+    const gradleProperties = read('android/gradle.properties');
+    expect(gradleProperties).toMatch(
+      /^reactNativeArchitectures=arm64-v8a,x86_64$/m,
+    );
+    expect(gradleProperties).toMatch(
+      /^RNSpeech_phononAbis=arm64-v8a,x86_64$/m,
+    );
+
+    const forbiddenOverride =
+      /RNSpeech_phononLibDir|RN_SPEECH_PHONON|\bphonon(LibDir|ForceReason|SkipHwcapGate)\b/;
+    expect(gradleProperties).not.toMatch(forbiddenOverride);
+    for (const file of ['android/build.gradle', 'ios/Podfile']) {
+      expect(read(file)).not.toMatch(forbiddenOverride);
     }
   });
 });
