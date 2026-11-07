@@ -1395,7 +1395,6 @@ The user has now explicitly authorized running the tests and actions considered 
 4. Run formatting, ESLint, TypeScript, localization validation, focused Jest, and full CI. Never invoke APK/AAB packaging.
 5. Recheck Android manifest and Gradle configuration for microphone permissions or speech-native build hooks; do not add microphone permissions.
 
-
 ## 61. Full voice feature cleanup — 2026-11-08
 
 - Removed ASR, Whisper, TTS, Phonon, and hands-free voice-mode source modules, stores, hooks, components, tests, mocks, automation adapters, E2E voice fixtures, native patches, and voice-only assets.

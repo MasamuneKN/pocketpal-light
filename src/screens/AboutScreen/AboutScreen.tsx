@@ -317,7 +317,6 @@ export const AboutScreen: React.FC = () => {
           </Button>
         </Sheet.Actions>
       </Sheet>
-
     </SafeAreaView>
   );
 };
