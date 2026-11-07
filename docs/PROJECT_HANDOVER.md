@@ -1078,3 +1078,24 @@ The user has now explicitly authorized running the tests and actions considered 
 1. With lint, TypeScript and Jest green, continue the non-APK readiness review: inspect remaining CI/workflow gates, Android configuration and local/offline core flows for unresolved functional issues. Do not start APK packaging.
 2. Prioritize actionable failures or concrete risks; avoid broad test deletions or unrelated refactors. Preserve local inference, model download/storage, persistence and gallery image selection.
 3. Reassess APK readiness only after all non-APK checks and functional issues have been reviewed and verified. The user's no-APK restriction remains in force until explicitly lifted.
+
+
+## 49. Session update — 2026-11-07 (Android release task alignment)
+
+### Repository change
+
+- `03dfc8f`: corrected the `build:android:release` package script from the generic `bundleRelease` task to `bundleProdRelease`. The Android app defines a `prod` distribution flavor and the release workflow targets `assembleProdRelease`; the package script now targets the matching production bundle variant.
+- Formatter commit `df9c2d5` applied the repository's Prettier formatting to this handover. The corrected package script remains present on `main`.
+
+### Verification
+
+- Formatting run `42364243084` on `03dfc8f` succeeded.
+- CI run `42364384210` on `df9c2d5` is the current verification target. Detect-changes, localization validation, font registration, ESLint and TypeScript have passed; Jest is still running at the time of this update.
+- An earlier formatting run `42364202328` failed to push because it checked out an older main revision while a newer code commit was pushed. The subsequent formatter run succeeded; this was a concurrent-push race, not a formatting or source-code failure.
+- No Android or iOS packaging job was run. No APK was created.
+
+### Readiness review and next actions
+
+1. Confirm CI run `42364384210` completes successfully on `df9c2d5`; inspect the Jest summary if it fails.
+2. Continue static Android configuration review without invoking Gradle packaging. The production Gradle task itself remains unexecuted under the no-APK restriction.
+3. Before APK production is reconsidered, complete the native Android build/payload validation and physical-device checks for model download/storage, local inference, persistence, gallery selection and offline operation. Do not create an APK or trigger an APK-producing workflow until all outstanding issues are resolved and the user explicitly lifts the restriction.
