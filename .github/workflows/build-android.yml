@@ -62,6 +62,26 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      # Keep this standalone manual route behind the same validation gates as CI.
+      # No Gradle packaging step can run unless every check below succeeds.
+      - name: Validate l10n files
+        run: node scripts/validate-l10n.js
+
+      - name: Verify font registration
+        run: node scripts/verify-fonts.js
+
+      - name: Run ESLint
+        run: yarn lint
+
+      - name: Run TypeScript type check
+        run: yarn typecheck
+
+      - name: Run unit tests
+        run: yarn test --coverage
+
+      - name: Validate Android payload manifest
+        run: node scripts/verify-android-payload.js --print-variants
+
       - name: Create Android .env file
         run: |
           cat > .env <<'EOL'
