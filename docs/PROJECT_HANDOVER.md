@@ -1079,7 +1079,6 @@ The user has now explicitly authorized running the tests and actions considered 
 2. Prioritize actionable failures or concrete risks; avoid broad test deletions or unrelated refactors. Preserve local inference, model download/storage, persistence and gallery image selection.
 3. Reassess APK readiness only after all non-APK checks and functional issues have been reviewed and verified. The user's no-APK restriction remains in force until explicitly lifted.
 
-
 ## 49. Session update — 2026-11-07 (Android release task alignment)
 
 ### Repository change
