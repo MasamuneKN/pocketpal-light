@@ -90,12 +90,14 @@ jobs:
           node-version: '22.21.0'
           cache: 'yarn'
 
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: Set up pinned Yarn Classic
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
 
       # Step 3: Install dependencies and iOS Pods
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       # Step 4: Validate l10n files
       - name: Validate l10n files
@@ -140,8 +142,10 @@ jobs:
           node-version: '22.21.0'
           cache: 'yarn'
 
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: Set up pinned Yarn Classic
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
 
       - name: Restore node_modules
         id: nm
@@ -181,8 +185,10 @@ jobs:
         with:
           node-version: '22.21.0'
           cache: 'yarn'
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: Set up pinned Yarn Classic
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
       - name: Install JS dependencies without llama native postinstall
         run: yarn install --frozen-lockfile
       - name: Set up JDK 17
@@ -272,11 +278,13 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock', 'patches/**') }}
 
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: Set up pinned Yarn Classic
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Derive the rnllama variant allowlist from the payload manifest
         run: |
@@ -463,11 +471,13 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('yarn.lock', 'patches/**') }}
 
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: Set up pinned Yarn Classic
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
       
       - name: Create Env.xcconfig
         run: |
