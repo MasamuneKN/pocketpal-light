@@ -1,16 +1,3 @@
-jest.mock('../../database', () => ({
-  database: {
-    write: jest.fn(async (callback: () => Promise<void>) => callback()),
-    collections: {
-      get: jest.fn(),
-    },
-  },
-}));
-
-jest.mock('../../utils/chatImageStorage', () => ({
-  removeUnreferencedChatImages: jest.fn().mockResolvedValue(undefined),
-}));
-
 let database: typeof import('../../database').database;
 let chatSessionRepository: typeof import('../ChatSessionRepository').chatSessionRepository;
 let mockGetCollection: jest.Mock;
@@ -37,9 +24,25 @@ describe('ChatSessionRepository chat image cleanup', () => {
   let settings: {query: jest.Mock};
 
   beforeAll(() => {
-    // Load the repository only after the module mocks are registered so it
-    // cannot retain a database instance imported by another setup module.
+    // The global Jest setup mocks this repository and database for most tests.
+    // Replace those setup mocks explicitly so these tests exercise the real
+    // repository with isolated database and filesystem-cleanup dependencies.
     jest.resetModules();
+    jest.doMock('../../database', () => ({
+      database: {
+        write: jest.fn(async (callback: () => Promise<void>) => callback()),
+        collections: {
+          get: jest.fn(),
+        },
+      },
+    }));
+    jest.doMock('../../utils/chatImageStorage', () => ({
+      removeUnreferencedChatImages: jest.fn().mockResolvedValue(undefined),
+    }));
+    jest.doMock('../ChatSessionRepository', () =>
+      jest.requireActual('../ChatSessionRepository'),
+    );
+
     database = require('../../database').database;
     mockGetCollection = database.collections.get as jest.Mock;
     mockRemoveImages =
