@@ -139,7 +139,7 @@ describe('removeUnreferencedChatImages', () => {
     mockUnlink
       .mockRejectedValueOnce(new Error('permission denied'))
       .mockResolvedValueOnce(undefined);
-    const warn = jest.spyOn(console, 'warn').mockImplementation();
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     await removeUnreferencedChatImages(
       [
