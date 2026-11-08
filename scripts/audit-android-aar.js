@@ -5,23 +5,33 @@ const {
   readElfLoadSegmentAlignment,
   readElfRelroAlignment,
 } = require('./verify-android-payload');
+
 function fail(message) {
   throw new Error(message);
 }
+
 function main() {
   const args = process.argv.slice(2);
-  if (args.length !== 2 || args[0] !== '--gradle-log')
-    fail('Usage: node scripts/audit-android-aar.js --gradle-log <gradle-log>');
+  if (args.length !== 2 || args[0] !== '--gradle-log') {
+    fail(
+      'Usage: node scripts/audit-android-aar.js --gradle-log <gradle-log>',
+    );
+  }
+
   const lines = fs.readFileSync(args[1], 'utf8').split(/\r?\n/);
   const agp = lines.filter(line => line.startsWith('POCKETPAL_AGP|'));
-  if (agp.length !== 1)
+  if (agp.length !== 1) {
     fail('Expected exactly one resolved AGP record; found ' + agp.length);
+  }
+
   const agpFields = agp[0].split('|');
-  if (!agpFields[1] || !fs.existsSync(agpFields[2]))
+  if (!agpFields[1] || !fs.existsSync(agpFields[2])) {
     fail('Resolved AGP version or artifact path is missing');
+  }
   process.stdout.write(
     'Resolved Android Gradle Plugin: ' + agpFields[1] + '\n',
   );
+
   const artifacts = lines
     .filter(line => line.startsWith('POCKETPAL_ARTIFACT|'))
     .map(line => {
@@ -29,17 +39,22 @@ function main() {
       return {component: fields[1], file: fields.slice(2).join('|')};
     })
     .filter(item => item.file.endsWith('.aar'));
-  if (!artifacts.length)
+
+  if (!artifacts.length) {
     fail('No AAR files resolved for prodReleaseRuntimeClasspath');
+  }
+
   const nativeEntries = [];
   for (const artifact of artifacts) {
-    if (!fs.existsSync(artifact.file))
+    if (!fs.existsSync(artifact.file)) {
       fail(
         'Resolved AAR is missing: ' +
           artifact.component +
           ' at ' +
           artifact.file,
       );
+    }
+
     let entries;
     try {
       entries = execFileSync('unzip', ['-Z1', artifact.file], {
@@ -51,23 +66,28 @@ function main() {
     } catch (error) {
       fail('Cannot list AAR ' + artifact.component + ': ' + error.message);
     }
+
     for (const entry of entries) {
       if (!entry.endsWith('.so')) continue;
       const match =
         entry.match(/(?:^|\/)jni\/(arm64-v8a|x86_64)\//) ||
         entry.match(/(?:^|\/)libs\/android\.(arm64-v8a|x86_64)\//);
-      if (match)
+      if (match) {
         nativeEntries.push({
           component: artifact.component,
           file: artifact.file,
           entry,
         });
+      }
     }
   }
-  if (!nativeEntries.length)
+
+  if (!nativeEntries.length) {
     fail(
       'No arm64-v8a or x86_64 native shared libraries found in resolved AARs',
     );
+  }
+
   let passed = 0,
     failed = 0;
   for (const item of nativeEntries) {
@@ -102,6 +122,7 @@ function main() {
       failed++;
     }
   }
+
   process.stdout.write(
     'AAR audit summary: ' +
       passed +
@@ -111,11 +132,13 @@ function main() {
       artifacts.length +
       ' resolved AARs inspected.\n',
   );
-  if (failed)
+  if (failed) {
     fail(
       failed + ' resolved AAR native libraries failed 16 KB ELF/RELRO checks',
     );
+  }
 }
+
 try {
   main();
 } catch (error) {
