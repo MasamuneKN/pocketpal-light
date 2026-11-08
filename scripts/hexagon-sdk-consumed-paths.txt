@@ -1,0 +1,11 @@
+# SDK files and directories read or linked by llama.rn v0.13.0-rc.9's Android Hexagon build.
+# Keep this list aligned with the pinned CMake files:
+# - vendor/llama.cpp/ggml/src/ggml-hexagon/CMakeLists.txt
+# - vendor/llama.cpp/ggml/src/ggml-hexagon/htp/cmake-toolchain.cmake
+incs
+ipc/fastrpc/incs
+ipc/fastrpc/rpcmem/inc
+ipc/fastrpc/remote/ship/android_aarch64/libcdsprpc.so
+build
+tools/HEXAGON_Tools/21.0.04
+rtos/qurt
