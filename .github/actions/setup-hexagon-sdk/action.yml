@@ -41,7 +41,7 @@ inputs:
       Digest over only the SDK files the Android build reads or links. Checked
       on every run so a restored cache is verified, not just a fresh download.
     required: false
-    default: 6f9c4c84074f935853f96fa3b9b2de9c067d601058062decc413d366660868bb
+    default: 246651454749fb3324a62ec3ad94e0c4f8d955503f23541806d8a1185cb2e930
 
 runs:
   using: composite
@@ -66,14 +66,16 @@ runs:
         SDK_ROOT="$HOME/.hexagon-sdk/$HEXAGON_SDK_VERSION"
         TOOLS_ROOT="$SDK_ROOT/tools/HEXAGON_Tools/$HEXAGON_TOOLS_VERSION"
 
-        # Consumed by the Android build: the include roots CMake adds and the
-        # library it links. Everything else in the ~3 GB tree is unused.
-        #
-        # CMake also adds ${HEXAGON_SDK_ROOT}/utils/examples as an include
-        # directory, but this repackaging does not ship it — a compiler ignores
-        # a missing include dir, so nothing is consumed from it and listing it
-        # here would only make `find` return non-zero.
-        CONSUMED_PATHS="incs ipc/fastrpc/rpcmem/inc ipc/fastrpc/remote/ship/android_aarch64/libcdsprpc.so"
+        # This list covers the SDK inputs read or linked by the pinned llama.rn
+        # Hexagon CMake project: headers, FastRPC, SDK CMake scripts, Hexagon
+        # compiler/linker tools and target libraries, and QURT runtime files.
+        # Keep it aligned with the exact CMake files documented in the list.
+        CONSUMED_PATHS_FILE="$GITHUB_WORKSPACE/scripts/hexagon-sdk-consumed-paths.txt"
+        if [ ! -f "$CONSUMED_PATHS_FILE" ]; then
+          echo "::error::Missing Hexagon SDK consumed-path list: $CONSUMED_PATHS_FILE"
+          exit 1
+        fi
+        mapfile -t CONSUMED_PATHS < <(grep -vE '^[[:space:]]*(#|$)' "$CONSUMED_PATHS_FILE")
 
         # Every stage announces itself. An earlier version of this step could
         # exit non-zero with no output at all, which is the one thing a
@@ -137,29 +139,21 @@ runs:
           fi
         done
 
-        MISSING=""
-        for consumed in $CONSUMED_PATHS; do
-          [ -e "$SDK_ROOT/$consumed" ] || MISSING="$MISSING $consumed"
+        for consumed in "${CONSUMED_PATHS[@]}"; do
+          if [ ! -e "$SDK_ROOT/$consumed" ]; then
+            echo "::error::Hexagon SDK is missing a path the build consumes: $consumed"
+            exit 1
+          fi
         done
-        if [ -n "$MISSING" ]; then
-          echo "::error::Hexagon SDK is missing paths the build consumes:$MISSING"
-          exit 1
-        fi
 
-        # Runs on every job, cache hit or miss: the tarball digest only
-        # witnesses a fresh download, and a restored tree is never otherwise
-        # re-checked. Scoped to what the build reads and links — well under
-        # 1 MB of a ~3 GB tree, so this is cheap enough to do unconditionally.
-        # LC_ALL=C so sort order is byte order on any host, and the list is fed
-        # to one sha256sum so its output stream is host-independent.
+        # Re-check on every run, including cache hits. A canonical tar stream
+        # covers regular files, directory contents, permissions and symlink
+        # targets. Normalize timestamps and ownership so the digest is stable
+        # across fresh extraction and cache restoration.
         CONSUMED=$(
           cd "$SDK_ROOT" || exit 1
-          # shellcheck disable=SC2086
-          # `! -type d` rather than `-type f`: a symlink added under incs/
-          # would be followed by the compiler and could shadow an NDK header,
-          # so it must be inside the digest. Today the set holds no
-          # non-regular entries, and this predicate yields the same value.
-          LC_ALL=C find $CONSUMED_PATHS ! -type d | LC_ALL=C sort | xargs sha256sum | sha256sum | cut -d' ' -f1
+          tar --sort=name --format=gnu --mtime='@0' --owner=0 --group=0 --numeric-owner -cf - "${CONSUMED_PATHS[@]}" |
+            sha256sum | cut -d' ' -f1
         )
         echo "Consumed-subset sha256: $CONSUMED"
         if [ "$CONSUMED" != "$EXPECTED_CONSUMED_SHA256" ]; then

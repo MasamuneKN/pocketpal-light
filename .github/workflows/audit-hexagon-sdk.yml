@@ -73,30 +73,21 @@ jobs:
           fi
 
           TOOLS_ROOT="$SDK_ROOT/tools/HEXAGON_Tools/$TOOLS_VERSION"
-          LEGACY_PATHS=(incs ipc/fastrpc/rpcmem/inc ipc/fastrpc/remote/ship/android_aarch64/libcdsprpc.so)
-          LEGACY_SHA256="$(cd "$SDK_ROOT" && LC_ALL=C find "${LEGACY_PATHS[@]}" ! -type d -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
-          if [ "$LEGACY_SHA256" != "$EXPECTED_CONSUMED_SHA256" ]; then
-            echo "::error::Existing SDK subset digest no longer matches setup-hexagon-sdk/action.yml"
-            echo "Expected: $EXPECTED_CONSUMED_SHA256"
-            echo "Actual:   $LEGACY_SHA256"
-            exit 1
-          fi
-
-          mapfile -t EXPANDED_PATHS < <(grep -vE '^[[:space:]]*(#|$)' scripts/hexagon-sdk-consumed-paths.txt)
-          for relative in "${EXPANDED_PATHS[@]}"; do
+          mapfile -t CONSUMED_PATHS < <(grep -vE '^[[:space:]]*(#|$)' scripts/hexagon-sdk-consumed-paths.txt)
+          for relative in "${CONSUMED_PATHS[@]}"; do
             if [ ! -e "$SDK_ROOT/$relative" ]; then
               echo "::error::Build-consumed SDK path is missing: $relative"
               exit 1
             fi
           done
-          # GNU tar preserves file contents, permissions and symlink targets without
-          # following directory symlinks (which sha256sum cannot hash directly).
-          # Normalize metadata so the digest is stable across fresh and cached trees.
-          EXPANDED_SHA256="$(cd "$SDK_ROOT" && tar --sort=name --format=gnu --mtime='@0' --owner=0 --group=0 --numeric-owner -cf - "${EXPANDED_PATHS[@]}" | sha256sum | cut -d' ' -f1)"
+          CONSUMED_SHA256="$(cd "$SDK_ROOT" && tar --sort=name --format=gnu --mtime='@0' --owner=0 --group=0 --numeric-owner -cf - "${CONSUMED_PATHS[@]}" | sha256sum | cut -d' ' -f1)"
           echo "Verified SDK version: $SDK_VERSION"
           echo "Verified tools version: $TOOLS_VERSION"
-          echo "Existing subset SHA-256: $LEGACY_SHA256"
-          echo "Expanded build-input SHA-256 candidate: $EXPANDED_SHA256"
-          echo "Expanded paths included:"
-          printf '  %s\\n' "${EXPANDED_PATHS[@]}"
-          echo "OK: archive and expanded SDK build-input paths verified; candidate digest printed for review."
+          echo "Expanded consumed-input SHA-256: $CONSUMED_SHA256"
+          if [ "$CONSUMED_SHA256" != "$EXPECTED_CONSUMED_SHA256" ]; then
+            echo "::error::Expanded SDK build-input digest does not match setup-hexagon-sdk/action.yml"
+            echo "Expected: $EXPECTED_CONSUMED_SHA256"
+            echo "Actual:   $CONSUMED_SHA256"
+            exit 1
+          fi
+          echo "OK: archive and all listed Hexagon build inputs match the shared setup action pins."
