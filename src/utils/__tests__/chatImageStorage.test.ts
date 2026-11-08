@@ -89,7 +89,6 @@ describe('persistChatImages', () => {
   });
 });
 
-
 describe('removeUnreferencedChatImages', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -100,10 +99,7 @@ describe('removeUnreferencedChatImages', () => {
     const shared = 'file:///documents/chat-images/shared.png';
     mockExists.mockResolvedValue(true);
 
-    await removeUnreferencedChatImages(
-      [orphan, shared, orphan],
-      [shared],
-    );
+    await removeUnreferencedChatImages([orphan, shared, orphan], [shared]);
 
     expect(mockUnlink).toHaveBeenCalledTimes(1);
     expect(mockUnlink).toHaveBeenCalledWith(
