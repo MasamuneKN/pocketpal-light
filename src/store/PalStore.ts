@@ -18,7 +18,6 @@
 import {makeAutoObservable, runInAction} from 'mobx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 import {palRepository} from '../repositories/PalRepository';
 
 import {registerDefaultTalents} from '../services/talents';

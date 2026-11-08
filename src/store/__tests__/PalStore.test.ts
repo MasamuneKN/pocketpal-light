@@ -56,8 +56,6 @@ describe('PalStore', () => {
     updated_at: '2023-01-01T00:00:00Z',
   };
 
-
-
   beforeEach(async () => {
     jest.clearAllMocks();
     await AsyncStorage.clear();
