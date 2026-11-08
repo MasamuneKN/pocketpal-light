@@ -507,7 +507,9 @@ function verifyApkZipAlignment(archive) {
       maxBuffer: 8 * 1024 * 1024,
     }).trim();
   } catch (err) {
-    const detail = (err.stderr || err.stdout || err.message || '').toString().trim();
+    const detail = (
+      err.stderr || err.stdout || err.message || ''
+    ).toString().trim();
     throw new Error(
       `zipalign 16 KB verification failed for ${path.basename(archive)} using ${executable}: ${detail}`,
     );
