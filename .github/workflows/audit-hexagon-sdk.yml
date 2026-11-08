@@ -89,7 +89,10 @@ jobs:
               exit 1
             fi
           done
-          EXPANDED_SHA256="$(cd "$SDK_ROOT" && LC_ALL=C find "${EXPANDED_PATHS[@]}" ! -type d -print0 | LC_ALL=C sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)"
+          # GNU tar preserves file contents, permissions and symlink targets without
+          # following directory symlinks (which sha256sum cannot hash directly).
+          # Normalize metadata so the digest is stable across fresh and cached trees.
+          EXPANDED_SHA256="$(cd "$SDK_ROOT" && tar --sort=name --format=gnu --mtime='@0' --owner=0 --group=0 --numeric-owner -cf - "${EXPANDED_PATHS[@]}" | sha256sum | cut -d' ' -f1)"
           echo "Verified SDK version: $SDK_VERSION"
           echo "Verified tools version: $TOOLS_VERSION"
           echo "Existing subset SHA-256: $LEGACY_SHA256"
