@@ -1462,7 +1462,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Removed the unused test import. The next CI run must verify ESLint, TypeScript, and the reduced Jest failure set.
 - No Android packaging was run.
 
-
 ## 69. Retire unreachable Plus UI and feature gate — 2026-11-08
 
 - CI run `42411737320` on `e626ce0` passed dependency installation, localization validation, font validation, ESLint, and TypeScript; Jest failed with 6 suites / 61 tests failing and 358 suites passing (7,131 tests passing, 2 skipped).
