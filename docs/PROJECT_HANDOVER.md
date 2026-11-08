@@ -1581,3 +1581,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Fixes committed to `main`: `01dd340` (remove retired IAP deep-link handler), `7b46c5a` (remove stale FakeStore deep-link test), and `aa76eff` (align Babel config tests with Lite flags).
 - Fresh push-triggered CI and formatter workflows are pending/running on the latest head. Wait for formatting to settle, then verify the final formatted head with full CI. Do not assume Jest is fixed until that run completes.
 - No APK/AAB or native compilation was run. Continue with Jest failure clusters and then the non-packaging Android native compatibility/configuration audit. Keep all APK/AAB production prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
+
+
+## 82. Remove final stale Plus build input and begin Android release configuration audit — 2026-11-08
+
+- During the read-only Android configuration review, found one final retired `PLUS_STORE_GATE` reference in `android/app/build.gradle`: it was included as a Hermes bundle task input despite the Plus gate having been removed from Babel and application code. Removed that obsolete Gradle input in `72e5db8`; the remaining E2E task inputs are retained.
+- Current Android configuration baseline: min SDK 24, compile SDK 37, target SDK 36, NDK 27.3.13750724, Java/Kotlin release minification enabled, resource shrinking enabled, and release signing explicitly fails closed if the keystore/password/alias inputs are missing. Debug signing is restricted to debug and E2E variants.
+- Current ABI configuration is `arm64-v8a,x86_64` in both `reactNativeArchitectures` and app `abiFilters`. Do not expand or narrow ABIs as part of this audit; architecture changes remain deferred to the first-release scope decision.
+- The Android manifest still requests INTERNET, user-initiated jobs, notifications, and legacy external storage capped at API 28; it does not request CAMERA or RECORD_AUDIO. Gallery image selection remains the active attachment workflow.
+- The first native review is not yet a 16 KB compatibility certification: JNI/CMake and each shipped third-party AAR/shared library still need inspection. Continue by checking Gradle wrapper/plugin versions, custom JNI build configuration, native dependency packaging/alignment support, and R8/ProGuard keep rules. No native compile, APK, or AAB was run.
+- Push-triggered CI for the Jest fixes was still running at the time of this update; wait for a completed run on the final formatted head before treating the tests as repaired. APK/AAB restriction remains unchanged.
