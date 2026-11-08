@@ -1,5 +1,6 @@
 import {Q} from '@nozbe/watermelondb';
 import * as RNFS from '@dr.pogodin/react-native-fs';
+import {removeUnreferencedChatImages} from '../utils/chatImageStorage';
 
 import {
   database,
@@ -321,6 +322,66 @@ class ChatSessionRepository {
     return newSession as unknown as ChatSession;
   }
 
+  /**
+   * Extract image references from persisted message metadata. If any row is
+   * malformed, fail closed so cleanup cannot delete an image whose reference
+   * could not be read.
+   */
+  private getImageUrisFromMessages(messages: Message[]): string[] | null {
+    const imageUris: string[] = [];
+
+    try {
+      for (const message of messages) {
+        const metadata = JSON.parse(message.metadata || '{}');
+        if (Array.isArray(metadata.imageUris)) {
+          imageUris.push(
+            ...metadata.imageUris.filter(
+              (uri: unknown): uri is string => typeof uri === 'string',
+            ),
+          );
+        }
+      }
+    } catch (error) {
+      console.warn(
+        'Skipping chat image cleanup because message metadata could not be read',
+        error,
+      );
+      return null;
+    }
+
+    return imageUris;
+  }
+
+  /**
+   * Re-check every surviving message before unlinking deleted-message images.
+   * This preserves files shared by multiple messages or sessions.
+   */
+  private async cleanupDeletedMessageImages(
+    candidateUris: string[] | null,
+  ): Promise<void> {
+    if (!candidateUris || candidateUris.length === 0) {
+      return;
+    }
+
+    try {
+      const remainingMessages = (await database.collections
+        .get('messages')
+        .query()
+        .fetch()) as Message[];
+      const referencedUris =
+        this.getImageUrisFromMessages(remainingMessages);
+
+      if (!referencedUris) {
+        return;
+      }
+
+      await removeUnreferencedChatImages(candidateUris, referencedUris);
+    } catch (error) {
+      // Cleanup must not undo or report failure for a completed DB deletion.
+      console.warn('Failed to clean up deleted chat images:', error);
+    }
+  }
+
   // Delete a session
   async deleteSession(id: string): Promise<void> {
     const session = await database.collections
@@ -332,12 +393,15 @@ class ChatSessionRepository {
       return;
     }
 
+    let candidateImageUris: string[] | null = [];
+
     await database.write(async () => {
       // Delete associated messages
-      const messages = await database.collections
+      const messages = (await database.collections
         .get('messages')
         .query(Q.where('session_id', id))
-        .fetch();
+        .fetch()) as Message[];
+      candidateImageUris = this.getImageUrisFromMessages(messages);
 
       for (const message of messages) {
         await message.destroyPermanently();
@@ -356,6 +420,8 @@ class ChatSessionRepository {
       // Delete the session itself
       await session.destroyPermanently();
     });
+
+    await this.cleanupDeletedMessageImages(candidateImageUris);
   }
 
   // Delete multiple sessions in a single transaction
@@ -363,6 +429,8 @@ class ChatSessionRepository {
     if (ids.length === 0) {
       return;
     }
+
+    let candidateImageUris: string[] | null = [];
 
     await database.write(async () => {
       for (const id of ids) {
@@ -377,10 +445,16 @@ class ChatSessionRepository {
         }
 
         // Delete associated messages
-        const messages = await database.collections
+        const messages = (await database.collections
           .get('messages')
           .query(Q.where('session_id', id))
-          .fetch();
+          .fetch()) as Message[];
+        const deletedImageUris = this.getImageUrisFromMessages(messages);
+        if (candidateImageUris && deletedImageUris) {
+          candidateImageUris.push(...deletedImageUris);
+        } else {
+          candidateImageUris = null;
+        }
 
         for (const message of messages) {
           await message.destroyPermanently();
@@ -400,6 +474,8 @@ class ChatSessionRepository {
         await session.destroyPermanently();
       }
     });
+
+    await this.cleanupDeletedMessageImages(candidateImageUris);
   }
 
   // Export multiple sessions
@@ -707,9 +783,15 @@ class ChatSessionRepository {
       return;
     }
 
+    const candidateImageUris = this.getImageUrisFromMessages([
+      message as Message,
+    ]);
+
     await database.write(async () => {
       await message.destroyPermanently();
     });
+
+    await this.cleanupDeletedMessageImages(candidateImageUris);
   }
 
   // Reset migration flag for testing
