@@ -12,3 +12,10 @@
 # llama.rn documents this keep rule for minified Android release builds.
 # Its JNI module classes are looked up by the native bridge at runtime.
 -keep class com.rnllama.** { *; }
+
+# HardwareInfoModule exposes nativePurgeAll through a name-based JNI symbol
+# (Java_com_pocketpal_HardwareInfoModule_nativePurgeAll). Keep both the
+# declaring class and native method name stable in minified release builds.
+-keep class com.pocketpal.HardwareInfoModule {
+    private native boolean nativePurgeAll();
+}
