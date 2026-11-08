@@ -1,0 +1,26 @@
+gradle.projectsEvaluated {
+    def root = gradle.rootProject
+    def app = root.findProject(':app')
+    if (app == null) throw new GradleException('PocketPal Android app project :app was not found')
+    app.tasks.register('auditPocketPalReleaseDependencies') {
+        group = 'verification'
+        description = 'Resolve prodRelease artifacts and report AGP without compiling native code.'
+        doLast {
+            def runtime = app.configurations.findByName('prodReleaseRuntimeClasspath')
+            if (runtime == null || !runtime.canBeResolved) throw new GradleException('prodReleaseRuntimeClasspath is missing or not resolvable')
+            println('POCKETPAL_CONFIG|' + runtime.name)
+            def artifacts = runtime.incoming.artifacts.artifacts
+            if (artifacts.isEmpty()) throw new GradleException('No artifacts resolved for ' + runtime.name)
+            artifacts.each { artifact ->
+                println('POCKETPAL_ARTIFACT|' + artifact.id.componentIdentifier.displayName + '|' + artifact.file.absolutePath)
+            }
+            def classpath = root.buildscript.configurations.findByName('classpath')
+            if (classpath == null || !classpath.canBeResolved) throw new GradleException('Root buildscript classpath is unavailable')
+            def agp = classpath.resolvedConfiguration.resolvedArtifacts.findAll {
+                it.moduleVersion.id.group == 'com.android.tools.build' && it.name == 'gradle'
+            }
+            if (agp.size() != 1) throw new GradleException('Expected exactly one resolved AGP artifact; found ' + agp.size())
+            agp.each { println('POCKETPAL_AGP|' + it.moduleVersion.id.version + '|' + it.file.absolutePath) }
+        }
+    }
+}

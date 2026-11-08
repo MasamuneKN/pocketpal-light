@@ -1696,3 +1696,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - This is a real readiness improvement: the new verifier/test code is now CI-validated, and the AGP compatibility concern is narrowed from unknown to expected-compatible. It does not prove native AAR contents or a final APK's alignment.
 - Remaining pre-packaging work: inspect exact release native payloads for React Native/Hermes/FBJNI and ONNX Runtime 1.24.3 plus any other resolved prebuilt AAR/JNI artifacts; obtain the actual Gradle resolved dependency report; review release R8/consumer rules; then resolve any specific defects found. No AAR binary inspection or Gradle dependency report was completed in this session.
 - Packaging restriction remains unchanged: no APK/AAB, native compilation, or packaging workflow until all outstanding issues are resolved and the user explicitly lifts the restriction. Once allowed, final APK checks must include ELF PT_LOAD, GNU_RELRO, ZIP alignment, signing, and installation/runtime testing on a 16 KB Android environment.
+
+
+## 94. Add dependency-only release AAR audit — 2026-11-08
+
+- Added `scripts/audit-android-release.init.gradle` to resolve the exact `prodReleaseRuntimeClasspath`, list resolved artifacts, and report the actual AGP version from the root buildscript classpath.
+- Added `scripts/audit-android-aar.js` to inspect every resolved `arm64-v8a` / `x86_64` JNI or Prefab shared library in AARs using the existing ELF PT_LOAD and GNU_RELRO validators. It fails closed if AGP/AAR/native records are missing or any ELF fails.
+- Added a dedicated CI job. It skips llama.rn's native postinstall and runs only dependency resolution plus AAR inspection. It does not invoke `assemble`, `bundle`, `package`, CMake, NDK compilation, signing, or APK/AAB creation. It runs after the normal test job and skips translation-only changes.
+- This is an audit mechanism, not a completed audit result. CI must confirm the task works against the actual Gradle configuration and report the resolved AGP/AAR findings. Any incompatible native payload remains a blocker until corrected and re-audited.
+- Gradle distinguishes dependency graph resolution from artifact resolution; this task resolves concrete artifact files so the scanner checks actual release AAR contents. Reference: https://docs.gradle.org/current/userguide/artifact_resolution.html
+- No APK/AAB, native compilation, or packaging workflow was triggered. The packaging restriction remains in force.

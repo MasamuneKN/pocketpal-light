@@ -163,6 +163,44 @@ jobs:
           path: .reassure/
           include-hidden-files: true
 
+  # Resolve and inspect exact release AARs; dependency-only, no native build or packaging.
+  audit-android-release-dependencies:
+    runs-on: ubuntu-latest
+    needs: [build-and-test, detect-changes]
+    if: needs.detect-changes.outputs.translation_only != 'true'
+    timeout-minutes: 45
+    env:
+      RNLLAMA_SKIP_POSTINSTALL: '1'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.0'
+          cache: 'yarn'
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Install JS dependencies without llama native postinstall
+        run: yarn install --frozen-lockfile
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install compile SDK platform
+        run: sdkmanager "platforms;android-37"
+      - name: Resolve prodRelease artifacts and actual AGP version (no build)
+        working-directory: android
+        run: |
+          set -euo pipefail
+          ./gradlew --no-daemon -I ../scripts/audit-android-release.init.gradle :app:auditPocketPalReleaseDependencies 2>&1 | tee ../gradle-release-audit.log
+      - name: Verify resolved AAR native ELF and GNU_RELRO
+        run: node scripts/audit-android-aar.js --gradle-log gradle-release-audit.log
+
   # Job for Android build
   build-android:
     runs-on: ubuntu-latest
