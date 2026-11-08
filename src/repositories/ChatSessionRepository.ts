@@ -368,8 +368,7 @@ class ChatSessionRepository {
         .get('messages')
         .query()
         .fetch()) as Message[];
-      const referencedUris =
-        this.getImageUrisFromMessages(remainingMessages);
+      const referencedUris = this.getImageUrisFromMessages(remainingMessages);
 
       if (!referencedUris) {
         return;
