@@ -2,12 +2,10 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..', '..');
-const ACTION = path.join(
+const CONSUMED_PATHS_FILE = path.join(
   ROOT,
-  '.github',
-  'actions',
-  'setup-hexagon-sdk',
-  'action.yml',
+  'scripts',
+  'hexagon-sdk-consumed-paths.txt',
 );
 const LLAMA_RN_CMAKE = [
   path.join(
@@ -43,12 +41,11 @@ const referenced = [
   ),
 ].sort();
 
-const consumedPaths = (() => {
-  const match = fs
-    .readFileSync(ACTION, 'utf-8')
-    .match(/^\s*CONSUMED_PATHS="([^"]*)"/m);
-  return match ? match[1].trim().split(/\s+/).filter(Boolean) : null;
-})();
+const consumedPaths = fs
+  .readFileSync(CONSUMED_PATHS_FILE, 'utf-8')
+  .split(/\r?\n/)
+  .map(line => line.trim())
+  .filter(line => line && !line.startsWith('#'));
 
 describe('the parse itself', () => {
   // Without these, a rename on either side makes every assertion below pass
@@ -58,8 +55,8 @@ describe('the parse itself', () => {
   });
 
   it('finds the paths the provisioning action digests', () => {
-    expect(consumedPaths).not.toBeNull();
     expect(consumedPaths.length).toBeGreaterThan(0);
+    expect(new Set(consumedPaths).size).toBe(consumedPaths.length);
   });
 });
 
