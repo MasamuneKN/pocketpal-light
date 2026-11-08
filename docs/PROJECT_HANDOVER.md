@@ -397,7 +397,7 @@ No physical-device verification was performed. No production source, dependencie
 
 - `788d8ed87336e35527f1ff0a739a9635bc9435dd` — `fix(l10n): accept English-only locale registry`.
   - `scripts/lib/registry-languages.js` now treats an empty non-English locale list as valid; `null` remains reserved for a missing/malformed registry.
-- `064c34878197f4750f48c2951f21a5435b86c875` — `test(l10n): align E2E locale fixtures with Lite scope`.  - `e2e/specs/features/language.spec.ts` now declares only English, matching `src/locales/index.ts`.
+- `064c34878197f4750f48c2951f21a5435b86c875` — `test(l10n): align E2E locale fixtures with Lite scope`. - `e2e/specs/features/language.spec.ts` now declares only English, matching `src/locales/index.ts`.
 - `3cab319859be245b16804a9329e541a4a02b02e3` — `test(models): align FAB coverage with Lite actions`.
   - Removed obsolete remote-FAB expectations; the production FAB exposes only Hugging Face and local-model actions.
 - `d2068027f7071db989ba27bf652e4f6cb2cef63b` — `test(navigation): remove obsolete Plus focus coverage`.
@@ -796,6 +796,7 @@ No physical-device verification was performed. No production source, dependencie
 The user has now explicitly authorized running the tests and actions considered necessary to progress. This supersedes the earlier instruction to skip all verification.
 
 **Hard restriction: do not create an Android APK build until all lingering issues have been resolved completely.**
+
 - Resume targeted Jest/test investigation, lint, typecheck, and other non-APK checks as useful.
 - Inspect workflow definitions before dispatching any workflow. Do not trigger an umbrella workflow if it can start an Android build as a dependent job.
 - Do not run the separate Android APK workflow, `assembleProdDebug`, `assembleProdRelease`, or any other APK-producing task while unresolved issues remain.
