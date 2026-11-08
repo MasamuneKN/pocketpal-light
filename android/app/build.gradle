@@ -90,6 +90,13 @@ android {
         ndk {
             abiFilters "arm64-v8a", "x86_64"
         }
+        externalNativeBuild {
+            cmake {
+                // NDK r27 needs this option for 16 KB ELF alignment.
+                // Apply it to appmodules as well as dependency-owned CMake builds.
+                arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+            }
+        }
     }
     externalNativeBuild {
         cmake {
