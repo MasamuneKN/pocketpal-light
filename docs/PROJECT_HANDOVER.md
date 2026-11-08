@@ -1600,3 +1600,11 @@ The user has now explicitly authorized running the tests and actions considered 
 - The app's custom `proguard-rules.pro` currently contains no project-specific keep rules. Release enables R8/minification and resource shrinking. Third-party AAR consumer rules and JNI reflection requirements still need dependency-level review; do not add blanket keep rules without evidence.
 - The Gradle configuration check proves configuration only. It does not resolve/compile every native target, validate all AAR/JNI payloads, or exercise R8. Next: inspect native dependency build modes and linker flags (especially llama.rn and React Native/Hermes), verify all third-party AAR-provided shared libraries and consumer ProGuard rules, and trace whether Video Pal/VisionCamera code is reachable before removing anything.
 - No APK/AAB, native compile, or packaging workflow was run. Keep APK/AAB production prohibited until outstanding issues are resolved and the user explicitly lifts the restriction.
+
+
+## 84. Video Pal reachability review — 2026-11-08
+
+- Confirmed that the Pals screen still exposes a Video Pals filter and an Add Pal > Video option. `PalStore` also seeds the local Lookie Video Pal once, with a vision model and video capability metadata. These are reachable UI/data paths and must not be treated as dead code.
+- `EmbeddedVideoView` itself requests camera permission, captures a still image at a configurable interval, converts it to Base64, and forwards frames to its caller. The reviewed ChatScreen and PalsScreen do not import it; repository code search did not surface a caller, but that search is not conclusive enough to remove the feature or `react-native-vision-camera`.
+- The chat attachment path remains gallery-only (`launchImageLibrary`, photo media type, up to five images). The Android manifest does not declare CAMERA or RECORD_AUDIO. Do not conflate gallery-only chat attachments with the separate Video Pal UI.
+- No Video Pal or VisionCamera removal was made. Keep the feature intact pending an explicit product-scope decision and a conclusive import/navigation trace. Continue native dependency review; APK/AAB production remains prohibited.
