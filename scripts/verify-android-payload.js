@@ -876,7 +876,7 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
       fail(
         [
           `${artifactName} is missing ${prefix}${asset}.`,
-          'All four DSP libraries are required, not only the one a given device uses:',
+          'Every declared DSP library is required, not only the one a given device uses:',
           'RNLlama.java extracts them as a set and disables the Hexagon backend entirely',
           'if any one is absent. They are synced into the artifact from',
           "node_modules/llama.rn/bin/arm64-v8a by llama.rn's syncRNLlamaHtpAssets task —",
