@@ -1704,3 +1704,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - This is an audit mechanism, not a completed audit result. CI must confirm the task works against the actual Gradle configuration and report the resolved AGP/AAR findings. Any incompatible native payload remains a blocker until corrected and re-audited.
 - Gradle distinguishes dependency graph resolution from artifact resolution; this task resolves concrete artifact files so the scanner checks actual release AAR contents. Reference: https://docs.gradle.org/current/userguide/artifact_resolution.html
 - No APK/AAB, native compilation, or packaging workflow was triggered. The packaging restriction remains in force.
+
+
+## 95. Correct dependency-audit SDK bootstrap — 2026-11-08
+
+- The formatting workflow automatically committed formatting of the new audit files as `24810b56e700cd7523b076a993856d2b20871d4f`. On that formatted commit, the full non-packaging test job passed: dependency installation, localization, font validation, ESLint, TypeScript, and Jest (**319 suites passed; 6,031 tests passed, 2 skipped; 310 snapshots passed**).
+- The first audit job reached the Android SDK setup step but failed before Gradle resolution. The `android-actions/setup-android@v3` action invoked `sdkmanager tools`; the current SDK repository no longer offers that legacy package, so setup exited with code 1. The Gradle task and AAR scanner were skipped. This is an audit-runner bootstrap issue, not a native-library finding.
+- Replaced that action in the audit job with direct use of the GitHub-hosted runner's preinstalled Android SDK at `/usr/local/lib/android/sdk`. The job now locates the installed `sdkmanager`, adds its directory and platform-tools to PATH, accepts SDK licenses, and installs only `platforms;android-37`. No obsolete `tools` package is requested.
+- This change does not invoke Android compilation, CMake, NDK, assemble, bundle, signing, or packaging. The next CI result must still prove the Gradle dependency-resolution task and AAR scanner execute successfully. Actual AGP version and native AAR alignment remain unverified until that run completes.
+- The earlier run on unformatted commit `a1d2ab2` stopped at ESLint; the formatting automation produced `24810b5`, whose full test job passed. No source test failure remains from that sequence.
+- APK/AAB production remains prohibited until all outstanding checks are resolved and the user explicitly lifts the restriction.
