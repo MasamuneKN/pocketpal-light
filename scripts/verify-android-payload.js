@@ -721,7 +721,6 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     );
   }
 
-
   let entries;
   try {
     entries = new Set(listZipEntries(archive));
