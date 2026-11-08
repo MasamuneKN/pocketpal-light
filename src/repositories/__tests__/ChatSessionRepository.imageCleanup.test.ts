@@ -54,7 +54,9 @@ describe('ChatSessionRepository chat image cleanup', () => {
   });
 
   it('cleans up images after deleting one message and preserves surviving references', async () => {
-    messages.find.mockResolvedValue(deletedMessage([deletedImage, sharedImage]));
+    messages.find.mockResolvedValue(
+      deletedMessage([deletedImage, sharedImage]),
+    );
     messages.query.mockReturnValue(
       createQuery([{metadata: JSON.stringify({imageUris: [sharedImage]})}]),
     );
@@ -70,7 +72,9 @@ describe('ChatSessionRepository chat image cleanup', () => {
   it('cleans up session images only after checking messages in other sessions', async () => {
     sessions.find.mockResolvedValue(session);
     messages.query
-      .mockReturnValueOnce(createQuery([deletedMessage([deletedImage, sharedImage])]))
+      .mockReturnValueOnce(
+        createQuery([deletedMessage([deletedImage, sharedImage])]),
+      )
       .mockReturnValueOnce(
         createQuery([{metadata: JSON.stringify({imageUris: [sharedImage]})}]),
       );
@@ -103,7 +107,9 @@ describe('ChatSessionRepository chat image cleanup', () => {
   it('skips file cleanup when surviving message metadata is malformed', async () => {
     messages.find.mockResolvedValue(deletedMessage([deletedImage]));
     messages.query.mockReturnValue(createQuery([{metadata: '{invalid-json'}]));
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const warn = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
 
     await chatSessionRepository.deleteMessage('message-1');
 
