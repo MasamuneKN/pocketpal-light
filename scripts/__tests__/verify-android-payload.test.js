@@ -22,7 +22,7 @@ const ELF64_SYM_SIZE = 24;
  * a `.dynsym` that is absent, or present but empty — are artifacts no compiler
  * emits, and a committed `.so` could not be reviewed.
  */
-function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
+function buildElf(\n  symbols,\n  {omitDynsym = false, emptyDynsym = false, relro = null} = {},\n) {
   let dynstr = Buffer.from([0]);
   const nameOffsets = [];
   for (const symbol of symbols) {
@@ -48,7 +48,9 @@ function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
   const align8 = n => n + ((8 - (n % 8)) % 8);
   const programHeaderOffset = 64;
   const programHeaderSize = 56;
-  const dynstrOffset = ELF64_SHDR_SIZE + programHeaderSize;
+  const programHeaderCount = relro ? 2 : 1;
+  const dynstrOffset =
+    ELF64_SHDR_SIZE + programHeaderSize * programHeaderCount;
   const dynsymOffset = align8(dynstrOffset + dynstr.length);
   const shoff = align8(dynsymOffset + dynsym.length);
   const sectionCount = omitDynsym ? 2 : 3;
@@ -65,7 +67,7 @@ function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
   header.writeBigUInt64LE(BigInt(shoff), 0x28);
   header.writeUInt16LE(ELF64_SHDR_SIZE, 52);
   header.writeUInt16LE(programHeaderSize, 0x36);
-  header.writeUInt16LE(1, 0x38);
+  header.writeUInt16LE(programHeaderCount, 0x38);
   header.writeUInt16LE(ELF64_SHDR_SIZE, 0x3a);
   header.writeUInt16LE(sectionCount, 0x3c);
 
@@ -101,8 +103,20 @@ function buildElf(symbols, {omitDynsym = false, emptyDynsym = false} = {}) {
   out.writeBigUInt64LE(0n, ph + 16);
   out.writeBigUInt64LE(0n, ph + 24);
   out.writeBigUInt64LE(BigInt(out.length), ph + 32);
-  out.writeBigUInt64LE(BigInt(out.length), ph + 40);
+  out.writeBigUInt64LE(BigInt(relro?.loadMemsz || out.length), ph + 40);
   out.writeBigUInt64LE(16384n, ph + 48);
+
+  if (relro) {
+    const relroPh = ph + programHeaderSize;
+    out.writeUInt32LE(0x6474e552, relroPh); // PT_GNU_RELRO
+    out.writeUInt32LE(4, relroPh + 4); // PF_R
+    out.writeBigUInt64LE(BigInt(relro.vaddr), relroPh + 8);
+    out.writeBigUInt64LE(BigInt(relro.vaddr), relroPh + 16);
+    out.writeBigUInt64LE(BigInt(relro.vaddr), relroPh + 24);
+    out.writeBigUInt64LE(BigInt(relro.memsz), relroPh + 32);
+    out.writeBigUInt64LE(BigInt(relro.memsz), relroPh + 40);
+    out.writeBigUInt64LE(1n, relroPh + 48);
+  }
   return out;
 }
 
@@ -323,6 +337,46 @@ describe('ELF 16 KB load-segment alignment', () => {
     extra.copy(elf, phoff + 56);
     elf.writeUInt16LE(2, 0x38);
     expect(() => readElfLoadSegmentAlignment(elf)).toThrow('below 16 KB');
+  });
+});
+
+describe('ELF 16 KB GNU_RELRO alignment', () => {
+  const {readElfRelroAlignment} = require('../verify-android-payload');
+
+  it('accepts a library without a GNU_RELRO segment', () => {
+    expect(readElfRelroAlignment(PLAIN_ELF)).toEqual({
+      status: 'no GNU_RELRO segment',
+      segments: [],
+    });
+  });
+
+  it('accepts a GNU_RELRO end on a 16 KB boundary', () => {
+    const elf = buildElf([], {
+      relro: {vaddr: 0x1000, memsz: 0x3000, loadMemsz: 0x5000},
+    });
+    expect(readElfRelroAlignment(elf)).toEqual({
+      status: 'compliant',
+      segments: [{index: 1, status: '16 KB aligned'}],
+    });
+  });
+
+  it('accepts a non-aligned GNU_RELRO that ends its writable PT_LOAD', () => {
+    const elf = buildElf([], {
+      relro: {vaddr: 0x1000, memsz: 0x2000, loadMemsz: 0x3000},
+    });
+    expect(readElfRelroAlignment(elf)).toEqual({
+      status: 'compliant',
+      segments: [{index: 1, status: 'ends its writable PT_LOAD'}],
+    });
+  });
+
+  it('rejects a non-aligned GNU_RELRO when writable data follows in the same PT_LOAD', () => {
+    const elf = buildElf([], {
+      relro: {vaddr: 0x1000, memsz: 0x1000, loadMemsz: 0x3000},
+    });
+    expect(() => readElfRelroAlignment(elf)).toThrow(
+      'writable data follows in the same PT_LOAD segment',
+    );
   });
 });
 
