@@ -1742,7 +1742,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The full non-packaging CI workflow's Android packaging job remains gated to explicit `workflow_dispatch` with `build_android=true`; normal push CI does not package. No APK/AAB, native compilation, CMake/NDK build, signing, or packaging workflow was triggered during this work.
 - Remaining: confirm the latest CI, formatting, and Gradle configuration results; audit any remaining release/R8 consumer rules; later verify every app-built native output, APK ZIP alignment, signing, installation, persistence, gallery selection, local inference, and offline behavior in a real artifact and on a 16 KB Android device. Do not create an APK/AAB or run any packaging workflow until all outstanding issues are resolved and the user explicitly lifts the restriction.
 
-
 ## 99. Verify latest CI and identify Hexagon toolchain mismatch — 2026-11-08
 
 - Live `main` HEAD verified as `12f8ba79b3c3884f8e85b57cfaa06005e3f2b6c6` (`chore: apply repository Prettier formatting`), parent `80ed5d4`. Formatting run [42485371287](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42485371287) passed and only removed two redundant blank lines in this handover file.
