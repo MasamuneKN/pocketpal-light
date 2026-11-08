@@ -198,4 +198,3 @@ jest.mock('../src/database', () => {
 jest.mock('../src/services', () => {
   return require('../__mocks__/services');
 });
-
