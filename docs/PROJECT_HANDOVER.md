@@ -1767,7 +1767,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The fix is committed as `b097c6f5c10455bedda0fdbf56d5fdadc62cec2c` (`test(android): account for Hexagon toolchain dependencies`). Its CI and formatting validation must be checked before treating the fix as verified.
 - No native compilation, CMake/NDK build, assemble, bundle, signing, APK/AAB generation, or packaging was run. The no-packaging restriction remains in force. Next: confirm CI on `b097c6f`, then continue the remaining static native-payload/build-input review without compiling or packaging.
 
-
 ## 102. Confirm corrected Hexagon coverage and review payload gate — 2026-11-08
 
 - Live `main` was `28bc32356c133defbc1ab8e6666db3e8027d1d18` before the next code correction. CI run [42496468069](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42496468069) on `b097c6f5c10455bedda0fdbf56d5fdadc62cec2c` completed successfully: 319/319 Jest suites passed; 6,031 tests passed, 2 skipped (6,033 total); 310 snapshots passed. ESLint, TypeScript, and the Android release dependency/AAR audit passed. Perf, Android packaging, and iOS jobs were skipped.
