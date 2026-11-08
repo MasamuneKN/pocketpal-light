@@ -39,9 +39,9 @@ allprojects {
             // onnxruntime-react-native floats this at latest.integration; ship the AAR it was released with.
             force "com.microsoft.onnxruntime:onnxruntime-android:${onnxruntimeVersion}"
 
-            // DataStore 1.1.1 bundles libdatastore_shared_counter.so with an
-            // invalid 16 KB GNU_RELRO layout. AndroidX DataStore 1.2.1 includes
-            // the upstream NDK linker fix; keep all DataStore modules aligned.
+            // DataStore 1.1.1's native library failed the project's 16 KB
+            // GNU_RELRO audit. The resolved 1.2.1 AAR passes that audit on
+            // both supported ABIs; keep all DataStore modules aligned.
             eachDependency { details ->
                 if (details.requested.group == "androidx.datastore") {
                     details.useVersion "1.2.1"
