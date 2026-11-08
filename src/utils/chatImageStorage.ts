@@ -49,7 +49,10 @@ export const persistChatImages = async (
     for (const uri of imageUris) {
       const destinationPath = `${CHAT_IMAGES_DIRECTORY}/${uuidv4()}${getFileExtension(uri)}`;
       destinationPaths.push(destinationPath);
-      await RNFS.copyFile(sourcePaths[destinationPaths.length - 1], destinationPath);
+      await RNFS.copyFile(
+        sourcePaths[destinationPaths.length - 1],
+        destinationPath,
+      );
     }
 
     return destinationPaths.map(path => `file://${path}`);

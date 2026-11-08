@@ -488,9 +488,7 @@ describe('input', () => {
       jest.clearAllMocks();
       (persistChatImages as jest.Mock).mockImplementation(
         async (uris: string[]) =>
-          uris.map(
-            (_, index) => `file:///documents/chat-images/${index}.jpg`,
-          ),
+          uris.map((_, index) => `file:///documents/chat-images/${index}.jpg`),
       );
     });
 
@@ -540,7 +538,6 @@ describe('input', () => {
       );
     });
 
- 
     it('sends persistent gallery image URIs with the message', async () => {
       runInAction(() => {
         modelStore.activeModelId = 'test-model-id';
