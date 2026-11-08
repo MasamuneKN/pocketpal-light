@@ -1,4 +1,10 @@
-gradle.projectsEvaluated {
+// Gradle init scripts are also applied to React Native's included build.
+gradle.settingsEvaluated { settings ->
+    if (settings.rootProject.name != 'PocketPal' || settings.settingsDir.name != 'android') {
+        return
+    }
+
+    gradle.projectsEvaluated {
     def root = gradle.rootProject
     def app = root.findProject(':app')
     if (app == null) throw new GradleException('PocketPal Android app project :app was not found')
@@ -22,5 +28,6 @@ gradle.projectsEvaluated {
             if (agp.size() != 1) throw new GradleException('Expected exactly one resolved AGP artifact; found ' + agp.size())
             agp.each { println('POCKETPAL_AGP|' + it.moduleVersion.id.version + '|' + it.file.absolutePath) }
         }
+    }
     }
 }
