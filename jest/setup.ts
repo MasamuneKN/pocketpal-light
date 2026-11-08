@@ -7,7 +7,6 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
-
 // __E2E__ is a build-time constant in prod/e2e builds (see babel.config.js),
 // but in Jest the transform-define plugin is disabled so it stays a runtime
 // global. Default to true so adapter tests render their components; tests
@@ -193,4 +192,3 @@ jest.mock('../src/database', () => {
     database: require('../__mocks__/database').mockDatabase,
   };
 });
-
