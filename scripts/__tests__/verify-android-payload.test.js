@@ -414,7 +414,7 @@ describe('a conforming artifact', () => {
       expect(status).toBe(0);
       expect(output).toContain('APK ZIP alignment: PASS');
       expect(fs.readFileSync(path.join(workspace, 'zipalign-args.txt'), 'utf-8')).toBe(
-        ['-c', '-P', '16', '4', archive, ''].join('\\n'),
+        ['-c', '-P', '16', '4', archive, ''].join(String.fromCharCode(10)),
       );
     },
   );
