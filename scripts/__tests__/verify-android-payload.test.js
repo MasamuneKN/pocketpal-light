@@ -22,7 +22,10 @@ const ELF64_SYM_SIZE = 24;
  * a `.dynsym` that is absent, or present but empty — are artifacts no compiler
  * emits, and a committed `.so` could not be reviewed.
  */
-function buildElf(\n  symbols,\n  {omitDynsym = false, emptyDynsym = false, relro = null} = {},\n) {
+function buildElf(
+  symbols,
+  {omitDynsym = false, emptyDynsym = false, relro = null} = {},
+) {
   let dynstr = Buffer.from([0]);
   const nameOffsets = [];
   for (const symbol of symbols) {
