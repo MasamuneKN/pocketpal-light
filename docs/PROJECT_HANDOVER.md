@@ -1775,7 +1775,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The static review found one stale diagnostic saying “All four DSP libraries” although the current manifest declares five. Changed it to count-independent wording (“Every declared DSP library”) in `2d315a68cc614e97e16a57641dbaf8c91055f3b4` (`2d315a6`). This wording-only correction was included in the passing full CI run [42500838578](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42500838578) on `45de309`; no payload-gate assertion was changed.
 - No native compilation, CMake/NDK build, assemble, bundle, signing, APK/AAB generation, or packaging was run. The user's restriction remains in force. Remaining verification still includes actual native outputs, packaged APK ZIP alignment and payload, production signing, installation, local inference, model persistence, gallery selection, offline behavior, and 16 KB device compatibility.
 
-
 ## 103. Harden dependency installation and SDK audit triggers — 2026-11-08
 
 - Updated `.github/workflows/ci.yml` in `a002d3ef79f18fc0c5091c8963a933e284dc68ce` (`a002d3e`) so all workflow Yarn setup steps activate the repository-pinned Yarn Classic **1.22.22** through Corepack. All three previously non-frozen `yarn install` paths now use `--frozen-lockfile`; the dependency-only AAR audit already used the frozen mode.
