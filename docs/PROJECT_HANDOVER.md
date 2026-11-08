@@ -1,10 +1,10 @@
 # PocketPal Lite — Project Handover
 
- > **Last updated:** 2026-11-08
+> **Last updated:** 2026-11-08
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; subsequent commits include native 16 KB configuration fixes and handover updates. Android native artifact and device verification remain outstanding.
+> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; native 16 KB configuration fixes have since been committed but their CI validation is pending. Android native artifact and device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -1629,3 +1629,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Important limitation: the ONNX Runtime Android AAR remains a separate prebuilt dependency and must be checked in the final artifact. The React Native/Hermes shared libraries, `libappmodules.so`, all autolinked AAR libraries, and APK ZIP alignment still need artifact-level verification. The existing payload verifier checks ELF PT_LOAD alignment but the release package also needs ZIP alignment inspection; do not call 16 KB compatibility certified until both are checked.
 - The root Gradle buildscript declares `com.android.tools.build:gradle` without an explicit version. The resolved AGP version is supplied transitively by the React Native Gradle plugin build and has not been confirmed in this read-only audit. Verify the resolved version from a dependency report or Gradle build environment before release; do not guess it from the SDK compile level.
 - No Gradle build, native compilation, APK/AAB creation, or packaging workflow was run for these changes. Run only non-packaging validation first. APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
+
+## 87. Native dependency alignment review — 2026-11-08
+
+- Follow-up review confirmed the ONNX Runtime patch's expanded linker hunk needed its unified-diff new-line count updated from `+87,9` to `+87,12`. Corrected in commit `5e291a1` before any package installation or native build was attempted.
+- Current native 16 KB source changes are: `7fb1cb6` adds `ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON` to the app-owned `appmodules` CMake invocation; `2df429d` adds both `max-page-size=16384` and `common-page-size=16384` to the locally built ONNX Runtime JSI bridge; `5e291a1` corrects the patch hunk metadata. The preceding handover update is `0726cd3`.
+- The Android Developers guide explicitly lists both linker flags for NDK r27 and lower. NDK r27's CMake option is also documented in the NDK changelog. These changes address two known configuration gaps; they do not establish that all transitive native dependencies are compatible.
+- The latest full non-packaging CI result remains the earlier green run on `0f3e3a1`; no CI result for the new native configuration commits has yet been confirmed. No APK/AAB or native compilation was invoked.
+- Next audit focus: inspect CMake/Gradle build paths for each autolinked native package (especially Reanimated, Worklets, Nitro Modules, Screens, and VisionCamera if still present in package metadata), and identify any prebuilt AAR/JNI libraries. Confirm whether each target receives 16 KB alignment flags or ships a verified aligned prebuilt. The appmodules CMake option does not automatically prove that independent third-party CMake invocations or prebuilt AARs are aligned.
+- The root buildscript still leaves the Android Gradle Plugin version implicit; resolve and record the actual AGP version using a non-packaging dependency/configuration report before release. Do not infer it from compileSdk or buildTools versions.
+- APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
