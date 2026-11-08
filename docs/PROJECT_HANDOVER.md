@@ -1461,3 +1461,14 @@ The user has now explicitly authorized running the tests and actions considered 
 - The formatted follow-up run `42411414439` stopped at ESLint because removing the obsolete chat voice tests left one unused `bodyExtras` import in `useChatSession.test.ts`. No TypeScript or Jest result was produced for that commit.
 - Removed the unused test import. The next CI run must verify ESLint, TypeScript, and the reduced Jest failure set.
 - No Android packaging was run.
+
+
+## 69. Retire unreachable Plus UI and feature gate — 2026-11-08
+
+- CI run `42411737320` on `e626ce0` passed dependency installation, localization validation, font validation, ESLint, and TypeScript; Jest failed with 6 suites / 61 tests failing and 358 suites passing (7,131 tests passing, 2 skipped).
+- All six failing suites are exclusively Plus UI, Plus gate, or Plus E2E automation: `PlusScreen`, `PlusHost`, `services/plus/gate`, `PlusDrawerItem`, `plusShipOverride`, and `PlusTestFeatureScreen`.
+- Verified these UI entry points are not mounted by the Lite app: `App.tsx` has no Plus host/screen registration, and `SidebarContent.tsx` has no Plus drawer item. The Plus E2E route was also not part of the supported user workflow.
+- Retired the unmounted Plus host, drawer item, screen, feature catalog/gate, and associated tests; removed the Plus-only E2E route, screen, ship-override helper, and navigation constant. The retained chat, models, settings, local inference, and model-storage routes are unchanged.
+- PurchaseStore and PalsHub/purchase infrastructure are deliberately not removed in this commit; they require a separate dependency/import audit because PalStore still contains marketplace conversion code.
+- Next: run formatter, ESLint, TypeScript, and Jest; inspect any new failures. Then remove unused purchase/cloud marketplace integration in a separate source slice while preserving local Pal creation.
+- No APK/AAB packaging or packaging workflow was run.
