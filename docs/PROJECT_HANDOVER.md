@@ -4,7 +4,7 @@
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; subsequent native configuration and verifier changes are committed, with CI validation pending. Android native artifact and device verification remain outstanding.
+> **Project status:** Active development. Latest full non-packaging CI and dependency-only Android release AAR audit passed on `dd736f0`. All 34 native-library entries in the resolved `prodReleaseRuntimeClasspath` passed ELF PT_LOAD and GNU_RELRO checks for arm64-v8a and x86_64. APK/AAB packaging, native compilation, final packaged-artifact ZIP alignment, and device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -1720,3 +1720,15 @@ The user has now explicitly authorized running the tests and actions considered 
 - Updated the step to capture both pipeline exit statuses immediately. It tolerates the `yes` process closing its pipe, but still fails if `sdkmanager` itself returns nonzero. The compile SDK install remains the only SDK package requested.
 - The full non-packaging CI on commit `96db56f` passed its normal checks (319 Jest suites, 6,031 tests, 2 skipped, 310 snapshots; ESLint and TypeScript passed). The dependency-audit job did not reach Gradle resolution because of this shell-pipeline handling issue.
 - No Android compilation, CMake/NDK invocation, assemble, bundle, signing, APK/AAB generation, or packaging occurred. Actual release AGP and AAR inspection remains outstanding.
+
+
+## 97. Resolve DataStore RELRO issue and validate release AAR set — 2026-11-08
+
+- Live `main` HEAD verified as `dd736f023c843ab394164941febb795eb0e261fe` (`fix(android): upgrade DataStore for 16 KB RELRO`). The formatting workflow completed successfully and did not create a newer commit; all three latest workflows target this SHA.
+- Added a Gradle dependency-resolution rule in `android/build.gradle` to align every `androidx.datastore` module at version `1.2.1`, replacing the incompatible `1.1.1` artifacts. The first AAR audit had found `libdatastore_shared_counter.so` failed GNU_RELRO containment on both target ABIs in DataStore 1.1.1.
+- CI Pipeline run [42483163671](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42483163671) completed successfully. The normal `build-and-test` job passed: **319/319 Jest suites; 6,031 tests passed, 2 skipped (6,033 total); 310 snapshots passed**. Dependency installation, localization/font validation, ESLint, and TypeScript also passed. Perf, iOS, and Android packaging jobs were skipped.
+- The dependency-only audit job resolved the actual `prodReleaseRuntimeClasspath`, confirmed effective AGP **9.2.1**, inspected **105 resolved artifacts**, and found **34 native-library entries** for `arm64-v8a` and `x86_64`. All **34/34** passed the existing ELF PT_LOAD and GNU_RELRO checks. Both DataStore 1.2.1 shared-library copies now pass. The Gradle audit completed dependency resolution only; no native compilation, CMake/NDK build, assemble, bundle, signing, APK/AAB creation, or packaging occurred.
+- Android Gradle Configuration validation run [42483163695](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42483163695) passed. Formatting/validation run [42483163700](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42483163700) passed without changing `main`.
+- Important qualification: AndroidX's published DataStore 1.2.1 release notes describe minor infrastructure fixes and do not explicitly identify a 16 KB RELRO fix. The reason this upgrade is accepted here is empirical: the exact resolved 1.2.1 AAR binaries passed the project's RELRO scanner on both target ABIs. Do not attribute the binary change to a specific upstream fix unless independently verified.
+- This closes the first confirmed third-party RELRO blocker in the resolved release AAR set. It does **not** prove the final APK's ZIP alignment, packaged ELF contents, signing, installation, runtime behavior, or operation on a 16 KB-page-size Android device. The audit also covers only native libraries present in the resolved AARs; app-built native outputs still need inspection in a permitted final artifact.
+- Next: review release R8/consumer rules and the native build paths not represented by prebuilt AARs; ensure the final payload verifier covers every shipped library and APK ZIP alignment; retain the no-packaging restriction. No APK/AAB or native compilation may be triggered until every outstanding issue is resolved and the user explicitly lifts the restriction.
