@@ -7,7 +7,6 @@ import * as RNIap from 'react-native-iap';
 import {NativeStore} from '../../services/iap/NativeStore';
 import {bindingSource} from '../../services/iap/bindingSource';
 import {iapApi} from '../../services/iap/iapApi';
-import {isPlusProduct} from '../../services/plus/catalog';
 import {authService} from '../../services/palshub/AuthService';
 import {
   PAL_ID,
@@ -1528,10 +1527,7 @@ describe('PurchaseStore pipeline', () => {
     await h.purchases.syncProducts();
     await h.purchases.syncProducts();
 
-    const palFetches = h.store.fetchProducts.mock.calls.filter(
-      ([ids]) => !ids.some(isPlusProduct),
-    );
-    expect(palFetches).toEqual([[[PRODUCT]]]);
+    expect(h.store.fetchProducts.mock.calls).toEqual([[[PRODUCT]]]);
     expect(h.purchases.productFor(PRODUCT)?.displayPrice).toBe('4,99 €');
   });
 

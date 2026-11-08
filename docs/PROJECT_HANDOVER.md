@@ -1490,3 +1490,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - The previous CI also confirms TypeScript and ESLint now pass after section 70's stale import repair. The run was manually dispatched and both Android and iOS packaging jobs were skipped; no APK/AAB was produced.
 - Next: verify Jest and then continue the IAP/PalsHub dependency audit. The dormant Plus entitlement implementation remains inside PurchaseStore and must be removed as part of the broader purchase-system cleanup, without breaking the shared Pal purchase pipeline before that pipeline is itself retired.
 - No APK/AAB packaging until all lingering issues are resolved and the user explicitly lifts the restriction.
+
+## 72. Repair the remaining stale Plus catalog test import — 2026-11-08
+
+- CI run `42446179212` on `0ab1861` passed dependency installation, localization validation, font validation, ESLint, and TypeScript. Jest ran 351 suites: **350 passed, 1 failed**; **6,750 tests passed, 2 skipped**; 310 snapshots passed.
+- The sole failing suite, `PurchaseStore.pipeline.test.ts`, could not load because it still imported the deleted `services/plus/catalog` module. Its only use of `isPlusProduct` filtered Plus products out of the shared Pal-product listing assertion.
+- Removed that obsolete import and changed the assertion to verify the complete fetch call directly contains only the retained Pal product. The purchase pipeline tests themselves and shared Pal billing assertions remain intact.
+- Static review confirms `PalStore.initialize`, database loading/migration, `createPal`, `updatePal`, `deletePal`, and local Pal getters are separate from PalsHub search/library/download/creator-update methods. Preserve the former while retiring the latter. The PalsHub conversion code also imports model-resolution helpers and thumbnail storage; remove those only after checking whether any other retained path uses them.
+- This test correction is committed with this handover update; a new non-packaging CI run must verify it. No APK/AAB packaging was run.
+- Next: continue tracing PurchaseStore/IAP and PalsHub references from active screens, services, model acquisition, and automation. Do not remove the shared local Pal persistence layer. Keep APK/AAB packaging prohibited until all outstanding issues are resolved and the user explicitly lifts the restriction.
