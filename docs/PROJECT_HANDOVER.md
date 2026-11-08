@@ -1472,7 +1472,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Next: run formatter, ESLint, TypeScript, and Jest; inspect any new failures. Then remove unused purchase/cloud marketplace integration in a separate source slice while preserving local Pal creation.
 - No APK/AAB packaging or packaging workflow was run.
 
-
 ## 70. Repair stale Plus references after feature retirement — 2026-11-08
 
 - The first CI run after section 69's cleanup exposed six TypeScript import errors: deleted Plus catalog/features/host/ship-override modules were still referenced by the PurchaseStore, mock store, E2E fake store, component barrel, and a Plus test fixture.
