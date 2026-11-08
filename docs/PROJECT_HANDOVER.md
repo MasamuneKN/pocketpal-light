@@ -1830,3 +1830,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Updated `src/repositories/__tests__/ChatSessionRepository.imageCleanup.test.ts` in commit `6462439b5adf4460d24dd4684dc0868a3b2aa7c6` to reset modules and explicitly register test-local database/storage mocks while loading the actual repository implementation. Assertions for surviving shared references and malformed-metadata fail-closed behavior are retained.
 - This is a test-harness correction only; it does not change production code. CI verification is pending. If the suite still fails, inspect the actual module resolution and method execution before changing production cleanup logic.
 - No APK/AAB, native compilation, signing, or packaging was performed. The no-packaging restriction remains in force.
+
+
+## 109. Preserve the app-owned JNI method through R8 — 2026-11-09
+
+- Static release review found that `HardwareInfoModule.nativePurgeAll()` is a Kotlin `external` method implemented by the exported JNI symbol `Java_com_pocketpal_HardwareInfoModule_nativePurgeAll` in `android/app/src/main/jni/src/hardware_info.cpp`.
+- The existing ProGuard rules preserved `com.rnllama.**` but did not explicitly preserve the app-owned JNI declaring class and method name. A renamed class or native method would break name-based JNI lookup in a minified release build, causing allocator purging to fall back to `false`.
+- Added a narrowly scoped keep rule for `com.pocketpal.HardwareInfoModule` and its private native `boolean nativePurgeAll()` method in commit `538f85d5f07492138ff1b837b3a1c0330eaaff5a` (`fix(android): preserve hardware info JNI symbol in release`). No broad package keep rule was added.
+- This is a static configuration correction. It has not been validated by an R8 release build or runtime JNI invocation; both remain prohibited until the pre-packaging restriction is lifted.
+- The repository cleanup test-isolation correction from Section 108 is being checked by CI run [42511655534](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42511655534). Its result is not yet known.
+- No native compilation, APK/AAB generation, signing, or packaging was performed. The no-packaging restriction remains in force.
