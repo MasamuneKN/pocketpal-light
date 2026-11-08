@@ -7,6 +7,7 @@ on:
     paths:
       - ".github/actions/setup-hexagon-sdk/action.yml"
       - ".github/workflows/audit-hexagon-sdk.yml"
+      - "scripts/hexagon-sdk-consumed-paths.txt"
 
 permissions:
   contents: read
