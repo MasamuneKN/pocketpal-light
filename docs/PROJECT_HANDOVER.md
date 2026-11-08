@@ -1590,7 +1590,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The first native review is not yet a 16 KB compatibility certification: JNI/CMake and each shipped third-party AAR/shared library still need inspection. Continue by checking Gradle wrapper/plugin versions, custom JNI build configuration, native dependency packaging/alignment support, and R8/ProGuard keep rules. No native compile, APK, or AAB was run.
 - Push-triggered CI for the Jest fixes was still running at the time of this update; wait for a completed run on the final formatted head before treating the tests as repaired. APK/AAB restriction remains unchanged.
 
-
 ## 83. Full CI green; continue native Android release audit — 2026-11-08
 
 - Verified latest main head `0f3e3a127d732967c18d77ec6d922b8bf849ef18`. CI run `42455388447` completed successfully: dependency installation, localization validation, font registration, ESLint, TypeScript, and Jest all passed. Jest result: 319/319 suites passed, 6,025 tests passed, 2 skipped, and 310/310 snapshots passed. Android/iOS packaging jobs were skipped by the workflow; no APK/AAB was created.
@@ -1600,7 +1599,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The app's custom `proguard-rules.pro` currently contains no project-specific keep rules. Release enables R8/minification and resource shrinking. Third-party AAR consumer rules and JNI reflection requirements still need dependency-level review; do not add blanket keep rules without evidence.
 - The Gradle configuration check proves configuration only. It does not resolve/compile every native target, validate all AAR/JNI payloads, or exercise R8. Next: inspect native dependency build modes and linker flags (especially llama.rn and React Native/Hermes), verify all third-party AAR-provided shared libraries and consumer ProGuard rules, and trace whether Video Pal/VisionCamera code is reachable before removing anything.
 - No APK/AAB, native compile, or packaging workflow was run. Keep APK/AAB production prohibited until outstanding issues are resolved and the user explicitly lifts the restriction.
-
 
 ## 84. Video Pal reachability review — 2026-11-08
 
