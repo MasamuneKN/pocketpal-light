@@ -398,7 +398,7 @@ describe('a conforming artifact', () => {
     expect(output).toContain('extra rnllama libraries: none');
   });
 
-  it('fails when APK ZIP alignment verification fails', () => {
+  it('runs zipalign and reports successful APK 16 KB ZIP alignment', () => {
     const {status, output} = runScript(SCRIPT_PATH, [
       '--apk',
       writeArchive('misaligned.apk', conformingEntries()),
