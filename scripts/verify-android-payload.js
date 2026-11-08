@@ -477,6 +477,43 @@ function listZipEntries(archive) {
   return entries;
 }
 
+function verifyApkZipAlignment(archive) {
+  const sdkRoot = process.env.ANDROID_SDK_ROOT || process.env.ANDROID_HOME;
+  let executable = process.env.ZIPALIGN;
+
+  if (!executable && sdkRoot) {
+    const buildToolsRoot = path.join(sdkRoot, 'build-tools');
+    if (fs.existsSync(buildToolsRoot)) {
+      const versions = fs
+        .readdirSync(buildToolsRoot, {withFileTypes: true})
+        .filter(entry => entry.isDirectory())
+        .map(entry => entry.name)
+        .sort((a, b) =>
+          b.localeCompare(a, undefined, {numeric: true, sensitivity: 'base'}),
+        );
+      const candidate = versions
+        .map(version => path.join(buildToolsRoot, version, 'zipalign'))
+        .find(candidatePath => fs.existsSync(candidatePath));
+      if (candidate) executable = candidate;
+    }
+  }
+
+  // The Android SDK build-tools directory is preferred. PATH remains a
+  // supported fallback for local installations and CI environments.
+  executable = executable || 'zipalign';
+  try {
+    return execFileSync(executable, ['-c', '-P', '16', '4', archive], {
+      encoding: 'utf-8',
+      maxBuffer: 8 * 1024 * 1024,
+    }).trim();
+  } catch (err) {
+    const detail = (err.stderr || err.stdout || err.message || '').toString().trim();
+    throw new Error(
+      `zipalign 16 KB verification failed for ${path.basename(archive)} using ${executable}: ${detail}`,
+    );
+  }
+}
+
 function readZipEntry(archive, entry) {
   let buf;
   try {
@@ -666,6 +703,22 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
   const fail = message => failures.push(`FAIL: ${message}`);
 
   report.push(`artifact: ${archive} (${kind})`);
+
+  if (kind === 'apk') {
+    try {
+      verifyApkZipAlignment(archive);
+      report.push('  APK ZIP alignment: PASS (zipalign -c -P 16 4)');
+    } catch (err) {
+      report.push(`  APK ZIP alignment: FAIL — ${err.message}`);
+      fail(err.message);
+    }
+  } else if (kind === 'aab') {
+    report.push('  AAB bundle alignment: NOT VERIFIED');
+    fail(
+      'AAB bundle alignment is not verified by this gate. Run bundletool dump config and require PAGE_ALIGNMENT_16K before accepting an AAB.',
+    );
+  }
+
 
   let entries;
   try {
