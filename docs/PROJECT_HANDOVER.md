@@ -1758,7 +1758,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The R8 keep rule and manual workflow alignment changes remain in place. The manual APK workflow was not triggered. No APK/AAB, native compilation, CMake/NDK build, signing, or packaging was performed.
 - Release readiness remains incomplete. In addition to the toolchain mismatch, final packaged-artifact ZIP alignment and payload verification, signing, installation, and real-device checks of local inference, model persistence, gallery selection, offline operation, and 16 KB page-size compatibility remain outstanding. Keep the no-packaging restriction in force until all outstanding issues are resolved and the user explicitly lifts it.
 
-
 ## 100. Verify and align the Hexagon SDK pin — 2026-11-08
 
 - Live `main` before this change: `9be7ceb969f2b897f90b84bce2f30875a32d3be3`, which added an isolated, non-packaging SDK integrity workflow.
