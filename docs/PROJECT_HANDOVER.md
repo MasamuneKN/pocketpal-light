@@ -1480,3 +1480,14 @@ The user has now explicitly authorized running the tests and actions considered 
 - Commit `096958f` contains this repair. Fresh CI must verify TypeScript and Jest; no APK/AAB workflow was intentionally run.
 - The CI run on formatted commit `157d6ae` failed at TypeScript after ESLint passed. The exact errors were all unresolved imports to files deleted in section 69; Jest did not run. The CI run on `e7ae451` was cancelled during dependency installation and produced no test result.
 - Next: verify the repair with non-packaging CI, then audit and remove PalsHub/IAP dependencies while preserving local Pal CRUD and persistence. No APK/AAB until every lingering issue is resolved and the user lifts the restriction.
+
+
+## 71. Retire stale Plus-only Jest coverage — 2026-11-08
+
+- Fresh CI on formatted commit `4e0c695` verified dependency installation, localization validation, font validation, ESLint, and TypeScript. Jest then failed with 6 suites / 48 tests failing; 348 suites passed and 6,813 tests passed (2 skipped; 310 snapshots passed).
+- Failure analysis showed the remaining failures were stale Plus-only coverage: the Plus purchase-entitlement suite, fake-store Plus reset assertion, Plus E2E deep-link route tests, Plus feature route suite, and a build-script test that inspected the deleted Plus gate source.
+- Removed the Plus-specific purchase suite, removed only the Plus assertions from the shared fake-store test and deep-link dispatcher test, and deleted the Plus-only route and gate test files. Kept shared Pal-product billing and fake-store tests intact.
+- Commit `c4d4444` contains these test-scope corrections. The next full CI must verify the updated suite count and confirm that no retained local Pal purchase/test path was affected.
+- The previous CI also confirms TypeScript and ESLint now pass after section 70's stale import repair. The run was manually dispatched and both Android and iOS packaging jobs were skipped; no APK/AAB was produced.
+- Next: verify Jest and then continue the IAP/PalsHub dependency audit. The dormant Plus entitlement implementation remains inside PurchaseStore and must be removed as part of the broader purchase-system cleanup, without breaking the shared Pal purchase pipeline before that pipeline is itself retired.
+- No APK/AAB packaging until all lingering issues are resolved and the user explicitly lifts the restriction.
