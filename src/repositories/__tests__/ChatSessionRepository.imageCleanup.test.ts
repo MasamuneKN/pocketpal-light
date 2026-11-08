@@ -42,8 +42,8 @@ describe('ChatSessionRepository chat image cleanup', () => {
     jest.resetModules();
     database = require('../../database').database;
     mockGetCollection = database.collections.get as jest.Mock;
-    mockRemoveImages = require('../../utils/chatImageStorage')
-      .removeUnreferencedChatImages;
+    mockRemoveImages =
+      require('../../utils/chatImageStorage').removeUnreferencedChatImages;
     chatSessionRepository =
       require('../ChatSessionRepository').chatSessionRepository;
   });
