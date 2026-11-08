@@ -64,7 +64,6 @@ export const persistChatImages = async (
   }
 };
 
-
 /**
  * Remove deleted-message images only when no remaining database message
  * references them. Only direct children of the app-owned chat-images folder
