@@ -52,8 +52,7 @@ function buildElf(
   const programHeaderOffset = 64;
   const programHeaderSize = 56;
   const programHeaderCount = relro ? 2 : 1;
-  const dynstrOffset =
-    ELF64_SHDR_SIZE + programHeaderSize * programHeaderCount;
+  const dynstrOffset = ELF64_SHDR_SIZE + programHeaderSize * programHeaderCount;
   const dynsymOffset = align8(dynstrOffset + dynstr.length);
   const shoff = align8(dynsymOffset + dynsym.length);
   const sectionCount = omitDynsym ? 2 : 3;

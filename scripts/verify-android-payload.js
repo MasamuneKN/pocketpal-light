@@ -114,7 +114,6 @@ function readElfLoadSegmentAlignment(buf) {
   return loads;
 }
 
-
 /**
  * Check GNU_RELRO against Android's 16 KB page-boundary rule. A non-aligned
  * RELRO end is safe only when no writable PT_LOAD contains it, or when RELRO
@@ -154,8 +153,10 @@ function readElfRelroAlignment(buf) {
     const flags = buf.readUInt32LE(at + 4);
     const vaddr = Number(buf.readBigUInt64LE(at + 16));
     const memsz = Number(buf.readBigUInt64LE(at + 40));
-    if (![vaddr, memsz].every(Number.isSafeInteger) ||
-        !Number.isSafeInteger(vaddr + memsz)) {
+    if (
+      ![vaddr, memsz].every(Number.isSafeInteger) ||
+      !Number.isSafeInteger(vaddr + memsz)
+    ) {
       throw new Error(`program header ${i} contains an out-of-range address`);
     }
 
@@ -184,7 +185,9 @@ function readElfRelroAlignment(buf) {
       return {index: relro.index, status: '16 KB aligned'};
     }
 
-    const writableLoads = containingLoads.filter(load => (load.flags & 2) !== 0);
+    const writableLoads = containingLoads.filter(
+      load => (load.flags & 2) !== 0,
+    );
     if (writableLoads.every(load => load.end === relro.end)) {
       return {index: relro.index, status: 'ends its writable PT_LOAD'};
     }
