@@ -1471,3 +1471,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - PurchaseStore and PalsHub/purchase infrastructure are deliberately not removed in this commit; they require a separate dependency/import audit because PalStore still contains marketplace conversion code.
 - Next: run formatter, ESLint, TypeScript, and Jest; inspect any new failures. Then remove unused purchase/cloud marketplace integration in a separate source slice while preserving local Pal creation.
 - No APK/AAB packaging or packaging workflow was run.
+
+
+## 70. Repair stale Plus references after feature retirement — 2026-11-08
+
+- The first CI run after section 69's cleanup exposed six TypeScript import errors: deleted Plus catalog/features/host/ship-override modules were still referenced by the PurchaseStore, mock store, E2E fake store, component barrel, and a Plus test fixture.
+- Removed the stale PlusHost barrel export, deleted the obsolete Plus fixture, and removed Plus ship-override handling from the E2E fake store.
+- PurchaseStore and its mock still contain dormant Plus compatibility state, but the deleted catalog is no longer imported; Plus product discovery is disabled pending the separate retirement of IAP/PalsHub infrastructure. Do not treat this as completion of the purchase cleanup.
+- Commit `096958f` contains this repair. Fresh CI must verify TypeScript and Jest; no APK/AAB workflow was intentionally run.
+- The CI run on formatted commit `157d6ae` failed at TypeScript after ESLint passed. The exact errors were all unresolved imports to files deleted in section 69; Jest did not run. The CI run on `e7ae451` was cancelled during dependency installation and produced no test result.
+- Next: verify the repair with non-packaging CI, then audit and remove PalsHub/IAP dependencies while preserving local Pal CRUD and persistence. No APK/AAB until every lingering issue is resolved and the user lifts the restriction.
