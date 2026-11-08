@@ -209,6 +209,14 @@ let workspace;
 
 beforeEach(() => {
   workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-android-payload-'));
+  const bin = path.join(workspace, 'bin');
+  fs.mkdirSync(bin);
+  const zipalign = path.join(bin, 'zipalign');
+  fs.writeFileSync(
+    zipalign,
+    '#!/bin/sh\nif [ "${ZIPALIGN_EXIT:-0}" != "0" ]; then echo "synthetic alignment failure" >&2; exit "${ZIPALIGN_EXIT}"; fi\necho "Verification successful"\n',
+  );
+  fs.chmodSync(zipalign, 0o755);
 });
 
 afterEach(() => {
@@ -233,7 +241,7 @@ function runScript(scriptPath, args) {
   try {
     return {
       status: 0,
-      output: execFileSync('node', [scriptPath, ...args], {encoding: 'utf-8'}),
+      output: execFileSync('node', [scriptPath, ...args], {encoding: 'utf-8', env: {...process.env, ZIPALIGN: path.join(workspace, 'bin', 'zipalign')}}),
     };
   } catch (err) {
     return {
@@ -390,6 +398,44 @@ describe('a conforming artifact', () => {
     expect(output).toContain('extra rnllama libraries: none');
   });
 
+  it('fails when APK ZIP alignment verification fails', () => {
+    const {status, output} = runScript(SCRIPT_PATH, [
+      '--apk',
+      writeArchive('misaligned.apk', conformingEntries()),
+    ]);
+    // The fake zipalign executable succeeds by default; the explicit failing
+    // case below verifies that a non-zero verifier exit blocks the artifact.
+    expect(status).toBe(0);
+    expect(output).toContain('APK ZIP alignment: PASS');
+  });
+
+  it('blocks an APK when zipalign reports a 16 KB alignment failure', () => {
+    const archive = writeArchive('misaligned.apk', conformingEntries());
+    const result = (() => {
+      try {
+        return {
+          status: 0,
+          output: execFileSync('node', [SCRIPT_PATH, '--apk', archive], {
+            encoding: 'utf-8',
+            env: {
+              ...process.env,
+              ZIPALIGN: path.join(workspace, 'bin', 'zipalign'),
+              ZIPALIGN_EXIT: '1',
+            },
+          }),
+        };
+      } catch (err) {
+        return {
+          status: err.status,
+          output: `${err.stdout || ''}${err.stderr || ''}`,
+        };
+      }
+    })();
+    expect(result.status).toBe(1);
+    expect(result.output).toContain('APK ZIP alignment: FAIL');
+    expect(result.output).toContain('synthetic alignment failure');
+  });
+
   it('fails when the required x86_64 ABI is missing', () => {
     const entries = conformingEntries();
     for (const name of Object.keys(entries)) {
@@ -422,14 +468,15 @@ describe('a conforming artifact', () => {
     expect(output).toContain('contains no native ABI library trees');
   });
 
-  it('passes as an app bundle, whose entries sit under base/', () => {
+  it('refuses an app bundle until bundletool confirms 16 KB bundle alignment', () => {
     const archive = writeArchive(
       'app-prod-release.aab',
       conformingEntries('base/'),
     );
     const {status, output} = runGate(['--aab', archive]);
-    expect(status).toBe(0);
-    expect(output).toContain('PASS');
+    expect(status).toBe(1);
+    expect(output).toContain('AAB bundle alignment: NOT VERIFIED');
+    expect(output).toContain('PAGE_ALIGNMENT_16K');
   });
 
   it('fails as an app bundle if checked without the base/ prefix', () => {
