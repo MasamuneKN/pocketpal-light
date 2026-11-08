@@ -13,10 +13,12 @@ import {render, fireEvent, waitFor} from '@testing-library/react-native';
 import {SidebarContent} from '../SidebarContent';
 
 import {chatSessionStore} from '../../../store';
+import {ROUTES} from '../../../utils/navigationConstants';
 
 const ChatScreen = () => <Text>Chat Screen</Text>;
 const ModelsScreen = () => <Text>Models Screen</Text>;
 const SettingsScreen = () => <Text>Settings Screen</Text>;
+const PalsScreen = () => <Text>Pals Screen</Text>;
 
 const Drawer = createDrawerNavigator();
 
@@ -30,6 +32,7 @@ const TestNavigator = () => (
       <Drawer.Screen name="Chat" component={ChatScreen} />
       <Drawer.Screen name="Models" component={ModelsScreen} />
       <Drawer.Screen name="Settings" component={SettingsScreen} />
+      <Drawer.Screen name={ROUTES.PALS} component={PalsScreen} />
     </Drawer.Navigator>
   </NavigationContainer>
 );
@@ -109,6 +112,13 @@ describe('SidebarContent Component', () => {
 
       await waitFor(() => expect(getByText('drawer:closed')).toBeTruthy());
     });
+  });
+
+  it('opens the local Pals screen from the drawer', () => {
+    const {getByTestId, getByText} = render(<TestNavigator />);
+
+    fireEvent.press(getByTestId('drawer-item-pals'));
+    expect(getByText('Pals Screen')).toBeTruthy();
   });
 
   it('navigates to correct screen from drawer items', () => {

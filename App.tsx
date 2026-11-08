@@ -40,6 +40,7 @@ import {MarkdownProvider} from './src/components/MarkdownView';
 import {
   ChatScreen,
   ModelsScreen,
+  PalsScreen,
   SettingsScreen,
   AboutScreen,
 
@@ -130,6 +131,14 @@ const App = observer(() => {
                               headerRight: () => <ModelsHeaderRight />,
                               headerStyle: styles.headerWithoutDivider,
                               title: currentL10n.screenTitles.models,
+                            }}
+                          />
+                          <Drawer.Screen
+                            name={ROUTES.PALS}
+                            component={gestureHandlerRootHOC(PalsScreen)}
+                            options={{
+                              headerStyle: styles.headerWithoutDivider,
+                              title: currentL10n.components.sidebarContent.menuItems.pals,
                             }}
                           />
                           <Drawer.Screen

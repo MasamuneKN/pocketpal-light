@@ -1499,3 +1499,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - Static review confirms `PalStore.initialize`, database loading/migration, `createPal`, `updatePal`, `deletePal`, and local Pal getters are separate from PalsHub search/library/download/creator-update methods. Preserve the former while retiring the latter. The PalsHub conversion code also imports model-resolution helpers and thumbnail storage; remove those only after checking whether any other retained path uses them.
 - This test correction is committed with this handover update; a new non-packaging CI run must verify it. No APK/AAB packaging was run.
 - Next: continue tracing PurchaseStore/IAP and PalsHub references from active screens, services, model acquisition, and automation. Do not remove the shared local Pal persistence layer. Keep APK/AAB packaging prohibited until all outstanding issues are resolved and the user explicitly lifts the restriction.
+
+## 73. Restore access to the local Pal library — 2026-11-08
+
+- Source review confirmed that `PalsScreen` already implements a local-only library: it reads `palStore.getLocalPals()`, filters out PalsHub-sourced records, and creates/edits local assistant, roleplay, and video Pals through the shared PalSheet and PalStore CRUD.
+- The screen was not reachable in the app: it was absent from `src/screens/index.ts`, not registered in `App.tsx`, and had no item in the drawer. This left the required local Pal creation/editing workflow inaccessible despite its implementation and tests remaining in the repository.
+- Exported and registered PalsScreen as a main drawer route and added the existing localized Pals menu item. The screen header uses the existing localized menu label rather than the legacy “experimental” title.
+- Added drawer navigation coverage for the Pals route. Local Pal persistence remains in PalRepository/PalStore; this change does not re-enable PalsHub browsing, cloud login, or purchase UI.
+- This route restoration and the previous stale Plus-test import fix are now committed on main. Non-packaging CI must verify formatting, lint, typecheck, and Jest. No APK/AAB packaging was run.
+- Next: verify the route/test changes, then continue isolating the remaining PalsHub/IAP code from the local Pal CRUD and model acquisition paths. Do not remove shared local Pal database migration or persistence.
