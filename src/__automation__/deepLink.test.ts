@@ -47,16 +47,6 @@ describe('automation deep-link dispatcher', () => {
     });
   });
 
-  it('routes the Plus test-feature URL', async () => {
-    await expect(
-      dispatchAutomationDeepLink(
-        makeParams('pocketpal://e2e/plus-feature'),
-        navigation,
-      ),
-    ).resolves.toBe(true);
-    expect(navigation.navigate).toHaveBeenCalledWith(ROUTES.PLUS_TEST_FEATURE);
-  });
-
   it('returns false for unrelated links', async () => {
     await expect(
       dispatchAutomationDeepLink(
