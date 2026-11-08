@@ -1784,7 +1784,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The workflow hardening and diagnostic correction were validated together. No APK/AAB, CMake/NDK build, native compilation, signing, or packaging was performed. The user's no-packaging restriction remains in force.
 - Gallery-path review and durable selected-image storage are recorded in Section 104. The next follow-up is safe cleanup of unreferenced persistent chat-image files when messages or sessions are deleted; do not run native compilation or packaging. Native outputs, final APK payload/ZIP alignment, production signing, installation, offline inference, persistence, gallery behavior, and 16 KB device compatibility remain unverified.
 
-
 ## 104. Persist gallery images outside the cache — 2026-11-08
 
 - Static review confirmed that `ChatInput` uses `launchImageLibrary({ mediaType: 'photo' })` only; no camera-capture call is present. Existing gallery tests covered selection and auto-release restoration, but chat messages store selected image URIs in WatermelonDB metadata.
