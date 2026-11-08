@@ -408,13 +408,13 @@ describe('a conforming artifact', () => {
   it(
     'runs zipalign and reports successful APK 16 KB ZIP alignment',
     () => {
-    const {status, output} = runScript(SCRIPT_PATH, [
-      '--apk',
-      writeArchive('misaligned.apk', conformingEntries()),
-    ]);
-    // The fake zipalign executable succeeds by default; the explicit failing
-    // case below verifies that a non-zero verifier exit blocks the artifact.
-    expect(status).toBe(0);
+      const {status, output} = runScript(SCRIPT_PATH, [
+        '--apk',
+        writeArchive('misaligned.apk', conformingEntries()),
+      ]);
+      // The fake zipalign executable succeeds by default; the explicit failing
+      // case below verifies that a non-zero verifier exit blocks the artifact.
+      expect(status).toBe(0);
       expect(output).toContain('APK ZIP alignment: PASS');
     },
   );
