@@ -4,7 +4,7 @@
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Full non-packaging CI and release AAR audit passed on `12f8ba7`; the Android Gradle configuration and formatting workflows also passed. A new native-build configuration blocker remains: the pinned llama.rn release expects Hexagon SDK 6.7.0.0 / Tools 21.0.04, while the shared setup action supplies 6.4.0.2 / Tools 19.0.04. Resolve and verify this mismatch before any native build. APK/AAB packaging, native compilation, final packaged-artifact ZIP alignment, and device verification remain outstanding.
+> **Project status:** Active development. Full non-packaging CI and the release AAR audit passed on `12f8ba7`. The shared Hexagon setup action is now aligned to llama.rn's Hexagon SDK 6.7.0.0 / Tools 21.0.04, with both the release tarball and consumed-file digests verified. The dedicated integrity workflow is being used to validate the updated shared pin. Native compilation, APK/AAB packaging, final packaged-artifact ZIP alignment, and device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -1757,3 +1757,15 @@ The user has now explicitly authorized running the tests and actions considered 
 - Next: obtain and verify the 6.7.0.0 SDK's consumed-subset digest (or establish with upstream evidence that the 6.4/19 toolchain can correctly build the exact v0.13.0-rc.9 HTP targets, including v85 and the requested toolv21 prebuilt set). Then update the shared SDK action in one reviewed change and validate the setup action without invoking Gradle native compilation or packaging.
 - The R8 keep rule and manual workflow alignment changes remain in place. The manual APK workflow was not triggered. No APK/AAB, native compilation, CMake/NDK build, signing, or packaging was performed.
 - Release readiness remains incomplete. In addition to the toolchain mismatch, final packaged-artifact ZIP alignment and payload verification, signing, installation, and real-device checks of local inference, model persistence, gallery selection, offline operation, and 16 KB page-size compatibility remain outstanding. Keep the no-packaging restriction in force until all outstanding issues are resolved and the user explicitly lifts it.
+
+
+## 100. Verify and align the Hexagon SDK pin — 2026-11-08
+
+- Live `main` before this change: `9be7ceb969f2b897f90b84bce2f30875a32d3be3`, which added an isolated, non-packaging SDK integrity workflow.
+- The isolated workflow [42490199297](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42490199297) completed successfully. It downloaded the 6.7.0.0 Linux x86_64 SDK archive, verified its SHA-256 against the published release digest `00725fc449916d7b9af2c2a3c6b54d61f3c872d5dbc1d3ca3fd2f839b1d5dc70`, extracted it, confirmed the Tools 21.0.04 directory and all consumed paths, and calculated the exact consumed-subset digest:
+  `6f9c4c84074f935853f96fa3b9b2de9c067d601058062decc413d366660868bb`.
+- Updated `.github/actions/setup-hexagon-sdk/action.yml` to pin SDK **6.7.0.0**, Tools **21.0.04**, the verified archive digest, and the newly calculated consumed-subset digest. The existing strict per-run digest verification remains enabled; no checksum was bypassed or weakened.
+- Updated `.github/workflows/audit-hexagon-sdk.yml` so it reads all four expected values directly from the shared action metadata and fails if the computed consumed-file digest differs. This prevents the audit workflow and build action from silently drifting apart.
+- The audit workflow only downloads, verifies, and fingerprints the SDK. It does not run Gradle, CMake, the NDK, native compilation, signing, or packaging.
+- The full CI and formatting workflows triggered by the preceding audit-workflow addition were still running at the time of this handover edit; refresh their outcomes before relying on them. The latest previously completed full non-packaging CI remains [42485479560](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42485479560), with 319/319 Jest suites, 6,031 passed tests, 2 skipped, 310 snapshots, ESLint, TypeScript, and the 34/34 native AAR audit all passing.
+- Next: verify the updated shared action with the new dynamic audit workflow, confirm full non-packaging CI, and review any remaining native-build inputs without compiling or packaging. The no-APK/AAB restriction remains in force. Native build outputs, packaged APK ZIP alignment, signing, installation, local inference, model persistence, gallery selection, offline behavior, and 16 KB device compatibility are still unverified.

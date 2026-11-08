@@ -23,9 +23,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          SDK_VERSION="6.7.0.0"
-          TOOLS_VERSION="21.0.04"
-          EXPECTED_TARBALL_SHA256="00725fc449916d7b9af2c2a3c6b54d61f3c872d5dbc1d3ca3fd2f839b1d5dc70"
+          read_action_default() {
+            awk -v key="$1" '
+              $0 == "  " key ":" { in_input=1; next }
+              in_input && /^    default:/ {
+                sub(/^    default:[[:space:]]*/, "")
+                print
+                exit
+              }
+              in_input && /^  [^ ]/ { exit }
+            ' .github/actions/setup-hexagon-sdk/action.yml
+          }
+
+          SDK_VERSION="$(read_action_default sdk-version)"
+          TOOLS_VERSION="$(read_action_default tools-version)"
+          EXPECTED_TARBALL_SHA256="$(read_action_default sdk-sha256)"
+          EXPECTED_CONSUMED_SHA256="$(read_action_default consumed-sha256)"
+          for value in "$SDK_VERSION" "$TOOLS_VERSION" "$EXPECTED_TARBALL_SHA256" "$EXPECTED_CONSUMED_SHA256"; do
+            if [ -z "$value" ]; then
+              echo "::error::Could not read a required pinned value from setup-hexagon-sdk/action.yml"
+              exit 1
+            fi
+          done
           URL="https://github.com/snapdragon-toolchain/hexagon-sdk/releases/download/v${SDK_VERSION}/hexagon-sdk-v${SDK_VERSION}-amd64-lnx.tar.xz"
           WORK="$(mktemp -d)"
           trap 'rm -rf "$WORK"' EXIT
@@ -66,3 +85,10 @@ jobs:
           echo "Verified SDK version: $SDK_VERSION"
           echo "Verified tools version: $TOOLS_VERSION"
           echo "Consumed-subset SHA-256: $CONSUMED_SHA256"
+          if [ "$CONSUMED_SHA256" != "$EXPECTED_CONSUMED_SHA256" ]; then
+            echo "::error::Consumed SDK file digest does not match setup-hexagon-sdk/action.yml"
+            echo "Expected: $EXPECTED_CONSUMED_SHA256"
+            echo "Actual:   $CONSUMED_SHA256"
+            exit 1
+          fi
+          echo "OK: tarball and consumed SDK files match the shared setup action pins."
