@@ -1,7 +1,3 @@
-import {database} from '../../database';
-import {removeUnreferencedChatImages} from '../../utils/chatImageStorage';
-import {chatSessionRepository} from '../ChatSessionRepository';
-
 jest.mock('../../database', () => ({
   database: {
     write: jest.fn(async (callback: () => Promise<void>) => callback()),
@@ -15,8 +11,10 @@ jest.mock('../../utils/chatImageStorage', () => ({
   removeUnreferencedChatImages: jest.fn().mockResolvedValue(undefined),
 }));
 
-const mockGetCollection = database.collections.get as jest.Mock;
-const mockRemoveImages = removeUnreferencedChatImages as jest.Mock;
+let database: typeof import('../../database').database;
+let chatSessionRepository: typeof import('../ChatSessionRepository').chatSessionRepository;
+let mockGetCollection: jest.Mock;
+let mockRemoveImages: jest.Mock;
 
 const createQuery = (messages: unknown[]) => ({
   fetch: jest.fn().mockResolvedValue(messages),
@@ -37,6 +35,18 @@ describe('ChatSessionRepository chat image cleanup', () => {
   let sessions: {find: jest.Mock};
   let messages: {find: jest.Mock; query: jest.Mock};
   let settings: {query: jest.Mock};
+
+  beforeAll(() => {
+    // Load the repository only after the module mocks are registered so it
+    // cannot retain a database instance imported by another setup module.
+    jest.resetModules();
+    database = require('../../database').database;
+    mockGetCollection = database.collections.get as jest.Mock;
+    mockRemoveImages = require('../../utils/chatImageStorage')
+      .removeUnreferencedChatImages;
+    chatSessionRepository =
+      require('../ChatSessionRepository').chatSessionRepository;
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
