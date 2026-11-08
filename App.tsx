@@ -138,7 +138,9 @@ const App = observer(() => {
                             component={gestureHandlerRootHOC(PalsScreen)}
                             options={{
                               headerStyle: styles.headerWithoutDivider,
-                              title: currentL10n.components.sidebarContent.menuItems.pals,
+                              title:
+                                currentL10n.components.sidebarContent.menuItems
+                                  .pals,
                             }}
                           />
                           <Drawer.Screen
