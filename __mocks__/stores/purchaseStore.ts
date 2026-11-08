@@ -6,7 +6,6 @@ import type {
   LedgerRecord,
   PlusFlow,
 } from '../../src/store/PurchaseStore';
-import {PLUS_PRODUCT_IDS} from '../../src/services/plus/catalog';
 import type {StoreProduct} from '../../src/services/iap/StorePort';
 import type {PalsHubPal} from '../../src/types/palshub';
 
@@ -91,10 +90,7 @@ class MockPurchaseStore {
   }
 
   get plusProducts(): StoreProduct[] {
-    return PLUS_PRODUCT_IDS.flatMap(id => {
-      const product = this.products.get(id);
-      return product ? [product] : [];
-    });
+    return [];
   }
 
   productFor(productId: string | undefined): StoreProduct | undefined {

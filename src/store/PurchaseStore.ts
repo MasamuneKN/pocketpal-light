@@ -22,7 +22,6 @@ import type {StorePlatform, VerifyResult} from '../services/iap/iapWire';
 import type {LinkOutcome} from '../services/iap/iapApi';
 import {changedCreatorFields} from '../services/iap/creatorContent';
 import type {CreatorContent} from '../services/iap/creatorContent';
-import {PLUS_PRODUCT_IDS, isPlusProduct} from '../services/plus/catalog';
 import {palStore as defaultPalStore} from './PalStore';
 
 import type {PalsHubPal} from '../types/palshub';
@@ -183,8 +182,7 @@ const RETRYABLE_RESULTS: ReadonlySet<VerifyResult['status']> = new Set([
 const platform = (): StorePlatform =>
   Platform.OS === 'ios' ? 'ios' : 'android';
 
-const isPlusTransaction = (tx: StoreTransaction): boolean =>
-  isPlusProduct(tx.productId);
+const isPlusTransaction = (_tx: StoreTransaction): boolean => false;
 
 const isPalTransaction = (tx: StoreTransaction): boolean =>
   !isPlusTransaction(tx);
@@ -341,10 +339,7 @@ export class PurchaseStore {
   }
 
   get plusProducts(): StoreProduct[] {
-    return PLUS_PRODUCT_IDS.flatMap(id => {
-      const product = this.products.get(id);
-      return product ? [product] : [];
-    });
+    return [];
   }
 
   productFor(productId: string | undefined): StoreProduct | undefined {
@@ -507,7 +502,7 @@ export class PurchaseStore {
     if (this.plusProductsFetch) {
       return this.plusProductsFetch;
     }
-    const missing = PLUS_PRODUCT_IDS.filter(id => !this.products.has(id));
+    const missing: string[] = [];
     if (missing.length === 0) {
       return Promise.resolve();
     }
@@ -1393,7 +1388,7 @@ export class PurchaseStore {
 
   private canBuyPlus(productId: string): boolean {
     return (
-      isPlusProduct(productId) &&
+      false &&
       this.availability === 'ready' &&
       this.plusChecked &&
       this.products.has(productId) &&
