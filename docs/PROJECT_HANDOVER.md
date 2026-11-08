@@ -1658,3 +1658,10 @@ The user has now explicitly authorized running the tests and actions considered 
 - This does not yet check APK ZIP alignment or AAB bundle alignment. The official Android guide requires a separate `zipalign -c -P 16 4 <apk>` check for APK packaging, and AAB bundle configuration must report `PAGE_ALIGNMENT_16K`. Add these checks before final release verification.
 - CI for the latest verifier commits has not yet been confirmed. No APK/AAB was created, no native compilation was run, and no artifact-level ELF/RELRO/ZIP inspection has been performed.
 - Next: validate the new RELRO parser/tests in CI, implement APK/AAB packaging-alignment checks, inspect the exact React Native and ONNX Runtime release AARs, and resolve the actual AGP version. APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
+
+## 90. RELRO test fixture correction and validation status — 2026-11-08
+
+- Corrected the synthetic ELF test builder's function signature after a source review caught escaped newline characters in the generated test file. Commit: `5363a5e`.
+- Manually exercised the RELRO decision cases against synthetic program headers: aligned RELRO passes; non-aligned RELRO ending exactly at its writable LOAD segment passes; non-aligned RELRO with writable data after it is rejected. This is a logic smoke check, not a Jest run.
+- Latest source and test commits are on `main`; the latest full non-packaging CI remains the earlier green run on `0f3e3a1`. No completed CI result for the RELRO verifier changes is confirmed yet.
+- Keep the release gate closed until CI passes, APK ZIP alignment and AAB bundle alignment are covered, the resolved release AAR payloads are checked, and a real artifact is tested on a 16 KB Android environment. No APK/AAB or native compilation has been run.
