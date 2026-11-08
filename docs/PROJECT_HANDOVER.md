@@ -1,10 +1,10 @@
 # PocketPal Lite — Project Handover
 
-> **Last updated:** 2026-11-05  
+> **Last updated:** 2026-11-08  
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Latest CI status and device verification are not confirmed by this document.
+> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; the latest `main` commit `15ccd19` only reformatted this handover. Android native artifact and device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -397,8 +397,7 @@ No physical-device verification was performed. No production source, dependencie
 
 - `788d8ed87336e35527f1ff0a739a9635bc9435dd` — `fix(l10n): accept English-only locale registry`.
   - `scripts/lib/registry-languages.js` now treats an empty non-English locale list as valid; `null` remains reserved for a missing/malformed registry.
-- `064c34878197f4750f48c2951f21a5435b86c875` — `test(l10n): align E2E locale fixtures with Lite scope`.
-  - `e2e/specs/features/language.spec.ts` now declares only English, matching `src/locales/index.ts`.
+- `064c34878197f4750f48c2951f21a5435b86c875` — `test(l10n): align E2E locale fixtures with Lite scope`.  - `e2e/specs/features/language.spec.ts` now declares only English, matching `src/locales/index.ts`.
 - `3cab319859be245b16804a9329e541a4a02b02e3` — `test(models): align FAB coverage with Lite actions`.
   - Removed obsolete remote-FAB expectations; the production FAB exposes only Hugging Face and local-model actions.
 - `d2068027f7071db989ba27bf652e4f6cb2cef63b` — `test(navigation): remove obsolete Plus focus coverage`.
@@ -797,7 +796,6 @@ No physical-device verification was performed. No production source, dependencie
 The user has now explicitly authorized running the tests and actions considered necessary to progress. This supersedes the earlier instruction to skip all verification.
 
 **Hard restriction: do not create an Android APK build until all lingering issues have been resolved completely.**
-
 - Resume targeted Jest/test investigation, lint, typecheck, and other non-APK checks as useful.
 - Inspect workflow definitions before dispatching any workflow. Do not trigger an umbrella workflow if it can start an Android build as a dependent job.
 - Do not run the separate Android APK workflow, `assembleProdDebug`, `assembleProdRelease`, or any other APK-producing task while unresolved issues remain.
@@ -1197,8 +1195,7 @@ The user has now explicitly authorized running the tests and actions considered 
 
 - Commit `9a153633d90353dce7b5de56d2e12d5f0f0907b5` updates `android/app/build.gradle` ABI filters to `arm64-v8a,x86_64`, updates `android/gradle.properties` `reactNativeArchitectures` to the same pair, and updates `scripts/android-payload-manifest.json` `requiredArtifactAbis` to require both.
 - The existing x86_64 Llama payload rules were already present; the verifier now requires x86_64 rather than treating it as optional. Regression test replaces the old arm64-only pass case with a failure when x86_64 is missing.
-- Phonon pinned package v0.1.3's lock metadata declares both `arm64-v8a` and `x86_64` Android binaries. Its Gradle plugin defaults to arm64 only, so `RNSpeech_phononAbis=arm64-v8a,x86_64` was added to `android/gradle.properties` to package the available binary and build its shim for both.
-- Existing ONNX Runtime 1.24.3 patch includes the Android 16 KB JSI linker alignment option. It remains subject to final artifact verification.
+- Phonon pinned package v0.1.3's lock metadata declares both `arm64-v8a` and `x86_64` Android binaries. Its Gradle plugin defaults to arm64 only, so `RNSpeech_phononAbis=arm64-v8a,x86_64` was added to `android/gradle.properties` to package the available binary and build its shim for both.- Existing ONNX Runtime 1.24.3 patch includes the Android 16 KB JSI linker alignment option. It remains subject to final artifact verification.
 
 ### Native compatibility audit
 
@@ -1606,3 +1603,16 @@ The user has now explicitly authorized running the tests and actions considered 
 - `EmbeddedVideoView` itself requests camera permission, captures a still image at a configurable interval, converts it to Base64, and forwards frames to its caller. The reviewed ChatScreen and PalsScreen do not import it; repository code search did not surface a caller, but that search is not conclusive enough to remove the feature or `react-native-vision-camera`.
 - The chat attachment path remains gallery-only (`launchImageLibrary`, photo media type, up to five images). The Android manifest does not declare CAMERA or RECORD_AUDIO. Do not conflate gallery-only chat attachments with the separate Video Pal UI.
 - No Video Pal or VisionCamera removal was made. Keep the feature intact pending an explicit product-scope decision and a conclusive import/navigation trace. Continue native dependency review; APK/AAB production remains prohibited.
+
+## 85. Android native build-mode and 16 KB audit — 2026-11-08
+
+- Re-verified live `main`: `15ccd1993d6bb9210555752477ffb8ab5fa2f906`. This commit only applies Prettier whitespace formatting to this handover; the latest source-code verification remains CI run `42455388447` on `0f3e3a127d732967c18d77ec6d922b8bf849ef18` (319/319 Jest suites, 6,025 passed, 2 skipped, 310 snapshots; packaging jobs skipped). The Android configuration-only run `42455282846` passed `./gradlew help`; it did not compile native code.
+- Inspected the exact upstream `llama.rn@0.13.0-rc.9` Android Gradle/CMake sources. Its `android/gradle.properties` forces `rnllamaBuildFromSource=true`; the Gradle module passes `-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON` to CMake while using the project's NDK `27.3.13750724`. It builds the llama core variants and JNI wrappers from source rather than relying on the package's prebuilt JNI libraries. This is the correct opt-in path for NDK r27's flexible 16 KB page-size support, but actual ELF output still requires artifact verification.
+- The llama JNI wrapper CMake and core-library CMake define separate shared-library targets. The wrapper and core targets are built under the same CMake invocation that receives the flexible-page-size option. The current release build still needs a full shipped-`.so` inspection; no conclusion about the final APK's ELF or ZIP alignment is claimed.
+- Inspected `onnxruntime-react-native@1.24.3` upstream Android sources and the repository patch. The patch adds `-Wl,-z,max-page-size=16384` to the locally compiled `onnxruntimejsi` JSI bridge. The ONNX Runtime Android AAR is a separate prebuilt dependency; the app's root Gradle script pins `com.microsoft.onnxruntime:onnxruntime-android` to the installed JS package's exact version rather than allowing `latest.integration`. Yarn currently resolves the JS package to `1.24.3`. The AAR's actual packaged native binaries must still be checked in the release artifact.
+- The app's custom `appmodules` CMake file adds `hardware_info.cpp` and includes React Native's `ReactNative-application.cmake`, but does not itself declare an explicit flexible-page-size option or linker flag. The exact React Native CMake toolchain behavior for this custom target has not yet been verified. Confirm that `libappmodules.so` is aligned before certifying 16 KB support.
+- `react-native.config.js` disables Android/iOS autolinking for VisionCamera and Firebase modules. This prevents those packages' native modules from being linked by autolinking, but the JavaScript dependencies and Video Pal UI/data remain; do not infer that the separate Video Pal feature has been removed.
+- Upstream llama.rn and ONNX Runtime React Native Android modules do not provide separate project-specific consumer ProGuard files at the inspected paths. The app's own `proguard-rules.pro` is still empty apart from comments. Generated React Native package references and library metadata need to be checked against the actual R8 output; do not add broad keep rules without a demonstrated missing class or JNI/reflection failure.
+- Gradle wrapper is pinned to 9.4.1. The ONNX patch imports Gradle's internal `org.gradle.util.internal.VersionNumber` because Gradle 9 removed the old public `org.gradle.util.VersionNumber`; this is an internal API and should be revisited if the dependency or Gradle version changes. The exact AGP version resolved through the React Native Gradle plugin was not established by the configuration-only check.
+- Remaining native release checks: establish the resolved AGP version; inspect React Native/Hermes and all autolinked AAR/JNI payloads; confirm the custom `appmodules` target's linker alignment; inspect R8 output/consumer rules; and run the existing payload ELF verifier against the eventual artifact. These checks require no packaging until the final controlled release-verification stage.
+- No source code or dependencies were changed in this audit. No native compilation, APK/AAB creation, or packaging workflow was run. APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
