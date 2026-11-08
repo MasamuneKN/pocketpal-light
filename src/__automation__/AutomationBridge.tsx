@@ -1,6 +1,5 @@
 import React from 'react';
 
-import {IapAdapter} from './adapters/IapAdapter';
 import {MemoryAdapter} from './adapters/MemoryAdapter';
 import {OnboardingBypass} from './adapters/OnboardingBypass';
 
@@ -24,7 +23,6 @@ export const AutomationBridge: React.FC = () => {
   return (
     <>
       <MemoryAdapter />
-      <IapAdapter />
       <OnboardingBypass />
     </>
   );
