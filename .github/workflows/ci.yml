@@ -209,7 +209,25 @@ jobs:
             echo "::error::sdkmanager failed while accepting Android SDK licenses"
             exit "${LICENSE_STATUS[1]}"
           fi
-          "$SDKMANAGER" "platforms;android-37"
+          # Android 17 is currently distributed as a preview SDK. Its package
+          # identifier includes the .0 suffix and requires the Canary channel.
+          "$SDKMANAGER" --channel=3 "platforms;android-37.0" "build-tools;37.0.0"
+
+          # sdkmanager installs API 37 under android-37.0, while AGP resolves
+          # compileSdk 37 from the conventional android-37 directory.
+          PLATFORM_PREVIEW="$ANDROID_HOME/platforms/android-37.0"
+          PLATFORM_EXPECTED="$ANDROID_HOME/platforms/android-37"
+          if [ ! -d "$PLATFORM_PREVIEW" ]; then
+            echo "::error::Android 17 SDK platform was not installed at $PLATFORM_PREVIEW"
+            exit 1
+          fi
+          if [ ! -e "$PLATFORM_EXPECTED" ]; then
+            ln -s "android-37.0" "$PLATFORM_EXPECTED"
+          fi
+          if [ ! -d "$PLATFORM_EXPECTED" ]; then
+            echo "::error::Android 17 SDK platform is not available to AGP at $PLATFORM_EXPECTED"
+            exit 1
+          fi
       - name: Resolve prodRelease artifacts and actual AGP version (no build)
         working-directory: android
         run: |
