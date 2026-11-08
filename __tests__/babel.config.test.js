@@ -1,11 +1,6 @@
 const babelConfig = require('../babel.config');
 
-const ENV_KEYS = [
-  'BABEL_ENV',
-  'NODE_ENV',
-  'E2E_BUILD',
-  'E2E_SKIP_ONBOARDING',
-];
+const ENV_KEYS = ['BABEL_ENV', 'NODE_ENV', 'E2E_BUILD', 'E2E_SKIP_ONBOARDING'];
 
 let saved;
 
