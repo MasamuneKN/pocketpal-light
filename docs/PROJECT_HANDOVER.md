@@ -1481,7 +1481,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The CI run on formatted commit `157d6ae` failed at TypeScript after ESLint passed. The exact errors were all unresolved imports to files deleted in section 69; Jest did not run. The CI run on `e7ae451` was cancelled during dependency installation and produced no test result.
 - Next: verify the repair with non-packaging CI, then audit and remove PalsHub/IAP dependencies while preserving local Pal CRUD and persistence. No APK/AAB until every lingering issue is resolved and the user lifts the restriction.
 
-
 ## 71. Retire stale Plus-only Jest coverage — 2026-11-08
 
 - Fresh CI on formatted commit `4e0c695` verified dependency installation, localization validation, font validation, ESLint, and TypeScript. Jest then failed with 6 suites / 48 tests failing; 348 suites passed and 6,813 tests passed (2 skipped; 310 snapshots passed).
