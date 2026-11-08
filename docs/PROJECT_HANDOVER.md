@@ -1533,3 +1533,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Important correction: the Mustache parameter-template parser is still used by the local Pal editor and system-prompt resolver. Restored it under the generic `pal-template-parser` name, updated those local imports, and retained its unit tests. It is not a PalsHub service and remains part of local Pal editing.
 - Android Gradle configuration validation is running only `./gradlew help`; its workflow explicitly does not compile or package native code. No APK/AAB task has been run.
 - Next: verify this correction with full non-packaging CI and confirm Android Gradle configuration completes. Then continue auditing remaining legacy PalsHub metadata/database compatibility and the gallery-only media workflow. No APK/AAB until all outstanding issues are resolved and the user explicitly lifts the restriction.
+
+
+## 77. Remove final automation export and obsolete cloud environment configuration — 2026-11-08
+
+- CI run `42448235987` on `5a6a206` passed dependency installation, localization validation, font validation, and ESLint, then failed TypeScript because `src/__automation__/index.ts` still exported the deleted `fakeStore` module. Jest was skipped; Android/iOS packaging jobs were skipped. No APK/AAB was produced.
+- Removed the stale fake-store barrel export. Removed Supabase, PalsHub, authentication/offline feature flags, and Google Sign-In variables from `.env.example` and `env.d.ts`; kept the app URL, Firebase Functions URL, App Check debug tokens, and signing variables pending separate confirmation of remaining uses.
+- Simplified the Android Gradle configuration-check workflow's generated `.env` to the remaining app/Firebase variables. The check still runs only `./gradlew help`, not compilation or packaging.
+- A source search for camera/image-picker symbols returned no matches, so it does not establish whether the active gallery flow or native camera permissions are correct. The media audit remains open and must inspect the actual attachment/gallery components and Android/iOS native permission declarations before changing dependencies or permissions.
+- The CI workflow's Android build job is gated behind a manual `workflow_dispatch` input `build_android=true`; ordinary pushes run validation but do not package Android. The standalone APK workflow is also manual-only. Neither was dispatched.
+- Next: verify the new TypeScript fix with CI; inspect active gallery selection and camera/video capture separately; then remove stale cloud environment generation from the remaining manual build workflow before any eventual release. Do not run APK/AAB packaging until all outstanding issues are resolved and the user explicitly lifts the restriction.
