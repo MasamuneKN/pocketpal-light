@@ -7,7 +7,6 @@ jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
-import 'react-native-gesture-handler/jestSetup';
 
 // __E2E__ is a build-time constant in prod/e2e builds (see babel.config.js),
 // but in Jest the transform-define plugin is disabled so it stays a runtime
@@ -195,6 +194,3 @@ jest.mock('../src/database', () => {
   };
 });
 
-jest.mock('../src/services', () => {
-  return require('../__mocks__/services');
-});
