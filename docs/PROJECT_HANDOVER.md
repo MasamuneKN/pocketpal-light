@@ -4,7 +4,7 @@
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; native 16 KB configuration fixes have since been committed but their CI validation is pending. Android native artifact and device verification remain outstanding.
+> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; subsequent native configuration and verifier changes are committed, with CI validation pending. Android native artifact and device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -1649,3 +1649,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - The React Native/Hermes dependency is delivered through Maven artifacts rather than being built by the app's CMake target. RN 0.87.1's published debug AAR must not be conflated with the release AAR; inspect the exact resolved release AAR (including `libreactnative.so`, `libjsi.so`, `libhermes.so`, `libhermestooling.so`, `libfbjni.so`, and `libc++_shared.so`) before declaring the runtime set compatible.
 - No new dependency or source changes were made during this dependency review. The existing appmodules/ONNX 16 KB fixes remain committed; CI validation for those changes is still pending. No native compilation, APK/AAB creation, or packaging workflow was run.
 - Next: add RELRO and ZIP-alignment checks to the existing artifact verifier with focused unit tests; inspect the resolved React Native release AAR and ONNX Runtime AAR; continue checking any other prebuilt JNI/AAR payloads; and resolve the actual AGP version. APK/AAB production remains prohibited until all issues are resolved and the user explicitly lifts the restriction.
+
+## 89. Add RELRO verification to the native payload gate — 2026-11-08
+
+- Extended `scripts/verify-android-payload.js` with `readElfRelroAlignment`. Every shared library in each shipped ABI is now checked for GNU_RELRO safety as well as PT_LOAD ELF alignment. It accepts no GNU_RELRO segment, a 16 KB-aligned RELRO end, or a non-aligned RELRO segment that consumes the entire remainder of its containing writable PT_LOAD. It fails closed on a RELRO segment that is not contained in a PT_LOAD or that leaves writable data after a non-aligned boundary.
+- Added synthetic ELF fixtures and focused tests for: no RELRO; aligned RELRO; non-aligned RELRO that ends the writable LOAD segment; and non-aligned RELRO with writable data following it. The synthetic fixture explicitly marks its containing LOAD segment writable when testing RELRO.
+- Commits: `3f870e1` (RELRO parser and artifact gate integration), `777dd7f` (RELRO tests), and `3b4e76f` (correct the test fixture's writable PT_LOAD flags).
+- This does not yet check APK ZIP alignment or AAB bundle alignment. The official Android guide requires a separate `zipalign -c -P 16 4 <apk>` check for APK packaging, and AAB bundle configuration must report `PAGE_ALIGNMENT_16K`. Add these checks before final release verification.
+- CI for the latest verifier commits has not yet been confirmed. No APK/AAB was created, no native compilation was run, and no artifact-level ELF/RELRO/ZIP inspection has been performed.
+- Next: validate the new RELRO parser/tests in CI, implement APK/AAB packaging-alignment checks, inspect the exact React Native and ONNX Runtime release AARs, and resolve the actual AGP version. APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
