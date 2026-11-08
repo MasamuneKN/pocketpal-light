@@ -52,8 +52,7 @@ function buildElf(
   const programHeaderOffset = 64;
   const programHeaderSize = 56;
   const programHeaderCount = relro ? 2 : 1;
-  const dynstrOffset =
-    ELF64_SHDR_SIZE + programHeaderSize * programHeaderCount;
+  const dynstrOffset = ELF64_SHDR_SIZE + programHeaderSize * programHeaderCount;
   const dynsymOffset = align8(dynstrOffset + dynstr.length);
   const shoff = align8(dynsymOffset + dynsym.length);
   const sectionCount = omitDynsym ? 2 : 3;
@@ -406,20 +405,15 @@ describe('a conforming artifact', () => {
     expect(output).toContain('extra rnllama libraries: none');
   });
 
-  it(
-    'runs zipalign and reports successful APK 16 KB ZIP alignment',
-    () => {
-      const archive = writeArchive('misaligned.apk', conformingEntries());
-      const {status, output} = runScript(SCRIPT_PATH, ['--apk', archive]);
-      expect(status).toBe(0);
-      expect(output).toContain('APK ZIP alignment: PASS');
-      expect(
-        fs.readFileSync(path.join(workspace, 'zipalign-args.txt'), 'utf-8'),
-      ).toBe(
-        ['-c', '-P', '16', '4', archive, ''].join(String.fromCharCode(10)),
-      );
-    },
-  );
+  it('runs zipalign and reports successful APK 16 KB ZIP alignment', () => {
+    const archive = writeArchive('misaligned.apk', conformingEntries());
+    const {status, output} = runScript(SCRIPT_PATH, ['--apk', archive]);
+    expect(status).toBe(0);
+    expect(output).toContain('APK ZIP alignment: PASS');
+    expect(
+      fs.readFileSync(path.join(workspace, 'zipalign-args.txt'), 'utf-8'),
+    ).toBe(['-c', '-P', '16', '4', archive, ''].join(String.fromCharCode(10)));
+  });
 
   it('blocks an APK when zipalign reports a 16 KB alignment failure', () => {
     const archive = writeArchive('misaligned.apk', conformingEntries());

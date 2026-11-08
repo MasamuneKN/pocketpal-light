@@ -1666,7 +1666,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Latest source and test commits are on `main`; the latest full non-packaging CI remains the earlier green run on `0f3e3a1`. No completed CI result for the RELRO verifier changes is confirmed yet.
 - Keep the release gate closed until CI passes, APK ZIP alignment and AAB bundle alignment are covered, the resolved release AAR payloads are checked, and a real artifact is tested on a 16 KB Android environment. No APK/AAB or native compilation has been run.
 
-
 ## 91. Add fail-closed APK ZIP alignment verification — 2026-11-08
 
 - Live `main` before this change was `b576964da4bb79bd3913d7bc527a2180ca9899b7`; that was an automated Prettier-only commit.
@@ -1677,7 +1676,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Source changes were committed to `main`, but this session did not execute Jest, lint, typecheck, Gradle, or native compilation locally. The GitHub combined commit-status lookup returned no status entries for `9fbf177`; this is not evidence of a pass or failure. The available workflow-run connector only exposes pull-request-triggered runs, so push-triggered CI still needs direct confirmation from the Actions run list.
 - No APK/AAB, native compilation, or packaging workflow was triggered. Do not trigger either packaging workflow; both are manual/opt-in and remain prohibited until the outstanding release issues are resolved and the user explicitly lifts the restriction.
 - Remaining blockers: confirm CI for these commits; inspect exact resolved React Native 0.87.1 release AAR and ONNX Runtime 1.24.3 AAR native payloads; verify every other shipped prebuilt JNI/AAR library; establish the resolved AGP version (root Gradle declares it without an explicit version); run a non-packaging Gradle dependency/configuration report; inspect R8/consumer rules; then, only after all pre-build checks are clean and permission is lifted, inspect a real APK's ELF/RELRO/ZIP alignment and test it on a 16 KB Android environment. The first APK release remains not ready.
-
 
 ## 92. Tighten APK alignment gate tests and record validation limits — 2026-11-08
 
