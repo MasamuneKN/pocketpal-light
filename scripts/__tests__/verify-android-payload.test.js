@@ -98,7 +98,7 @@ function buildElf(\n  symbols,\n  {omitDynsym = false, emptyDynsym = false, relr
   sections.copy(out, shoff);
   const ph = programHeaderOffset;
   out.writeUInt32LE(1, ph); // PT_LOAD
-  out.writeUInt32LE(5, ph + 4); // PF_R | PF_X
+  out.writeUInt32LE(relro ? 6 : 5, ph + 4); // PF_R | PF_W when RELRO is present
   out.writeBigUInt64LE(0n, ph + 8);
   out.writeBigUInt64LE(0n, ph + 16);
   out.writeBigUInt64LE(0n, ph + 24);
