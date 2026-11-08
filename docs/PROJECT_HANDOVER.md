@@ -1571,3 +1571,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Fix committed to main as e34e112a7545afdc1fef73babb82e274cf713eb8. A new CI run is expected from this push; Jest outcome is pending.
 - The full tree confirms Video Pal-related UI/data files remain (VideoPalEmptyPlaceholder, PalStore, pal-capabilities) and a direct react-native-vision-camera dependency remains. Keep these intact until runtime reachability is established; gallery attachment remains implemented with react-native-image-picker photo-only selection.
 - No APK/AAB workflow was triggered. Continue non-packaging CI and source audit only. Do not create APK/AAB until all outstanding issues are resolved and the user explicitly lifts the restriction.
+
+
+## 81. Remove stale IAP automation tests and align Babel tests with Lite flags — 2026-11-08
+
+- CI run 42454629283 on `38ecf20` passed dependency installation, localization/font validation, ESLint, and TypeScript. Jest then ran all 319 suites: 317 passed, 2 failed; 6,007 tests passed, 13 failed, 2 skipped; all 310 snapshots passed. Android/iOS packaging jobs were skipped.
+- Failure cluster 1: `src/__automation__/__tests__/deepLink.test.ts` still mocked and tested the deleted `fakeStore` IAP adapter. Removed the obsolete IAP deep-link branch from the E2E-only dispatcher and removed its retired test/mock. Memory snapshot and benchmark deep links remain.
+- Failure cluster 2: `__tests__/babel.config.test.js` still asserted the retired `__PLUS_STORE_GATE__` build define and cache-key behavior. Replaced those checks with coverage for the remaining `__E2E__` and `__E2E_SKIP_ONBOARDING__` build defines, including the default onboarding-bypass behavior and Jest's test-mode behavior. Production Babel configuration already no longer defines the Plus gate; no production behavior change was needed there.
+- Fixes committed to `main`: `01dd340` (remove retired IAP deep-link handler), `7b46c5a` (remove stale FakeStore deep-link test), and `aa76eff` (align Babel config tests with Lite flags).
+- Fresh push-triggered CI and formatter workflows are pending/running on the latest head. Wait for formatting to settle, then verify the final formatted head with full CI. Do not assume Jest is fixed until that run completes.
+- No APK/AAB or native compilation was run. Continue with Jest failure clusters and then the non-packaging Android native compatibility/configuration audit. Keep all APK/AAB production prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
