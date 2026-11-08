@@ -8,3 +8,7 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# llama.rn documents this keep rule for minified Android release builds.
+# Its JNI module classes are looked up by the native bridge at runtime.
+-keep class com.rnllama.** { *; }
