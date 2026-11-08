@@ -17,6 +17,10 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
+    env:
+      # llama.rn defaults to prebuilt libraries; the payload manifest requires
+      # the patched source build and the Hexagon backend for the release ABI set.
+      ORG_GRADLE_PROJECT_rnllamaBuildFromSource: 'true'
 
     steps:
       - name: Checkout repository
@@ -82,6 +86,16 @@ jobs:
       - name: Validate Android payload manifest
         run: node scripts/verify-android-payload.js --print-variants
 
+      - name: Derive the rnllama variant allowlist from the payload manifest
+        run: |
+          set -euo pipefail
+          VARIANTS=$(node scripts/verify-android-payload.js --print-variants)
+          echo "Declared allowlist: $VARIANTS"
+          echo "ORG_GRADLE_PROJECT_rnllamaVariants=$VARIANTS" >> "$GITHUB_ENV"
+
+      - name: Set up the Hexagon SDK
+        uses: ./.github/actions/setup-hexagon-sdk
+
       - name: Create Android .env file
         run: |
           cat > .env <<'EOL'
@@ -89,11 +103,42 @@ jobs:
           APP_URL=pocketpal://app
           EOL
 
-      - name: Build optimized release APK
+      - name: Create temporary CI release keystore
+        working-directory: android/app
         run: |
-          set -o pipefail
+          keytool -genkeypair -v \
+            -storetype PKCS12 \
+            -keystore pocketpal-release-key.keystore \
+            -alias pocketpal_key_alias \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass temporary-ci-password \
+            -keypass temporary-ci-password \
+            -dname "CN=CI Build, OU=CI, O=PocketPal, L=CI, S=CI, C=US"
+
+      - name: Build optimized release APK
+        env:
+          APP_RELEASE_STORE_PASSWORD: temporary-ci-password
+          APP_RELEASE_KEY_PASSWORD: temporary-ci-password
+        run: |
+          set -euo pipefail
+          if [ "${ORG_GRADLE_PROJECT_rnllamaBuildFromSource:-}" != "true" ]; then
+            echo "::error::llama.rn source build is required by the payload manifest."
+            exit 1
+          fi
           cd android
           ./gradlew assembleProdRelease --stacktrace --info 2>&1 | tee android-build.log
+
+      - name: Verify rnllama variant allowlist reached the build
+        run: |
+          set -euo pipefail
+          VARIANTS=$(node scripts/verify-android-payload.js --print-variants)
+          if ! grep -qF "Building rnllama variants: $VARIANTS" android/android-build.log; then
+            echo "::error::llama.rn did not report building the declared variant list."
+            grep -F "rnllama variants" android/android-build.log || true
+            exit 1
+          fi
 
       - name: Verify Android release payload
         run: |
