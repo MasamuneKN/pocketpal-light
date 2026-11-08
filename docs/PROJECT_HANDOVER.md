@@ -1721,7 +1721,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The full non-packaging CI on commit `96db56f` passed its normal checks (319 Jest suites, 6,031 tests, 2 skipped, 310 snapshots; ESLint and TypeScript passed). The dependency-audit job did not reach Gradle resolution because of this shell-pipeline handling issue.
 - No Android compilation, CMake/NDK invocation, assemble, bundle, signing, APK/AAB generation, or packaging occurred. Actual release AGP and AAR inspection remains outstanding.
 
-
 ## 97. Resolve DataStore RELRO issue and validate release AAR set — 2026-11-08
 
 - Live `main` HEAD verified as `dd736f023c843ab394164941febb795eb0e261fe` (`fix(android): upgrade DataStore for 16 KB RELRO`). The formatting workflow completed successfully and did not create a newer commit; all three latest workflows target this SHA.
@@ -1732,7 +1731,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Important qualification: AndroidX's published DataStore 1.2.1 release notes describe minor infrastructure fixes and do not explicitly identify a 16 KB RELRO fix. The reason this upgrade is accepted here is empirical: the exact resolved 1.2.1 AAR binaries passed the project's RELRO scanner on both target ABIs. Do not attribute the binary change to a specific upstream fix unless independently verified.
 - This closes the first confirmed third-party RELRO blocker in the resolved release AAR set. It does **not** prove the final APK's ZIP alignment, packaged ELF contents, signing, installation, runtime behavior, or operation on a 16 KB-page-size Android device. The audit also covers only native libraries present in the resolved AARs; app-built native outputs still need inspection in a permitted final artifact.
 - Next: review release R8/consumer rules and the native build paths not represented by prebuilt AARs; ensure the final payload verifier covers every shipped library and APK ZIP alignment; retain the no-packaging restriction. No APK/AAB or native compilation may be triggered until every outstanding issue is resolved and the user explicitly lifts the restriction.
-
 
 ## 98. Protect llama.rn from R8 and align the manual build workflow — 2026-11-08
 
