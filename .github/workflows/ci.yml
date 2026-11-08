@@ -237,17 +237,8 @@ jobs:
       - name: Create Android .env file
         run: |
           cat > .env <<'EOL'
-          # PocketPal Lite is local-first: cloud PalsHub and authentication are disabled.
           FIREBASE_FUNCTIONS_URL=https://disabled.invalid
-          SUPABASE_URL=https://disabled.invalid
-          SUPABASE_ANON_KEY=disabled
-          PALSHUB_API_BASE_URL=https://disabled.invalid
           APP_URL=pocketpal://app
-          ENABLE_PALSHUB_INTEGRATION=false
-          ENABLE_AUTHENTICATION=false
-          ENABLE_OFFLINE_MODE=true
-          GOOGLE_IOS_CLIENT_ID=
-          GOOGLE_WEB_CLIENT_ID=
           EOL
 
       - name: Create dummy release keystore for CI
