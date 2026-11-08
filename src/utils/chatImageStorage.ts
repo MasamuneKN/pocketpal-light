@@ -98,7 +98,7 @@ export const removeUnreferencedChatImages = async (
       if (
         relativePath.length > 0 &&
         !relativePath.includes('/') &&
-        !relativePath.includes('\\\\')
+        !relativePath.includes('\\')
       ) {
         candidatePaths.add(path);
       }
