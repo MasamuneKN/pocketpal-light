@@ -13,9 +13,7 @@ function fail(message) {
 function main() {
   const args = process.argv.slice(2);
   if (args.length !== 2 || args[0] !== '--gradle-log') {
-    fail(
-      'Usage: node scripts/audit-android-aar.js --gradle-log <gradle-log>',
-    );
+    fail('Usage: node scripts/audit-android-aar.js --gradle-log <gradle-log>');
   }
 
   const lines = fs.readFileSync(args[1], 'utf8').split(/\r?\n/);
