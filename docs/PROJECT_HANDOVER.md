@@ -1525,3 +1525,11 @@ The user has now explicitly authorized running the tests and actions considered 
 - Removed direct dependencies for React Native IAP, Supabase, Google Sign-In, and Apple Sign-In. Retained keychain and Firebase dependencies pending separate checks for any non-auth use. Legacy PalsHub metadata fields and database tables are deliberately preserved for compatibility with already-saved local Pal records; this change does not erase local data.
 - Updated PalStore tests to focus on offline initialization and local CRUD, and added an assertion that the local library excludes legacy PalsHub-origin records while the all-Pals getter still sees them.
 - Next: run formatting, lint, typecheck, and full Jest; resolve all regressions before touching native configuration or creating any APK/AAB. No packaging workflow was run.
+
+## 76. Repair residual references after marketplace/IAP retirement — 2026-11-08
+
+- The first CI run on formatted commit `d2f2c14` passed dependency installation, localization/font validation, and ESLint, then TypeScript identified residual references in the Jest setup, IAP E2E fake store, obsolete PalsHub search component, purchase-only `myPals` helper, and undeliverable-purchase copy.
+- Removed those unreachable purchase/search helpers and mocks, removed the retired Plus gate from Babel/Jest globals, and cleaned obsolete sign-in Jest mappings.
+- Important correction: the Mustache parameter-template parser is still used by the local Pal editor and system-prompt resolver. Restored it under the generic `pal-template-parser` name, updated those local imports, and retained its unit tests. It is not a PalsHub service and remains part of local Pal editing.
+- Android Gradle configuration validation is running only `./gradlew help`; its workflow explicitly does not compile or package native code. No APK/AAB task has been run.
+- Next: verify this correction with full non-packaging CI and confirm Android Gradle configuration completes. Then continue auditing remaining legacy PalsHub metadata/database compatibility and the gallery-only media workflow. No APK/AAB until all outstanding issues are resolved and the user explicitly lifts the restriction.

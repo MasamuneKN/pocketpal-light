@@ -13,7 +13,7 @@ import {Checkbox} from '../Checkbox';
 import {ModelSelector} from './ModelSelector';
 import {useStructuredOutput} from '../../hooks/useStructuredOutput';
 import {modelStore} from '../../store';
-import {generateFinalSystemPrompt} from '../../utils/palshub-template-parser';
+import {generateFinalSystemPrompt} from '../../utils/pal-template-parser';
 
 import {ModelNotAvailable} from './ModelNotAvailable';
 import {L10nContext} from '../../utils';
