@@ -1,10 +1,10 @@
 # PocketPal Lite — Project Handover
 
-> **Last updated:** 2026-11-08  
+ > **Last updated:** 2026-11-08
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; the latest `main` commit `15ccd19` only reformatted this handover. Android native artifact and device verification remain outstanding.
+> **Project status:** Active development. Latest full non-packaging CI passed on `0f3e3a1`; subsequent commits include native 16 KB configuration fixes and handover updates. Android native artifact and device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -1617,3 +1617,15 @@ The user has now explicitly authorized running the tests and actions considered 
 - Gradle wrapper is pinned to 9.4.1. The ONNX patch imports Gradle's internal `org.gradle.util.internal.VersionNumber` because Gradle 9 removed the old public `org.gradle.util.VersionNumber`; this is an internal API and should be revisited if the dependency or Gradle version changes. The exact AGP version resolved through the React Native Gradle plugin was not established by the configuration-only check.
 - Remaining native release checks: establish the resolved AGP version; inspect React Native/Hermes and all autolinked AAR/JNI payloads; confirm the custom `appmodules` target's linker alignment; inspect R8 output/consumer rules; and run the existing payload ELF verifier against the eventual artifact. These checks require no packaging until the final controlled release-verification stage.
 - No source code or dependencies were changed in this audit. No native compilation, APK/AAB creation, or packaging workflow was run. APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
+
+## 86. Extend 16 KB configuration to app-owned native targets — 2026-11-08
+
+- Live `main` had advanced to `2c93ba3` before this work; that commit was another automated Prettier-only handover formatting commit. The handover's prior Section 85 summary was otherwise unchanged.
+- Official Android guidance for NDK r27 and lower specifies both `-Wl,-z,max-page-size=16384` and `-Wl,-z,common-page-size=16384` when setting linker flags directly. The NDK r27 CMake option `ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON` is the supported build-system switch and also hides the invalid compile-time `PAGE_SIZE` macro. See Android Developers' 16 KB page-size guide and NDK r27 changelog.
+- Found a concrete configuration omission: the `llama.rn` dependency passes `ANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON` to its own source build, but the app's separate custom `appmodules` CMake build did not pass it. This target includes React Native's `ReactNative-application.cmake` and compiles the app's `hardware_info.cpp` JNI shim, so it must receive the option independently.
+- Updated `android/app/build.gradle` under `defaultConfig.externalNativeBuild.cmake.arguments` to pass `-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON`. This extends the NDK option to the app-owned CMake invocation without replacing React Native's CMake integration.
+- Updated `patches/onnxruntime-react-native+1.24.3.patch` so the locally compiled `onnxruntimejsi` target receives both required 16 KB linker flags: `max-page-size=16384` and `common-page-size=16384`.
+- Changes were split into focused commits: `7fb1cb6` (appmodules CMake option) and `2df429d` (ONNX JSI linker flags). No ABI scope, dependency versions, or Video Pal behavior changed.
+- Important limitation: the ONNX Runtime Android AAR remains a separate prebuilt dependency and must be checked in the final artifact. The React Native/Hermes shared libraries, `libappmodules.so`, all autolinked AAR libraries, and APK ZIP alignment still need artifact-level verification. The existing payload verifier checks ELF PT_LOAD alignment but the release package also needs ZIP alignment inspection; do not call 16 KB compatibility certified until both are checked.
+- The root Gradle buildscript declares `com.android.tools.build:gradle` without an explicit version. The resolved AGP version is supplied transitively by the React Native Gradle plugin build and has not been confirmed in this read-only audit. Verify the resolved version from a dependency report or Gradle build environment before release; do not guess it from the SDK compile level.
+- No Gradle build, native compilation, APK/AAB creation, or packaging workflow was run for these changes. Run only non-packaging validation first. APK/AAB production remains prohibited until every outstanding issue is resolved and the user explicitly lifts the restriction.
