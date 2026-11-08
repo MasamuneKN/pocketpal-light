@@ -242,7 +242,13 @@ function runScript(scriptPath, args) {
   try {
     return {
       status: 0,
-      output: execFileSync('node', [scriptPath, ...args], {encoding: 'utf-8', env: {...process.env, ZIPALIGN: path.join(workspace, 'bin', 'zipalign')}}),
+      output: execFileSync('node', [scriptPath, ...args], {
+        encoding: 'utf-8',
+        env: {
+          ...process.env,
+          ZIPALIGN: path.join(workspace, 'bin', 'zipalign'),
+        },
+      }),
     };
   } catch (err) {
     return {
