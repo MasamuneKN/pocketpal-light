@@ -81,15 +81,7 @@ jobs:
         run: |
           cat > .env <<'EOL'
           FIREBASE_FUNCTIONS_URL=https://disabled.invalid
-          SUPABASE_URL=https://disabled.invalid
-          SUPABASE_ANON_KEY=disabled
-          PALSHUB_API_BASE_URL=https://disabled.invalid
           APP_URL=pocketpal://app
-          ENABLE_PALSHUB_INTEGRATION=false
-          ENABLE_AUTHENTICATION=false
-          ENABLE_OFFLINE_MODE=true
-          GOOGLE_IOS_CLIENT_ID=
-          GOOGLE_WEB_CLIENT_ID=
           EOL
 
       - name: Validate Android payload manifest
