@@ -6,8 +6,11 @@ index 2f814e8..db18147 100644
               CXX_EXTENSIONS OFF
               POSITION_INDEPENDENT_CODE ON)
  
-+# 16 KB page alignment for Android 15+ devices
-+target_link_options(onnxruntimejsi PRIVATE "-Wl,-z,max-page-size=16384")
++# 16 KB page alignment for Android 15+ devices (NDK r27 and lower).
++target_link_options(onnxruntimejsi PRIVATE
++  "-Wl,-z,max-page-size=16384"
++  "-Wl,-z,common-page-size=16384"
++)
 +
  find_library(log-lib log)
  
