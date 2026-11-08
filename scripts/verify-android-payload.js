@@ -39,6 +39,7 @@ const SHN_UNDEF = 0;
 const ELF64_SYM_SIZE = 24;
 const ELF64_SHDR_SIZE = 64;
 const PT_LOAD = 1;
+const PT_GNU_RELRO = 0x6474e552;
 const ELF64_PHDR_SIZE = 56;
 const ANDROID_PAGE_SIZE = 16384;
 
@@ -111,6 +112,89 @@ function readElfLoadSegmentAlignment(buf) {
     throw new Error('ELF has no PT_LOAD segments');
   }
   return loads;
+}
+
+
+/**
+ * Check GNU_RELRO against Android's 16 KB page-boundary rule. A non-aligned
+ * RELRO end is safe only when no writable PT_LOAD contains it, or when RELRO
+ * consumes the entire remainder of every containing writable PT_LOAD.
+ */
+function readElfRelroAlignment(buf) {
+  if (buf.length < 64 || buf.readUInt32BE(0) !== 0x7f454c46) {
+    throw new Error('file is too short or is not an ELF object');
+  }
+  if (buf[4] !== 2 || buf[5] !== 1) {
+    throw new Error('file is not a little-endian 64-bit ELF object');
+  }
+
+  const ehsize = buf.readUInt16LE(0x34);
+  const phoff = Number(buf.readBigUInt64LE(0x20));
+  const phentsize = buf.readUInt16LE(0x36);
+  const phnum = buf.readUInt16LE(0x38);
+  if (
+    ehsize < 64 ||
+    phoff === 0 ||
+    phnum === 0 ||
+    phentsize < ELF64_PHDR_SIZE
+  ) {
+    throw new Error('ELF program header table is absent or malformed');
+  }
+  if (!Number.isSafeInteger(phoff) || phoff + phnum * phentsize > buf.length) {
+    throw new Error('ELF program header table is truncated');
+  }
+
+  const loads = [];
+  const relros = [];
+  for (let i = 0; i < phnum; i++) {
+    const at = phoff + i * phentsize;
+    const type = buf.readUInt32LE(at);
+    if (type !== PT_LOAD && type !== PT_GNU_RELRO) continue;
+
+    const flags = buf.readUInt32LE(at + 4);
+    const vaddr = Number(buf.readBigUInt64LE(at + 16));
+    const memsz = Number(buf.readBigUInt64LE(at + 40));
+    if (![vaddr, memsz].every(Number.isSafeInteger) ||
+        !Number.isSafeInteger(vaddr + memsz)) {
+      throw new Error(`program header ${i} contains an out-of-range address`);
+    }
+
+    if (type === PT_LOAD) {
+      loads.push({index: i, flags, start: vaddr, end: vaddr + memsz});
+    } else {
+      relros.push({index: i, start: vaddr, end: vaddr + memsz});
+    }
+  }
+
+  if (relros.length === 0) {
+    return {status: 'no GNU_RELRO segment', segments: []};
+  }
+
+  const segments = relros.map(relro => {
+    const containingLoads = loads.filter(
+      load => relro.start >= load.start && relro.end <= load.end,
+    );
+    if (containingLoads.length === 0) {
+      throw new Error(
+        `GNU_RELRO segment ${relro.index} is not contained in a PT_LOAD segment`,
+      );
+    }
+
+    if (relro.end % ANDROID_PAGE_SIZE === 0) {
+      return {index: relro.index, status: '16 KB aligned'};
+    }
+
+    const writableLoads = containingLoads.filter(load => (load.flags & 2) !== 0);
+    if (writableLoads.every(load => load.end === relro.end)) {
+      return {index: relro.index, status: 'ends its writable PT_LOAD'};
+    }
+
+    throw new Error(
+      `GNU_RELRO segment ${relro.index} ends at 0x${relro.end.toString(16)} (not 16 KB aligned) while writable data follows in the same PT_LOAD segment`,
+    );
+  });
+
+  return {status: 'compliant', segments};
 }
 
 function usage() {
@@ -657,8 +741,12 @@ function checkArtifact({archive, kind, manifest, report, failures}) {
     );
     for (const entry of nativeLibraries) {
       try {
-        const loads = readElfLoadSegmentAlignment(readZipEntry(archive, entry));
-        report.push(`      PASS  ${entry} (${loads.length} PT_LOAD segments)`);
+        const elf = readZipEntry(archive, entry);
+        const loads = readElfLoadSegmentAlignment(elf);
+        const relro = readElfRelroAlignment(elf);
+        report.push(
+          `      PASS  ${entry} (${loads.length} PT_LOAD segments; RELRO ${relro.status})`,
+        );
       } catch (err) {
         report.push(`      FAIL  ${entry} — ${err.message}`);
         fail(
@@ -820,5 +908,6 @@ if (require.main === module) {
 module.exports = {
   readDynsym,
   readElfLoadSegmentAlignment,
+  readElfRelroAlignment,
   variantsFromManifest,
 };
