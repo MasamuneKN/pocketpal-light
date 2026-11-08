@@ -430,6 +430,7 @@ describe('a conforming artifact', () => {
             env: {
               ...process.env,
               ZIPALIGN: path.join(workspace, 'bin', 'zipalign'),
+              ZIPALIGN_ARGS_FILE: path.join(workspace, 'zipalign-args.txt'),
               ZIPALIGN_EXIT: '1',
             },
           }),
