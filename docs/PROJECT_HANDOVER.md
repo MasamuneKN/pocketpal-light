@@ -1795,7 +1795,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - No APK/AAB, CMake/NDK build, native compilation, signing, or packaging was performed. The user's no-packaging restriction remains in force.
 - Follow-up: reference-aware orphan cleanup was subsequently added to `ChatSessionRepository` for single-session, bulk-session, and individual-message deletion. It re-reads surviving message metadata before unlinking and fails closed if metadata cannot be parsed. The cleanup utility has focused unit coverage; repository-level deletion/retained-reference integration coverage remains a gap to close. Device-level gallery selection and inference remain unverified until the permitted release validation phase.
 
-
 ## 105. Verify durable gallery-image cleanup and latest CI — 2026-11-09
 
 - Live `main` is `e42954cf3cfea9ecf5d6b9c76e7cd2232b4671b3` (`e42954c`), following formatting commit `874486e`. No APK/AAB or native build was started.
