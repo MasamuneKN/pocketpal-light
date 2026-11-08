@@ -1714,3 +1714,11 @@ The user has now explicitly authorized running the tests and actions considered 
 - This change does not invoke Android compilation, CMake, NDK, assemble, bundle, signing, or packaging. The next CI result must still prove the Gradle dependency-resolution task and AAR scanner execute successfully. Actual AGP version and native AAR alignment remain unverified until that run completes.
 - The earlier run on unformatted commit `a1d2ab2` stopped at ESLint; the formatting automation produced `24810b5`, whose full test job passed. No source test failure remains from that sequence.
 - APK/AAB production remains prohibited until all outstanding checks are resolved and the user explicitly lifts the restriction.
+
+
+## 96. Fix Android SDK license pipeline handling — 2026-11-08
+
+- The dependency-audit runner bootstrap now locates the installed SDK manager correctly, but its license step exited with code 1 because `yes` received SIGPIPE after `sdkmanager --licenses` finished. With shell `pipefail`, that expected upstream pipe closure was incorrectly treated as an SDK manager failure.
+- Updated the step to capture both pipeline exit statuses immediately. It tolerates the `yes` process closing its pipe, but still fails if `sdkmanager` itself returns nonzero. The compile SDK install remains the only SDK package requested.
+- The full non-packaging CI on commit `96db56f` passed its normal checks (319 Jest suites, 6,031 tests, 2 skipped, 310 snapshots; ESLint and TypeScript passed). The dependency-audit job did not reach Gradle resolution because of this shell-pipeline handling issue.
+- No Android compilation, CMake/NDK invocation, assemble, bundle, signing, APK/AAB generation, or packaging occurred. Actual release AGP and AAR inspection remains outstanding.
