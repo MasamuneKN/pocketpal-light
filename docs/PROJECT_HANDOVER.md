@@ -1553,7 +1553,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The fake-store export and stale cloud environment typings/example were removed in the preceding commits. CI verification for these changes remains pending at handover time; the last observed CI failure was the now-removed fake-store export in TypeScript, with ESLint already passing and Jest skipped.
 - Next: verify the latest CI run on the new head, then trace `react-native-vision-camera` and Video Pal usage before deciding whether any native camera-related dependency or permission is unnecessary. Keep the gallery-only image flow. Do not run APK/AAB packaging until all outstanding issues are resolved and the user explicitly lifts the restriction.
 
-
 ## 79. Trace the active Video Pal route and camera dependency boundary — 2026-11-08
 
 - Re-checked recent main commits. The latest commit observed was `7c1b7e676a131a7838b362b65b1b2a2c4717a6f0`, a formatter-only commit touching whitespace in this handover. The combined commit-status endpoint returned no status records for that head; this is not evidence of a passing CI run. The last known full CI result remains the TypeScript failure on `5a6a206` caused by the now-removed `fakeStore` barrel export. A fresh full validation result has not yet been confirmed.
