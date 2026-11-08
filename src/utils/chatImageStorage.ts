@@ -63,3 +63,62 @@ export const persistChatImages = async (
     throw error;
   }
 };
+
+
+/**
+ * Remove deleted-message images only when no remaining database message
+ * references them. Only direct children of the app-owned chat-images folder
+ * are eligible; arbitrary file paths from message metadata are never unlinked.
+ */
+export const removeUnreferencedChatImages = async (
+  candidateUris: string[],
+  referencedUris: string[],
+): Promise<void> => {
+  if (candidateUris.length === 0) {
+    return;
+  }
+
+  const referencedPaths = new Set<string>();
+  for (const uri of referencedUris) {
+    try {
+      referencedPaths.add(toAbsolutePath(uri));
+    } catch {
+      // Ignore unrelated URI schemes; they cannot identify an app-owned file.
+    }
+  }
+
+  const candidatePaths = new Set<string>();
+  const managedPrefix = `${CHAT_IMAGES_DIRECTORY}/`;
+  for (const uri of candidateUris) {
+    try {
+      const path = toAbsolutePath(uri);
+      const relativePath = path.startsWith(managedPrefix)
+        ? path.slice(managedPrefix.length)
+        : '';
+      if (
+        relativePath.length > 0 &&
+        !relativePath.includes('/') &&
+        !relativePath.includes('\\\\')
+      ) {
+        candidatePaths.add(path);
+      }
+    } catch {
+      // Ignore unsupported or malformed candidate URIs.
+    }
+  }
+
+  for (const path of candidatePaths) {
+    if (referencedPaths.has(path)) {
+      continue;
+    }
+
+    try {
+      if (await RNFS.exists(path)) {
+        await RNFS.unlink(path);
+      }
+    } catch (error) {
+      // Database deletion has already succeeded; cleanup is best-effort.
+      console.warn(`Failed to remove orphaned chat image: ${path}`, error);
+    }
+  }
+};
