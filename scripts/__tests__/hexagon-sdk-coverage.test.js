@@ -17,11 +17,18 @@ const LLAMA_RN_CMAKE = [
 
 /**
  * The provisioning action verifies a digest over a narrow subset of the ~3 GB
- * SDK — the parts the Android build reads or links. That subset is only sound
- * while it still covers what llama.rn's CMake actually references. A widened
- * include set would otherwise leave the digest green over a stale, narrower
- * set, and on a cache hit the tarball digest is not there to catch it.
- *
+ * SDK. Besides literal HEXAGON_SDK_ROOT paths in llama.rn's CMake, the subset
+ * includes transitive toolchain dependencies required by those paths.
+ */
+const TRANSITIVE_DEPENDENCIES = {
+  'ipc/fastrpc/incs': 'FastRPC headers included by SDK headers',
+  build: 'SDK build support files required by toolchain scripts',
+  'tools/HEXAGON_Tools/21.0.04':
+    'the pinned Hexagon compiler and linker toolchain',
+  'rtos/qurt': 'QURT headers and libraries used by Hexagon targets',
+};
+
+/**
  * Paths llama.rn references that this repackaging does not ship. A compiler
  * ignores a missing include directory, so nothing is consumed from them.
  */
@@ -48,8 +55,6 @@ const consumedPaths = fs
   .filter(line => line && !line.startsWith('#'));
 
 describe('the parse itself', () => {
-  // Without these, a rename on either side makes every assertion below pass
-  // over an empty set.
   it('finds the SDK paths llama.rn references', () => {
     expect(referenced.length).toBe(5);
   });
@@ -71,11 +76,11 @@ describe('the verified subset covers what the build consumes', () => {
     expect(consumedPaths.some(consumed => covers(consumed, ref))).toBe(true);
   });
 
-  it('digests nothing that llama.rn does not reference', () => {
-    const unreferenced = consumedPaths.filter(
+  it('accounts for every transitive toolchain dependency', () => {
+    const extras = consumedPaths.filter(
       consumed => !referenced.some(ref => covers(consumed, ref)),
     );
-    expect(unreferenced).toEqual([]);
+    expect(extras.sort()).toEqual(Object.keys(TRANSITIVE_DEPENDENCIES).sort());
   });
 
   it('states why each referenced path it skips is not shipped', () => {
