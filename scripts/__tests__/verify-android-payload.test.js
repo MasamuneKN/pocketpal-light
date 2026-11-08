@@ -215,7 +215,7 @@ beforeEach(() => {
   const zipalign = path.join(bin, 'zipalign');
   fs.writeFileSync(
     zipalign,
-    '#!/bin/sh\nif [ "${ZIPALIGN_EXIT:-0}" != "0" ]; then echo "synthetic alignment failure" >&2; exit "${ZIPALIGN_EXIT}"; fi\necho "Verification successful"\n',
+    '#!/bin/sh\nprintf \'%s\\n\' "$@" > "$ZIPALIGN_ARGS_FILE"\nif [ "${ZIPALIGN_EXIT:-0}" != "0" ]; then echo "synthetic alignment failure" >&2; exit "${ZIPALIGN_EXIT}"; fi\necho "Verification successful"\n',
   );
   fs.chmodSync(zipalign, 0o755);
 });
@@ -247,6 +247,7 @@ function runScript(scriptPath, args) {
         env: {
           ...process.env,
           ZIPALIGN: path.join(workspace, 'bin', 'zipalign'),
+          ZIPALIGN_ARGS_FILE: path.join(workspace, 'zipalign-args.txt'),
         },
       }),
     };
@@ -408,14 +409,13 @@ describe('a conforming artifact', () => {
   it(
     'runs zipalign and reports successful APK 16 KB ZIP alignment',
     () => {
-      const {status, output} = runScript(SCRIPT_PATH, [
-        '--apk',
-        writeArchive('misaligned.apk', conformingEntries()),
-      ]);
-      // The fake zipalign executable succeeds by default; the explicit failing
-      // case below verifies that a non-zero verifier exit blocks the artifact.
+      const archive = writeArchive('misaligned.apk', conformingEntries());
+      const {status, output} = runScript(SCRIPT_PATH, ['--apk', archive]);
       expect(status).toBe(0);
       expect(output).toContain('APK ZIP alignment: PASS');
+      expect(fs.readFileSync(path.join(workspace, 'zipalign-args.txt'), 'utf-8')).toBe(
+        ['-c', '-P', '16', '4', archive, ''].join('\\n'),
+      );
     },
   );
 
