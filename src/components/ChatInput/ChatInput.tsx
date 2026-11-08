@@ -26,6 +26,7 @@ import {chatSessionStore, modelStore, uiStore} from '../../store';
 
 import {MessageType} from '../../utils/types';
 import {L10nContext, UserContext} from '../../utils';
+import {persistChatImages} from '../../utils/chatImageStorage';
 import {t} from '../../locales';
 
 import {SendButton} from '../SendButton';
@@ -233,13 +234,15 @@ export const ChatInput = observer(
         });
 
         if (result.assets && result.assets.length > 0) {
-          const newUris = result.assets
+          const selectedUris = result.assets
             .filter(asset => asset.uri)
             .map(asset => asset.uri as string);
 
-          if (newUris.length > 0) {
-            const newImages = [...selectedImages, ...newUris];
-            setSelectedImages(newImages);
+          if (selectedUris.length > 0) {
+            // The picker stores returned files in app cache. Copy them into
+            // Documents before saving their URIs in persistent chat history.
+            const persistentUris = await persistChatImages(selectedUris);
+            setSelectedImages([...selectedImages, ...persistentUris]);
           }
         }
         setShowImageUploadMenu(false);

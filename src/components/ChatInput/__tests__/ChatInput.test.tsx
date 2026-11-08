@@ -7,6 +7,7 @@ import {runInAction} from 'mobx';
 import {user} from '../../../../jest/fixtures';
 import {l10n} from '../../../locales';
 import {UserContext} from '../../../utils';
+import {persistChatImages} from '../../../utils/chatImageStorage';
 import {ChatInput} from '../ChatInput';
 import {render} from '../../../../jest/test-utils';
 import {chatSessionStore, modelStore} from '../../../store';
@@ -15,6 +16,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 // Mock react-native-image-picker
 jest.mock('react-native-image-picker', () => ({
   launchImageLibrary: jest.fn(),
+}));
+jest.mock('../../../utils/chatImageStorage', () => ({
+  persistChatImages: jest.fn(),
 }));
 
 jest.spyOn(Alert, 'alert');
@@ -482,6 +486,12 @@ describe('input', () => {
   describe('Image Upload Functionality', () => {
     beforeEach(() => {
       jest.clearAllMocks();
+      (persistChatImages as jest.Mock).mockImplementation(
+        async (uris: string[]) =>
+          uris.map(
+            (_, index) => `file:///documents/chat-images/${index}.jpg`,
+          ),
+      );
     });
 
     it('opens the image upload menu from the plus button', () => {
@@ -522,9 +532,52 @@ describe('input', () => {
       expect(launchImageLibrary).toHaveBeenCalledWith(
         expect.objectContaining({mediaType: 'photo', selectionLimit: 5}),
       );
+      expect(persistChatImages).toHaveBeenCalledWith([
+        'file://gallery-photo.jpg',
+      ]);
       expect(modelStore.enableAutoRelease).toHaveBeenCalledWith(
         'image-gallery',
       );
+    });
+
+ 
+    it('sends persistent gallery image URIs with the message', async () => {
+      runInAction(() => {
+        modelStore.activeModelId = 'test-model-id';
+      });
+      (launchImageLibrary as jest.Mock).mockResolvedValue({
+        assets: [{uri: 'file://gallery-photo.jpg'}],
+      });
+      const onSendPress = jest.fn();
+      const {getByLabelText, getByText, findByLabelText, getByPlaceholderText} =
+        render(
+          <UserContext.Provider value={user}>
+            <ChatInput
+              onSendPress={onSendPress}
+              showImageUpload
+              isVisionEnabled
+              sendButtonVisibilityMode="editing"
+            />
+          </UserContext.Provider>,
+        );
+
+      fireEvent.press(getByLabelText('Add image'));
+      fireEvent.press(getByText('Gallery'));
+      await findByLabelText('Remove image 1');
+
+      const input = getByPlaceholderText(
+        l10n.en.components.chatInput.inputPlaceholder,
+      );
+      fireEvent.changeText(input, 'Describe this image');
+      fireEvent.press(
+        getByLabelText(l10n.en.components.sendButton.accessibilityLabel),
+      );
+
+      expect(onSendPress).toHaveBeenCalledWith({
+        text: 'Describe this image',
+        type: 'text',
+        imageUris: ['file:///documents/chat-images/0.jpg'],
+      });
     });
 
     it('reports gallery errors and restores auto-release', async () => {
