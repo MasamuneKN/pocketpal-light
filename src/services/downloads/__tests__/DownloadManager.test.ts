@@ -27,6 +27,7 @@ jest.mock('react-native', () => {
   };
 
   return {
+    Platform: {OS: 'android'},
     NativeModules: {
       DownloadModule: mockDownloadModule,
     },
