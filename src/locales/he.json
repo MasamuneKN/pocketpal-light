@@ -498,15 +498,6 @@
       "vision": "ראייה",
       "mtp": "ספקולטיבי (MTP)",
       "mtpDraft": "טיוטה ספקולטיבית"
-    },
-    "hubRun": {
-      "title": "הורד מודל",
-      "resolving": "טוען פרטי מודל…",
-      "cancel": "ביטול",
-      "retry": "נסה שוב",
-      "invalidLinkTitle": "קישור לא תקין",
-      "invalidLinkMessage": "קישור Hugging Face זה חסר או מכיל מודל או קובץ לא תקין.",
-      "resolveError": "טעינת פרטי המודל נכשלה. בדוק את החיבור ונסה שוב."
     }
   },
   "completionParams": {
@@ -1033,7 +1024,12 @@
         "total": "סה\"כ: ",
         "usage": "שימוש: "
       },
-      "byteSizes": ["Bytes", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
