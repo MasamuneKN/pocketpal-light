@@ -1,4 +1,3 @@
-import {Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import NativeHardwareInfo from '../specs/NativeHardwareInfo';
 import type {CPUInfo, GPUInfo} from '../specs/NativeHardwareInfo';
@@ -11,7 +10,6 @@ export interface GpuCapabilities {
   isSupported: boolean;
   /** Reason why GPU is not supported (if applicable) */
   reason?:
-    | 'ios_version'
     | 'no_adreno'
     | 'missing_cpu_features'
     | 'simulator'
@@ -21,7 +19,6 @@ export interface GpuCapabilities {
     hasAdreno?: boolean;
     hasI8mm?: boolean;
     hasDotProd?: boolean;
-    iosVersion?: number;
     isSimulator?: boolean;
   };
 }
@@ -49,13 +46,12 @@ export interface CpuInfo {
  * Check if the device supports GPU acceleration.
  *
  * Requirements:
- * - iOS: Requires iOS 18 or higher for Metal acceleration
  * - Android: Requires Adreno GPU + i8mm CPU feature + dotprod CPU feature for OpenCL
  *
  * @returns Promise<GpuCapabilities> GPU support status and details
  */
 export async function checkGpuSupport(): Promise<GpuCapabilities> {
-  // Check for simulator/emulator first - Metal residency sets not supported on simulators
+  // Check for emulator first; OpenCL acceleration is not supported there.
   const isSimulator = await DeviceInfo.isEmulator();
   if (isSimulator) {
     return {
@@ -67,67 +63,49 @@ export async function checkGpuSupport(): Promise<GpuCapabilities> {
     };
   }
 
-  if (Platform.OS === 'ios') {
-    // iOS requires version 18 or higher for Metal acceleration
-    const iosVersion = parseInt(Platform.Version as string, 10);
-    const isSupported = iosVersion >= 18;
-
-    return {
-      isSupported,
-      reason: isSupported ? undefined : 'ios_version',
-      details: {
-        iosVersion,
-      },
-    };
-  } else if (Platform.OS === 'android') {
-    // Android requires Adreno GPU + i8mm + dotprod CPU features for OpenCL
-    try {
-      const [gpuInfo, cpuInfo] = await Promise.all([
+  // Android requires Adreno GPU + i8mm + dotprod CPU features for OpenCL
+  try {
+    const [gpuInfo, cpuInfo] = await Promise.all([
         NativeHardwareInfo.getGPUInfo(),
         NativeHardwareInfo.getCPUInfo(),
       ]);
 
-      const hasAdreno = gpuInfo.hasAdreno ?? false;
-      const hasI8mm = cpuInfo.hasI8mm ?? false;
-      const hasDotProd = cpuInfo.hasDotProd ?? false;
+    const hasAdreno = gpuInfo.hasAdreno ?? false;
+    const hasI8mm = cpuInfo.hasI8mm ?? false;
+    const hasDotProd = cpuInfo.hasDotProd ?? false;
 
-      // All three conditions must be met for OpenCL support
-      const isSupported = hasAdreno && hasI8mm && hasDotProd;
+    // All three conditions must be met for OpenCL support
+    const isSupported = hasAdreno && hasI8mm && hasDotProd;
 
-      let reason: GpuCapabilities['reason'];
-      if (!isSupported) {
-        if (!hasAdreno) {
+    let reason: GpuCapabilities['reason'];
+    if (!isSupported) {
+      if (!hasAdreno) {
           reason = 'no_adreno';
-        } else if (!hasI8mm || !hasDotProd) {
-          reason = 'missing_cpu_features';
-        } else {
-          reason = 'unknown';
-        }
+    } else if (!hasI8mm || !hasDotProd) {
+        reason = 'missing_cpu_features';
+      } else {
+        reason = 'unknown';
+      }
       }
 
-      return {
-        isSupported,
-        reason,
-        details: {
-          hasAdreno,
-          hasI8mm,
-          hasDotProd,
-        },
-      };
-    } catch (error) {
-      console.warn('Failed to check GPU support:', error);
-      return {
-        isSupported: false,
-        reason: 'unknown',
-      };
+    return {
+      isSupported,
+      reason,
+      details: {
+        hasAdreno,
+        hasI8mm,
+        hasDotProd,
+      },
+    };
+  } catch (error) {
+    console.warn('Failed to check GPU support:', error);
+    return {
+      isSupported: false,
+      reason: 'unknown',
+    };
     }
   }
 
-  // Other platforms don't support GPU acceleration
-  return {
-    isSupported: false,
-    reason: 'unknown',
-  };
 }
 
 /**
@@ -139,19 +117,6 @@ export async function getCpuInfo(): Promise<CpuInfo | null> {
     const info: CPUInfo = await NativeHardwareInfo.getCPUInfo();
     if (!info) {
       return null;
-    }
-
-    // On iOS, the native module returns minimal info
-    if (Platform.OS === 'ios') {
-      return {
-        cores: info.cores || 0,
-        processors: [],
-        features: [],
-        hasFp16: false,
-        hasDotProd: false,
-        hasSve: false,
-        hasI8mm: false,
-      };
     }
 
     // Map CPUInfo to CpuInfo, ensuring all fields are properly typed
@@ -235,13 +200,9 @@ export async function getGpuInfo(): Promise<GPUInfo | null> {
 
 /**
  * Get chipset information (Android only)
- * @returns Promise<string | null> Chipset name or null if unavailable/iOS
+ * @returns Promise<string | null> Chipset name or null if unavailable
  */
 export async function getChipsetInfo(): Promise<string | null> {
-  if (Platform.OS !== 'android') {
-    return null;
-  }
-
   try {
     const chipset = await NativeHardwareInfo.getChipset?.();
     return chipset || null;
