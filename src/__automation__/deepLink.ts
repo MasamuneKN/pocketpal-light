@@ -8,8 +8,7 @@
  *                              transcribing|waiting-chat|error-capture|
  *                              error-blocked|error-memory|error-disk>
  *   pocketpal://e2e/benchmark   (Android: cold-launch path lives in
- *                                useDeepLinking.ts since RN's Android side
- *                                doesn't deliver the URL via DeepLinkService)
+ *                                useDeepLinking.ts handles this Android URL directly)
  */
 import type {DeepLinkParams} from '../utils/deepLinkTypes';
 import {ROUTES} from '../utils/navigationConstants';
@@ -42,9 +41,8 @@ export async function dispatchAutomationDeepLink(
   // the shared helper so both deep-link sites (this dispatcher and the
   // useDeepLinking cold/warm-launch effect) accept the exact same shape.
   if (isBenchmarkRunnerUrl(params.url)) {
-    // Resolve autostart from the same raw URL string via the shared helper —
-    // NOT from params.queryParams — so the iOS/DeepLinkService origin and the
-    // Android/Linking origin cannot diverge in truthiness.
+    // Resolve autostart from the raw URL string via the shared helper so the
+    // Android deep-link path uses one consistent interpretation.
     navigation?.navigate(ROUTES.BENCHMARK_RUNNER, {
       autostart: parseBenchmarkAutostart(params.url),
     });
