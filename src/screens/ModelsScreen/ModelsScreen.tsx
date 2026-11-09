@@ -19,7 +19,6 @@ import {ModelAccordion} from './ModelAccordion';
 import {DownloadErrorDialog} from '../../components/DownloadErrorDialog';
 import {ErrorSnackbar} from '../../components/ErrorSnackbar';
 import {ModelSettingsSheet} from '../../components/ModelSettingsSheet';
-import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 
 import {hfStore, modelStore, UIStore, uiStore} from '../../store';
 
@@ -38,10 +37,6 @@ export const ModelsScreen: React.FC = observer(() => {
   // Centralized error state tracking - derive directly from MobX stores
   const [activeError, setActiveError] = useState<ErrorState | null>(null);
   const [isShowingErrorDialog, setIsShowingErrorDialog] = useState(false);
-
-  // Model error report sheet state
-  const [isErrorReportVisible, setIsErrorReportVisible] = useState(false);
-  const [errorToReport, setErrorToReport] = useState<ErrorState | null>(null);
 
   const theme = useTheme();
   const styles = createStyles(theme);
@@ -134,18 +129,7 @@ export const ModelsScreen: React.FC = observer(() => {
     handleDismissError();
   };
 
-  const handleReportModelError = () => {
-    if (activeError?.context === 'modelInit') {
-      setErrorToReport(activeError);
-      setIsErrorReportVisible(true);
-      handleDismissError();
-    }
-  };
 
-  const handleCloseErrorReport = () => {
-    setIsErrorReportVisible(false);
-    setErrorToReport(null);
-  };
 
   const handleAddLocalModel = async () => {
     if (isCopyingModel) {
@@ -355,7 +339,6 @@ export const ModelsScreen: React.FC = observer(() => {
           error={activeError}
           onDismiss={handleDismissError}
           onRetry={handleRetryAction}
-          onReport={handleReportModelError}
         />
       )}
 
@@ -415,11 +398,6 @@ export const ModelsScreen: React.FC = observer(() => {
         isVisible={settingsVisible}
         onClose={handleCloseSettings}
         model={selectedModel}
-      />
-      <ModelErrorReportSheet
-        isVisible={isErrorReportVisible}
-        onClose={handleCloseErrorReport}
-        error={errorToReport}
       />
     </View>
   );
