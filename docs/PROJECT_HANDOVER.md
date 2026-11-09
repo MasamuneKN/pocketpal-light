@@ -1868,7 +1868,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Product decision needed before changing this surface: retain these as optional online-only extras, or remove their UI/API/App Check dependencies as part of a stricter fully local-only build. This does not block local inference or gallery storage technically, but it affects the strictness of the offline-only scope.
 - No APK/AAB, native compilation, signing, or packaging was performed.
 
-
 ## 113. Confirm strict online-feature boundary — 2026-11-09
 
 - User explicitly confirmed: **the only online feature retained in PocketPal Lite is model downloading; all other online features may be removed.** Treat model catalog/search and model-file downloads as the only permitted network-dependent product workflows. All inference, chat, model management after download, persistence, benchmark calculation/history, and gallery workflows must remain local.
