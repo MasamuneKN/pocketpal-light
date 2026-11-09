@@ -14,6 +14,7 @@ import {ChatScreen} from '../ChatScreen';
 import {chatSessionStore, modelStore} from '../../../store';
 
 import {l10n} from '../../../locales';
+import {ModelOrigin} from '../../../utils/types';
 import {mockLlamaContextParams} from '../../../../jest/fixtures/models';
 import {bodyExtras} from '../../../api/servers';
 
