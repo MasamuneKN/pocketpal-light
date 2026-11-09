@@ -498,15 +498,6 @@
       "vision": "视觉",
       "mtp": "推测解码 (MTP)",
       "mtpDraft": "推测草稿"
-    },
-    "hubRun": {
-      "title": "下载模型",
-      "resolving": "正在加载模型详情…",
-      "cancel": "取消",
-      "retry": "重试",
-      "invalidLinkTitle": "无效链接",
-      "invalidLinkMessage": "此 Hugging Face 链接无效，或此模型/文件不存在。",
-      "resolveError": "无法加载模型详情，请检查您的网络连接并重试。"
     }
   },
   "completionParams": {
@@ -1033,7 +1024,12 @@
         "total": "总计: ",
         "usage": "使用率: "
       },
-      "byteSizes": ["字节", "KB", "MB", "GB"]
+      "byteSizes": [
+        "字节",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
