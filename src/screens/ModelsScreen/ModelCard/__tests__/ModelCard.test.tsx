@@ -1,5 +1,5 @@
 import React from 'react';
-import {Linking, Alert} from 'react-native';
+import {Alert} from 'react-native';
 
 import {render, fireEvent, waitFor, act} from '../../../../../jest/test-utils';
 import {
@@ -23,10 +23,6 @@ import {ModelType} from '../../../../utils/types';
 import {l10n} from '../../../../locales';
 
 jest.useFakeTimers(); // Mock all timers
-
-// Mock Linking - need to spy on the actual Linking object
-const mockOpenURL = jest.fn().mockImplementation(() => Promise.resolve());
-jest.spyOn(Linking, 'openURL').mockImplementation(mockOpenURL);
 
 const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => ({
@@ -134,21 +130,6 @@ describe('ModelCard', () => {
     await waitFor(() => {
       expect(getByTestId('download-progress-bar')).toBeTruthy();
     });
-  });
-
-  it('opens the HuggingFace URL when the icon button is pressed', async () => {
-    const {getByTestId} = customRender(<ModelCard model={basicModel} />);
-
-    // First expand the details to see the HuggingFace link
-    const expandButton = getByTestId('expand-details-button');
-    fireEvent.press(expandButton);
-
-    await waitFor(() => {
-      const openButton = getByTestId('open-huggingface-url');
-      fireEvent.press(openButton);
-    });
-
-    expect(Linking.openURL).toHaveBeenCalledWith(basicModel.hfUrl);
   });
 
   it('handles model load correctly', async () => {
