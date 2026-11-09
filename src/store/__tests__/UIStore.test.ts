@@ -9,7 +9,6 @@ describe('UIStore', () => {
   beforeEach(() => {
     uiStore.setColorScheme('light');
     uiStore.setAutoNavigateToChat(true);
-    uiStore.setDisplayMemUsage(false);
     uiStore.setValue('modelsScreen', 'filters', []);
     uiStore.setLanguage('en');
   });
@@ -25,7 +24,6 @@ describe('UIStore', () => {
     });
     expect(uiStore.autoNavigatetoChat).toBe(true);
     expect(uiStore.colorScheme).toBe('light');
-    expect(uiStore.displayMemUsage).toBe(false);
   });
 
   it('should set color scheme', () => {
@@ -36,11 +34,6 @@ describe('UIStore', () => {
   it('should set auto navigate to chat', () => {
     uiStore.setAutoNavigateToChat(false);
     expect(uiStore.autoNavigatetoChat).toBe(false);
-  });
-
-  it('should set display memory usage', () => {
-    uiStore.setDisplayMemUsage(true);
-    expect(uiStore.displayMemUsage).toBe(true);
   });
 
   it('should set page state value correctly', () => {
