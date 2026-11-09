@@ -1921,3 +1921,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - Confirmed the gallery cleanup regression suite `ChatSessionRepository.imageCleanup.test.ts` passed in this run. The main CI job also passed ESLint and TypeScript after the Firebase/reporting removal.
 - The CI run was a manual `workflow_dispatch` with `build_android=false`: both `build-android` and the Android release dependency audit were skipped. No native compilation, APK/AAB generation, signing, or packaging occurred.
 - Next: fix the test suites in focused clusters, starting with Android-only script/test leftovers and current ModelStore/device-rule test wiring; then address the retained gallery-preview and benchmark test failures. Re-run non-packaging CI only. Keep the user's no-packaging restriction active.
+
+
+## 118. Remove obsolete iOS font-validation test assumptions — 2026-11-09
+
+- Updated `scripts/__tests__/verify-fonts.test.js` to match the existing Android-only `scripts/verify-fonts.js` contract. The test harness no longer creates or copies a nonexistent iOS `Info.plist`, and the obsolete test requiring iOS `UIAppFonts` registration was removed. The success assertion now checks the script's Android-only success message.
+- Change committed as `fb9a562510722dedb0ada87c0569302f674c4ec9`; the repository formatter subsequently produced `28adcd1fd6cf1a1a89abb408c4e17549965cf40d` on `main`.
+- CI run [42584640637](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42584640637) reached successful dependency installation, localization validation, font registration, and ESLint. It was cancelled during TypeScript before Jest began; Android build and release dependency audit were also cancelled. Do not count this as a completed validation run.
+- Remaining Android-only generator issue: `scripts/generate-app-icons.js` still generates iOS AppIcon/Contents.json assets and its tests assert those outputs. This is a real repository tooling leftover, not an Android runtime dependency. Remove the iOS output path and rewrite generator tests to assert Android-only outputs before treating the Android-only source audit as complete.
+- No APK/AAB, native compilation, signing, or packaging was performed. The prohibition remains active.
