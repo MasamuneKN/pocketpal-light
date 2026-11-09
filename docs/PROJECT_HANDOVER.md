@@ -1948,3 +1948,10 @@ The user has now explicitly authorized running the tests and actions considered 
 - Removed the retired device-rule network mock from onboarding and theme tests; removed the remote-server payload assertion from ChatSessionStore settings tests; inlined a small local completion-timing fixture rather than importing a deleted fixture file. Removed web-search/read-url-specific AgentRunner tests and imports because those online agent capabilities are outside the Lite scope; retained local AgentRunner dispatch, cancellation, ordering, and backpressure tests.
 - Removed remaining iOS-only ModelStore test cases. Changes are in commits `6c287e3e`, `c7dc5b75`, `7e66278d`, `70983e16`, `26b4f68d`, `03f31e41`, `0dd100f0`, `141e4702`, `af4ace2a`, `fb61b940`, and `b3612591`.
 - CI for the final test edits is queued; no successful Jest validation yet. The prior run is not sufficient to claim the latest test fixes pass. Next: inspect final CI results, fix remaining failures based on evidence, then address the remaining offline model/store and UI test failures. Do not run APK/AAB packaging or native compilation.
+
+## 121. Correct test-file structure after removing obsolete cases — 2026-11-09
+
+- Live `main` before this update: `d81e9d7efa0d18a9646d19a90fb20432213219c5`.
+- The first formatter pass exposed dangling Jest callback closers left by removal of nested obsolete test blocks. Corrected the device-signal suite terminator and removed the orphaned closers in ModelStore and AgentRunner tests. The AgentRunner retained local dispatch/concurrency/cancellation tests; only web-search/read-URL tests and their deleted module imports were removed.
+- Latest code commit for these corrections: `d81e9d7e`. The formatter/CI workflows for that exact commit were newly queued at the time of this update; do not assume formatting, typecheck, or Jest passes until their results are checked.
+- No APK/AAB packaging, signing, or native compilation was started. Continue with non-packaging checks only.
