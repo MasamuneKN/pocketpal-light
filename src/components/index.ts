@@ -15,7 +15,6 @@ export * from './DatabaseMigration';
 export * from './Dialog';
 export * from './Divider';
 export * from './DownloadErrorDialog';
-export * from './EmbeddedVideoView';
 export * from './EnhancedSearchBar';
 export * from './ErrorSnackbar';
 export * from './FileMessage';
@@ -61,7 +60,6 @@ export * from './ToolErrorBlock';
 export * from './ToolMetricsFooter';
 export * from './ToolUsedChip';
 export * from './UsageStats';
-export * from './VideoPalEmptyPlaceholder';
 export * from './VisionDownloadSheet';
 
 export * from './PalHeaderRight';
