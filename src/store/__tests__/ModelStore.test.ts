@@ -5737,9 +5737,6 @@ describe('ModelStore', () => {
         expect(modelStore.effectiveDraftMode).toBe('off');
       });
 
-
-      });
-
       it('speculative off → off even with a resolvable draft', () => {
         modelStore.setSpeculativeEnabled(false);
         modelStore.setSelectedDraftModel('c/d/dr.gguf');
