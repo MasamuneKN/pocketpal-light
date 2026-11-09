@@ -94,7 +94,6 @@ describe('BenchResultCard', () => {
       <BenchResultCard
         result={secondsResult}
         onDelete={mockOnDelete}
-        onShare={mockOnShare}
       />,
     );
     expect(getByText('3s')).toBeTruthy();
@@ -105,7 +104,6 @@ describe('BenchResultCard', () => {
       <BenchResultCard
         result={minutesResult}
         onDelete={mockOnDelete}
-        onShare={mockOnShare}
       />,
     );
     expect(getByText('2m 5s')).toBeTruthy();
@@ -116,7 +114,6 @@ describe('BenchResultCard', () => {
       <BenchResultCard
         result={mockResult}
         onDelete={mockOnDelete}
-        onShare={mockOnShare}
       />,
     );
 
@@ -138,7 +135,6 @@ describe('BenchResultCard', () => {
       <BenchResultCard
         result={minimalResult}
         onDelete={mockOnDelete}
-        onShare={mockOnShare}
       />,
     );
 
@@ -200,7 +196,6 @@ describe('BenchResultCard', () => {
         <BenchResultCard
           result={resultWithOn}
           onDelete={mockOnDelete}
-          onShare={mockOnShare}
         />,
       );
 
@@ -230,7 +225,6 @@ describe('BenchResultCard', () => {
         <BenchResultCard
           result={resultWithOff}
           onDelete={mockOnDelete}
-          onShare={mockOnShare}
         />,
       );
 
@@ -260,7 +254,6 @@ describe('BenchResultCard', () => {
         <BenchResultCard
           result={legacyResult}
           onDelete={mockOnDelete}
-          onShare={mockOnShare}
         />,
       );
 
@@ -291,7 +284,6 @@ describe('BenchResultCard', () => {
         <BenchResultCard
           result={legacyResult}
           onDelete={mockOnDelete}
-          onShare={mockOnShare}
         />,
       );
 
@@ -323,7 +315,6 @@ describe('BenchResultCard', () => {
         <BenchResultCard
           result={resultWithOff}
           onDelete={mockOnDelete}
-          onShare={mockOnShare}
         />,
       );
 
