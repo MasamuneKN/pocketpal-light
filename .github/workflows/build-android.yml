@@ -99,7 +99,6 @@ jobs:
       - name: Create Android .env file
         run: |
           cat > .env <<'EOL'
-          FIREBASE_FUNCTIONS_URL=https://disabled.invalid
           APP_URL=pocketpal://app
           EOL
 
