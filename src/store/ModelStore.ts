@@ -1120,7 +1120,7 @@ class ModelStore {
       // active → background: release if enabled (direct transition)
       if (
         this.isAutoReleaseEnabled &&
-        this.activeModelId &&
+        this.activeModelId
       ) {
         console.log('Active → Background: Auto-releasing context');
         this.markAutoReleased(this.activeModelId);

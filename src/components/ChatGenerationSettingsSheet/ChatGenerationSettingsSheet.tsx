@@ -230,11 +230,6 @@ const ChatGenerationSettingsSheetImpl = ({
         <CompletionSettings
           settings={settings}
           onChange={updateSettings}
-          serverDefaults={
-            isEditingPresetSettings
-              ? undefined
-              : modelStore.activeSamplerDefaults
-          }
         />
       </Sheet.ScrollView>
       <Sheet.Actions>

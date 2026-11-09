@@ -1,4 +1,4 @@
-import {TouchableOpacity, View} from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
 
 import {InputSlider} from '../InputSlider';
@@ -17,7 +17,7 @@ import {
   validateNumericField,
 } from '../../utils/modelSettings';
 import {CompletionParams} from '../../utils/completionTypes';
-import {SamplerParam, Samplers} from '../../utils/samplerParams';
+import {SamplerParam} from '../../utils/samplerParams';
 import {serverDefaultState, stepOf} from './serverDefaultState';
 
 const displayNameOf = (name: string): string =>
@@ -27,74 +27,16 @@ interface Props {
   settings: CompletionParams;
   onChange: (name: string, value: any) => void;
   disabled?: boolean;
-  serverDefaults?: Samplers;
 }
 
 export const CompletionSettings: React.FC<Props> = ({
   settings,
   onChange,
   disabled = false,
-  serverDefaults,
 }) => {
   const theme = useTheme();
   const styles = createStyles(theme);
   const l10n = React.useContext(L10nContext);
-
-  const renderServerDefault = (name: SamplerParam) => {
-    if (!serverDefaults) {
-      return null;
-    }
-    const row = serverDefaultState(
-      name,
-      Number(settings[name]),
-      serverDefaults[name],
-    );
-    const copy = l10n.components.completionSettings;
-    const caption = (text: string) => (
-      <Text
-        variant="labelSmall"
-        style={styles.serverDefault}
-        testID={`${name}-server-default`}>
-        {text}
-      </Text>
-    );
-    switch (row.kind) {
-      case 'none':
-        return null;
-      case 'omitted':
-        return caption(
-          row.shown === undefined
-            ? copy.usingServerDefaultUnreported
-            : t(copy.usingServerDefault, {value: String(row.shown)}),
-        );
-      case 'matches':
-        return caption(copy.serverDefault);
-      case 'reset':
-        return (
-          <TouchableOpacity
-            onPress={() => onChange(name, row.resetTo)}
-            disabled={disabled}
-            accessibilityRole="button"
-            accessibilityLabel={t(copy.resetToServerDefaultAccessibilityLabel, {
-              name: displayNameOf(name),
-              value: String(row.shown),
-            })}
-            hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}
-            style={styles.serverDefaultResetTarget}
-            testID={`${name}-server-default-reset`}>
-            <Text
-              variant="labelSmall"
-              style={
-                disabled
-                  ? styles.serverDefaultResetDisabled
-                  : styles.serverDefaultReset
-              }>
-              {t(copy.resetToServerDefault, {value: String(row.shown)})}
-            </Text>
-          </TouchableOpacity>
-        );
-    }
-  };
 
   const renderSlider = ({name}: {name: SamplerParam}) => {
     const metadata = COMPLETION_PARAMS_METADATA[name];
@@ -118,7 +60,6 @@ export const CompletionSettings: React.FC<Props> = ({
           debounceMs={300} // Enable debouncing for sliders
           disabled={disabled}
         />
-        {renderServerDefault(name)}
       </View>
     );
   };
