@@ -20,7 +20,7 @@ import {BenchResultCard} from './BenchResultCard';
 import {modelStore, benchmarkStore} from '../../store';
 
 import type {Model} from '../../utils/types';
-import {BenchmarkConfig, BenchmarkResult, ModelOrigin} from '../../utils/types';
+import {BenchmarkConfig, BenchmarkResult} from '../../utils/types';
 
 const DEFAULT_CONFIGS: BenchmarkConfig[] = [
   {pp: 512, tg: 128, pl: 1, nr: 3, label: 'Default'},
@@ -232,9 +232,7 @@ export const BenchmarkScreen: React.FC = observer(() => {
     );
   };
 
-  const localModels = modelStore.availableModels.filter(
-    m => m.origin !== ModelOrigin.REMOTE,
-  );
+  const localModels = modelStore.availableModels;
 
   const renderModelSelector = () => (
     <Menu

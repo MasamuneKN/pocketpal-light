@@ -65,7 +65,6 @@ export const ChatScreen: React.FC = observer(() => {
   // (fail-open on 'unknown' so remote + missed-local models are reachable).
   const reasoningCapability = resolveReasoningCapability(
     modelStore.activeModel,
-    {},
   );
   const thinkingSupported =
     !!modelStore.activeModel && reasoningCapability.isReasoning !== 'no';

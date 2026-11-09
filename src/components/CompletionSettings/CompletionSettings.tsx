@@ -148,7 +148,6 @@ export const CompletionSettings: React.FC<Props> = ({
           ]}
           style={styles.segmentedButtons}
         />
-        {renderServerDefault('mirostat')}
       </View>
     );
   };
@@ -206,7 +205,6 @@ export const CompletionSettings: React.FC<Props> = ({
             testID="n_predict-input"
           />
         )}
-        {renderServerDefault('n_predict')}
       </View>
     );
   };
