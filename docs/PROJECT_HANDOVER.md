@@ -1955,3 +1955,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - The first formatter pass exposed dangling Jest callback closers left by removal of nested obsolete test blocks. Corrected the device-signal suite terminator and removed the orphaned closers in ModelStore and AgentRunner tests. The AgentRunner retained local dispatch/concurrency/cancellation tests; only web-search/read-URL tests and their deleted module imports were removed.
 - Latest code commit for these corrections: `d81e9d7e`. The formatter/CI workflows for that exact commit were newly queued at the time of this update; do not assume formatting, typecheck, or Jest passes until their results are checked.
 - No APK/AAB packaging, signing, or native compilation was started. Continue with non-packaging checks only.
+
+
+## 122. Fix remaining ESLint/formatter blockers in Jest files — 2026-11-09
+
+- CI run [42588708547](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42588708547) completed failure on code SHA `d81e9d7e`. Dependency install, localization validation, and font validation passed; ESLint failed before TypeScript or Jest. The actual blockers were two malformed test files (`AgentRunner.test.ts` at line 1914 and `ModelStore.test.ts` at line 798) plus one Prettier formatting error in `bundledRules.test.ts`.
+- Formatter run [42588770952](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42588770952) also failed because of those same malformed test structures and the formatting issue.
+- Removed the remaining orphaned closing statements in `src/services/agent/__tests__/AgentRunner.test.ts` and `src/store/__tests__/ModelStore.test.ts`, preserving the surrounding test suites. Formatted the long assertion in `src/services/deviceRules/__tests__/bundledRules.test.ts`.
+- Fix commits: `ca071502` and `2cb7da9e` for test structure; `7b34711c` for formatting. The next CI/formatter results must be checked against the latest main SHA before claiming the lint gate is clear.
+- No APK/AAB packaging, signing, or native compilation was started. Continue to honor the user's prohibition until all non-packaging issues are resolved.
