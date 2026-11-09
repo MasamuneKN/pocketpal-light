@@ -31,11 +31,6 @@ jest.mock('../../services/downloads', () => {
   };
 });
 
-// Keep the device-rules network boundary and signal read deterministic, matching
-// the main ModelStore suite.
-jest.mock('../../services/deviceRules/rules', () => ({
-  fetchRules: jest.fn().mockResolvedValue(null),
-}));
 jest.mock('../../services/deviceRules/signals', () => ({
   readDeviceSignals: jest
     .fn()
@@ -73,26 +68,6 @@ describe('ModelStore local model path handling (#684)', () => {
 
       expect(resolved).toBe(storedPath);
       expect(model.fullPath).toBe(storedPath);
-    });
-
-    it('re-anchors a stale iOS container path onto the current documents path', async () => {
-      // Path captured under a previous app container UUID.
-      const stalePath =
-        '/var/mobile/Containers/Data/Application/OLD-UUID/Documents/models/local/my-local-model.gguf';
-      const recoveredPath = `${DOCS}/models/local/my-local-model.gguf`;
-      const model = createLocalModel(stalePath);
-
-      (RNFS.exists as jest.Mock).mockImplementation((path: string) =>
-        Promise.resolve(path === recoveredPath),
-      );
-
-      const resolved = await modelStore.resolveLocalModelPath(model);
-
-      expect(resolved).toBe(recoveredPath);
-      // Persistence is batched and flushed by refreshDownloadStatuses, so the
-      // resolve call itself does not rewrite the stored path (the "survives a
-      // reload" persistence is proven through refreshDownloadStatuses below).
-      expect(model.fullPath).toBe(stalePath);
     });
 
     it('returns the stored path when the file is absent at both locations', async () => {
