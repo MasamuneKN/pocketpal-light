@@ -57,7 +57,6 @@ export function normalizeModelSiblings(
 
 /**
  * Processes HuggingFace search results to ensure consistent format
- * - Adds model web page URL
  * - Filters and normalizes siblings array
  * @param models - Array of HuggingFace models from search results
  * @returns Processed models with normalized siblings
@@ -67,7 +66,6 @@ export function processHFSearchResults(
 ): HuggingFaceModel[] {
   return models.map(model => ({
     ...model,
-    url: urls.modelWebPage(model.id),
     siblings: normalizeModelSiblings(model.id, model.siblings || []),
   }));
 }
