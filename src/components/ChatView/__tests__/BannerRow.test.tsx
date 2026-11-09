@@ -5,6 +5,7 @@ import {fireEvent, render} from '../../../../jest/test-utils';
 import {modelsList} from '../../../../jest/fixtures/models';
 
 import {L10nContext} from '../../../utils';
+import {ModelOrigin} from '../../../utils/types';
 import {l10n} from '../../../locales';
 import {chatSessionStore, modelStore} from '../../../store';
 

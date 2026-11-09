@@ -59,7 +59,9 @@ describe('BenchmarkScreen', () => {
       });
 
       // Verify loading indicator is removed
-      expect(queryByTestId('loading-indicator-model-init')).toBeNull();
+      await waitFor(() => {
+        expect(queryByTestId('loading-indicator-model-init')).toBeNull();
+      });
     });
 
     it('should show model selector with available models', () => {

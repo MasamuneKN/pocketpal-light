@@ -20,7 +20,6 @@ import {
   Model,
   ModelOrigin,
   ModelType,
-  RemoteSessionBinding,
 } from '../../utils/types';
 import {getDisplayNameFromFilename} from '../../utils/formatters';
 import {getModelMemoryRequirement} from '../../utils/memoryEstimator';
@@ -34,7 +33,7 @@ import {
 } from '../../../jest/fixtures/models';
 import * as RNFS from '@dr.pogodin/react-native-fs';
 
-import {modelStore, uiStore, serverStore} from '..';
+import {modelStore, uiStore} from '..';
 import {LOOKIE_DEFAULT_MODEL} from '../builtinPalModels';
 import {classify} from '../../services/deviceRules/classify';
 import {getVisionModelSizeBreakdown} from '../../utils/multimodalHelpers';
@@ -2049,7 +2048,6 @@ describe('ModelStore', () => {
         modelStore.engine = undefined;
         modelStore.activeModelId = undefined;
         modelStore.activeRemoteBinding = undefined;
-        serverStore.servers = [];
         modelStore.wasAutoReleased = false;
         modelStore.lastAutoReleasedModelId = undefined;
         modelStore.appState = 'active';
@@ -2258,35 +2256,7 @@ describe('ModelStore', () => {
       expect(modelStore.activeModelId).toBe(modelB.id);
     });
 
-    it('remote pick during the release wins over the reload', async () => {
-      const remote = {
-        id: 'srv-1/llama-7b',
-        name: 'llama-7b',
-        origin: ModelOrigin.REMOTE,
-        serverId: 'srv-1',
-        remoteModelId: 'llama-7b',
-      } as any;
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'LM Studio', url: 'http://localhost:1234'},
-        ];
-      });
-      holdReleaseOfA();
 
-      const handlers = [
-        modelStore.handleAppStateChange('background'),
-        modelStore.handleAppStateChange('active'),
-      ];
-      const pick = modelStore.selectModel(remote);
-      releaseHeld();
-      await settle(...handlers, pick);
-
-      expect(initLlama).not.toHaveBeenCalled();
-      expect(hasEnoughMemoryMock).not.toHaveBeenCalled();
-      expect(modelStore.activeModelId).toBe(remote.id);
-      expect(modelStore.activeRemoteBinding?.modelId).toBe(remote.id);
-      expect(modelStore.wasAutoReleased).toBe(false);
-      expect(modelStore.lastAutoReleasedModelId).toBeUndefined();
     });
 
     it('eject during the release wins over the reload', async () => {
@@ -2326,34 +2296,7 @@ describe('ModelStore', () => {
       expect(modelStore.activeModelId).toBeUndefined();
     });
 
-    it('remote pick while a manual load awaits its memory check cancels the load', async () => {
-      const remote = {
-        id: 'srv-1/llama-7b',
-        name: 'llama-7b',
-        origin: ModelOrigin.REMOTE,
-        serverId: 'srv-1',
-        remoteModelId: 'llama-7b',
-      } as any;
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'LM Studio', url: 'http://localhost:1234'},
-        ];
-      });
-      let answer: (enough: boolean) => void = () => {};
-      hasEnoughMemoryMock.mockImplementation(
-        () =>
-          new Promise<boolean>(resolve => {
-            answer = resolve;
-          }),
-      );
-      const load = modelStore.initContext(modelB);
-      await waitUntil(() => hasEnoughMemoryMock.mock.calls.length > 0);
-      await modelStore.selectModel(remote);
-      answer(true);
-      await settle(load);
 
-      expect(initLlama).not.toHaveBeenCalled();
-      expect(modelStore.activeModelId).toBe(remote.id);
     });
   });
 
@@ -3448,84 +3391,6 @@ describe('ModelStore', () => {
       modelStore.isMultimodalActive = false;
     });
 
-    describe('remote model vision (server /props self-report)', () => {
-      const setRemoteActive = (supportsVision?: boolean) => {
-        runInAction(() => {
-          modelStore.context = undefined;
-          modelStore.isMultimodalActive = false;
-          serverStore.userSelectedModels = [
-            {serverId: 'srv-1', remoteModelId: 'remote-model'},
-          ];
-          modelStore.activeModelId = 'srv-1/remote-model';
-          serverStore.servers = [
-            {
-              id: 'srv-1',
-              name: 'llama',
-              url: 'http://localhost:8080',
-              serverType: 'llama.cpp',
-            },
-          ];
-          serverStore.remoteCaps =
-            supportsVision === undefined
-              ? {}
-              : {
-                  'srv-1/remote-model': {
-                    supportsVision,
-                    probedUrl: 'http://localhost:8080',
-                  },
-                };
-          modelStore.activeRemoteBinding = {
-            modelId: 'srv-1/remote-model',
-            serverId: 'srv-1',
-            remoteModelId: 'remote-model',
-            url: 'http://localhost:8080',
-            serverType: 'llama.cpp',
-          };
-        });
-      };
-
-      afterEach(() => {
-        runInAction(() => {
-          serverStore.servers = [];
-          serverStore.remoteCaps = {};
-          serverStore.userSelectedModels = [];
-          modelStore.models = [];
-          modelStore.activeModelId = undefined;
-          modelStore.activeRemoteBinding = undefined;
-        });
-      });
-
-      it('is vision-active when the probe reported vision', () => {
-        setRemoteActive(true);
-        expect(modelStore.activeModelCaps.visionActive).toBe(true);
-      });
-
-      it('is not vision-active when the probe reported no vision', () => {
-        setRemoteActive(false);
-        expect(modelStore.activeModelCaps.vision).toBe('no');
-        expect(modelStore.activeModelCaps.visionActive).toBe(false);
-      });
-
-      it('is not vision-active when the capability is unprobed', () => {
-        setRemoteActive(undefined);
-        expect(modelStore.activeModelCaps.vision).toBe('unknown');
-        expect(modelStore.activeModelCaps.visionActive).toBe(false);
-      });
-
-      it('is not vision-active when the capabilities describe another backend', () => {
-        setRemoteActive(true);
-        runInAction(() => {
-          serverStore.remoteCaps['srv-1/remote-model'].probedUrl =
-            'http://localhost:9090';
-        });
-
-        // The session still posts to :8080; a capability read from :9090 says
-        // nothing about it, so vision stays unknown and fails closed.
-        expect(modelStore.activeModelCaps.vision).toBe('unknown');
-        expect(modelStore.activeModelCaps.visionActive).toBe(false);
-      });
-    });
-
     describe('capability resolution', () => {
       afterEach(() => {
         runInAction(() => {
@@ -3539,151 +3404,7 @@ describe('ModelStore', () => {
         });
       });
 
-      describe('server sampler defaults', () => {
-        const bindingOf = (
-          serverType: RemoteSessionBinding['serverType'],
-          url = 'http://localhost:8080',
-        ): RemoteSessionBinding => ({
-          modelId: 'srv-1/remote-model',
-          serverId: 'srv-1',
-          remoteModelId: 'remote-model',
-          url,
-          serverType,
-        });
 
-        const activateRemoteModel = (
-          binding: RemoteSessionBinding = bindingOf('llama.cpp'),
-        ) => {
-          runInAction(() => {
-            serverStore.servers = [
-              {
-                id: 'srv-1',
-                name: 'Server',
-                url: binding.url,
-                serverType: binding.serverType,
-              },
-            ];
-            serverStore.userSelectedModels = [
-              {serverId: 'srv-1', remoteModelId: 'remote-model'},
-            ];
-            modelStore.models = [];
-            modelStore.activeModelId = 'srv-1/remote-model';
-            modelStore.activeRemoteBinding = binding;
-          });
-        };
-
-        const reportDefaults = () => {
-          runInAction(() => {
-            serverStore.remoteCaps = {
-              'srv-1/remote-model': {
-                samplerDefaults: {top_k: 40, temperature: 0.8},
-                probedUrl: 'http://localhost:8080',
-              },
-            };
-          });
-        };
-
-        it('exposes what the active model backend reported', () => {
-          activateRemoteModel();
-          reportDefaults();
-
-          expect(modelStore.activeSamplerDefaults).toEqual({
-            top_k: 40,
-            temperature: 0.8,
-          });
-        });
-
-        it('is empty on a llama.cpp session that reported nothing yet', () => {
-          activateRemoteModel();
-
-          expect(modelStore.activeSamplerDefaults).toEqual({});
-        });
-
-        it('is undefined when no model is active', () => {
-          runInAction(() => {
-            serverStore.remoteCaps = {
-              'srv-1/remote-model': {samplerDefaults: {top_k: 40}},
-            };
-          });
-
-          expect(modelStore.activeSamplerDefaults).toBeUndefined();
-        });
-
-        it('is undefined for a local model', () => {
-          runInAction(() => {
-            modelStore.models = [
-              {id: 'local-model', origin: ModelOrigin.PRESET} as any,
-            ];
-            modelStore.activeModelId = 'local-model';
-          });
-
-          expect(modelStore.activeSamplerDefaults).toBeUndefined();
-        });
-
-        it.each(['OpenAI', 'Ollama', 'LM Studio', 'vLLM', 'unknown'] as const)(
-          'is undefined on a %s session, even with a matching entry',
-          serverType => {
-            activateRemoteModel(bindingOf(serverType));
-            reportDefaults();
-
-            expect(modelStore.activeSamplerDefaults).toBeUndefined();
-          },
-        );
-
-        it('follows the type the session was built with, not a later edit', () => {
-          activateRemoteModel();
-          reportDefaults();
-          runInAction(() => {
-            serverStore.servers = [
-              {
-                id: 'srv-1',
-                name: 'Server',
-                url: 'http://localhost:8080',
-                serverType: 'OpenAI',
-              },
-            ];
-          });
-
-          expect(modelStore.activeSamplerDefaults).toEqual({
-            top_k: 40,
-            temperature: 0.8,
-          });
-        });
-
-        it('is empty when the entry describes another backend', () => {
-          activateRemoteModel(bindingOf('llama.cpp', 'http://localhost:9090'));
-          reportDefaults();
-
-          expect(modelStore.activeSamplerDefaults).toEqual({});
-        });
-      });
-
-      it('resolves an active remote model against the stored capabilities', () => {
-        runInAction(() => {
-          serverStore.servers = [
-            {
-              id: 'srv-1',
-              name: 'Server',
-              url: 'http://localhost:8080',
-              serverType: 'llama.cpp',
-            },
-          ];
-          serverStore.userSelectedModels = [
-            {serverId: 'srv-1', remoteModelId: 'remote-model'},
-          ];
-          modelStore.models = [];
-          modelStore.activeModelId = 'srv-1/remote-model';
-          serverStore.remoteCaps = {
-            'srv-1/remote-model': {supportsVision: true, contextLength: 8192},
-          };
-        });
-
-        expect(modelStore.activeModelCaps).toEqual({
-          vision: 'yes',
-          visionActive: true,
-          contextLength: 8192,
-          effectiveContextLength: 8192,
-        });
       });
 
       it('does not report another model as vision-active', () => {
@@ -3714,43 +3435,7 @@ describe('ModelStore', () => {
         expect(modelStore.activeModelCaps.effectiveContextLength).toBe(4096);
       });
 
-      it('notifies no observer when a list read brings the same rows', () => {
-        const listed = (nCtx: number) => [
-          {id: 'remote-model', object: 'model', meta: {n_ctx: nCtx}} as any,
-        ];
-        runInAction(() => {
-          modelStore.models = [];
-          modelStore.activeModelId = 'srv-1/remote-model';
-          serverStore.userSelectedModels = [
-            {serverId: 'srv-1', remoteModelId: 'remote-model'},
-          ];
-          serverStore.servers = [
-            {
-              id: 'srv-1',
-              name: 'Server',
-              url: 'http://localhost:8080',
-              serverType: 'llama.cpp',
-            },
-          ];
-          serverStore.serverModels.set('srv-1', listed(4096));
-        });
-        const seen: unknown[] = [];
-        const dispose = reaction(
-          () => modelStore.activeModelCaps,
-          caps => seen.push(caps),
-        );
 
-        runInAction(() => serverStore.serverModels.set('srv-1', listed(4096)));
-        const afterSameRows = seen.length;
-        runInAction(() => serverStore.serverModels.set('srv-1', listed(8192)));
-        dispose();
-        runInAction(() => {
-          serverStore.serverModels.delete('srv-1');
-          serverStore.servers = [];
-        });
-
-        expect(afterSameRows).toBe(0);
-        expect(seen).toHaveLength(1);
       });
     });
 
@@ -5494,272 +5179,6 @@ describe('ModelStore', () => {
     });
   });
 
-  describe('remoteModels computed', () => {
-    beforeEach(() => {
-      // Reset serverStore state for remote model tests
-      runInAction(() => {
-        serverStore.servers = [];
-        serverStore.serverModels.clear();
-        serverStore.userSelectedModels = [];
-      });
-    });
-
-    it('returns only user-selected models', () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'LM Studio', url: 'http://localhost:1234'},
-        ];
-        serverStore.serverModels.set('srv-1', [
-          {id: 'llama-7b', object: 'model', owned_by: 'system'},
-          {id: 'codellama', object: 'model', owned_by: 'system'},
-        ]);
-        serverStore.userSelectedModels = [
-          {serverId: 'srv-1', remoteModelId: 'llama-7b'},
-        ];
-      });
-
-      const remoteModels = modelStore.remoteModels;
-
-      expect(remoteModels).toHaveLength(1);
-      expect(remoteModels[0].name).toBe('llama-7b');
-      expect(remoteModels[0].origin).toBe(ModelOrigin.REMOTE);
-      expect(remoteModels[0].serverId).toBe('srv-1');
-      expect(remoteModels[0].serverName).toBe('LM Studio');
-    });
-
-    it('returns empty array when no models are user-selected', () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'LM Studio', url: 'http://localhost:1234'},
-        ];
-        serverStore.serverModels.set('srv-1', [
-          {id: 'llama-7b', object: 'model', owned_by: 'system'},
-        ]);
-        // No userSelectedModels
-      });
-
-      expect(modelStore.remoteModels).toHaveLength(0);
-    });
-
-    it('skips models for non-existent servers', () => {
-      runInAction(() => {
-        // Server does not exist in servers array
-        serverStore.userSelectedModels = [
-          {serverId: 'non-existent', remoteModelId: 'model-a'},
-        ];
-      });
-
-      expect(modelStore.remoteModels).toHaveLength(0);
-    });
-
-    it('returns models from multiple servers', () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'LM Studio', url: 'http://localhost:1234'},
-          {id: 'srv-2', name: 'Ollama', url: 'http://localhost:11434'},
-        ];
-        serverStore.userSelectedModels = [
-          {serverId: 'srv-1', remoteModelId: 'llama-7b'},
-          {serverId: 'srv-2', remoteModelId: 'mistral'},
-        ];
-      });
-
-      const remoteModels = modelStore.remoteModels;
-
-      expect(remoteModels).toHaveLength(2);
-      expect(remoteModels[0].serverName).toBe('LM Studio');
-      expect(remoteModels[1].serverName).toBe('Ollama');
-    });
-
-    it('generates correct model id from serverId and remoteModelId', () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'LM Studio', url: 'http://localhost:1234'},
-        ];
-        serverStore.userSelectedModels = [
-          {serverId: 'srv-1', remoteModelId: 'llama-7b'},
-        ];
-      });
-
-      const remoteModels = modelStore.remoteModels;
-
-      expect(remoteModels[0].id).toBe('srv-1/llama-7b');
-    });
-  });
-
-  // setRemoteModel builds the OpenAI engine carrying the server's
-  // requestTimeoutMs. The engine is rebuilt on each call, so an edited value
-  // takes effect on the next (re)selection.
-  describe('setRemoteModel timeout wiring', () => {
-    beforeEach(() => {
-      runInAction(() => {
-        serverStore.servers = [];
-        modelStore.context = undefined;
-      });
-    });
-
-    const remoteModel = {
-      id: 'srv-1/llama-7b',
-      name: 'llama-7b',
-      origin: ModelOrigin.REMOTE,
-      serverId: 'srv-1',
-      remoteModelId: 'llama-7b',
-    } as any;
-
-    it('builds the engine carrying the saved requestTimeoutMs', async () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {
-            id: 'srv-1',
-            name: 'Slow Server',
-            url: 'http://localhost:1234',
-            requestTimeoutMs: 600000,
-          },
-        ];
-      });
-
-      await modelStore.setRemoteModel(remoteModel);
-
-      expect((modelStore.engine as any).endpoint.timeoutMs).toBe(600000);
-    });
-
-    it('builds the engine with undefined timeout for a server without the field', async () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {id: 'srv-1', name: 'Default Server', url: 'http://localhost:1234'},
-        ];
-      });
-
-      await modelStore.setRemoteModel(remoteModel);
-
-      expect((modelStore.engine as any).endpoint.timeoutMs).toBeUndefined();
-    });
-
-    it('rebuilds the engine with an updated timeout on re-selection', async () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {
-            id: 'srv-1',
-            name: 'Server',
-            url: 'http://localhost:1234',
-            requestTimeoutMs: 30000,
-          },
-        ];
-      });
-      await modelStore.setRemoteModel(remoteModel);
-      expect((modelStore.engine as any).endpoint.timeoutMs).toBe(30000);
-
-      // User edits the timeout, then re-selects the model.
-      runInAction(() => {
-        serverStore.servers[0].requestTimeoutMs = 600000;
-      });
-      await modelStore.setRemoteModel(remoteModel);
-
-      expect((modelStore.engine as any).endpoint.timeoutMs).toBe(600000);
-    });
-
-    it('builds the engine carrying the saved serverType', async () => {
-      runInAction(() => {
-        serverStore.servers = [
-          {
-            id: 'srv-1',
-            name: 'Ollama Server',
-            url: 'http://localhost:11434',
-            serverType: 'Ollama',
-          },
-        ];
-      });
-
-      await modelStore.setRemoteModel(remoteModel);
-
-      expect((modelStore.engine as any).endpoint.serverType).toBe('Ollama');
-    });
-  });
-
-  describe('setRemoteModel capability probe', () => {
-    const remoteModel = {
-      id: 'srv-1/llama-7b',
-      name: 'llama-7b',
-      origin: ModelOrigin.REMOTE,
-      serverId: 'srv-1',
-      remoteModelId: 'llama-7b',
-    } as any;
-
-    beforeEach(() => {
-      runInAction(() => {
-        modelStore.context = undefined;
-        serverStore.servers = [
-          {id: 'srv-1', name: 'llama', url: 'http://localhost:8080'},
-        ];
-      });
-    });
-
-    it('probes the activated model, forwarding the key resolved for the engine', async () => {
-      const getApiKey = jest
-        .spyOn(serverStore, 'getApiKey')
-        .mockResolvedValue('sk-test');
-      const probe = jest
-        .spyOn(serverStore, 'fetchRemoteModelCaps')
-        .mockResolvedValue(undefined);
-
-      await modelStore.setRemoteModel(remoteModel);
-
-      expect(probe).toHaveBeenCalledWith('srv-1', 'llama-7b', 'sk-test');
-      expect(getApiKey).toHaveBeenCalledTimes(1);
-      probe.mockRestore();
-      getApiKey.mockRestore();
-    });
-
-    it('forwards undefined for a keyless server', async () => {
-      const getApiKey = jest
-        .spyOn(serverStore, 'getApiKey')
-        .mockResolvedValue(undefined);
-      const probe = jest
-        .spyOn(serverStore, 'fetchRemoteModelCaps')
-        .mockResolvedValue(undefined);
-
-      await modelStore.setRemoteModel(remoteModel);
-
-      // Nothing is forwarded when there is no key, so the probe falls back to
-      // its own Keychain read — the common local llama.cpp case.
-      expect(probe).toHaveBeenCalledWith('srv-1', 'llama-7b', undefined);
-      probe.mockRestore();
-      getApiKey.mockRestore();
-    });
-
-    it('resolves without waiting on a probe that never settles', async () => {
-      let release: () => void = () => {};
-      const probe = jest
-        .spyOn(serverStore, 'fetchRemoteModelCaps')
-        .mockReturnValue(
-          new Promise<void>(resolve => {
-            release = resolve;
-          }),
-        );
-
-      await modelStore.setRemoteModel(remoteModel);
-
-      // The engine is live and the model active while the probe is pending, so
-      // a lazily-starting server can never delay a send.
-      expect(modelStore.activeModelId).toBe('srv-1/llama-7b');
-      expect(modelStore.engine).toBeTruthy();
-      release();
-      probe.mockRestore();
-    });
-
-    it('survives a probe that rejects', async () => {
-      const probe = jest
-        .spyOn(serverStore, 'fetchRemoteModelCaps')
-        .mockRejectedValue(new Error('boom'));
-
-      await expect(
-        modelStore.setRemoteModel(remoteModel),
-      ).resolves.toBeUndefined();
-      await new Promise(setImmediate);
-      probe.mockRestore();
-    });
-  });
-
   describe('fetchAndPersistGGUFMetadata error handling', () => {
     beforeEach(() => {
       (loadLlamaModelInfo as jest.Mock).mockReset();
@@ -5881,12 +5300,7 @@ describe('ModelStore', () => {
       ]);
     });
 
-    it('recordReasoningObserved routes an unknown id to ServerStore', () => {
-      const spy = jest.spyOn(serverStore, 'recordRemoteReasoningObserved');
-      modelStore.models = [];
-      modelStore.recordReasoningObserved('server-1/remote-m');
-      expect(spy).toHaveBeenCalledWith('server-1/remote-m');
-      spy.mockRestore();
+
     });
 
     it('setReasoningOverride writes a user capability on a local model', () => {
@@ -5906,19 +5320,7 @@ describe('ModelStore', () => {
       expect(modelStore.models[0].supportsThinking).toBe(true);
     });
 
-    it('setReasoningOverride routes an unknown id to ServerStore', () => {
-      const spy = jest.spyOn(serverStore, 'setRemoteReasoningOverride');
-      modelStore.models = [];
-      const cap = {
-        isReasoning: 'yes' as const,
-        source: 'user' as const,
-        supportsEffort: false,
-        effortValues: [],
-        effortSource: 'none' as const,
-      };
-      modelStore.setReasoningOverride('server-1/remote-m', cap);
-      expect(spy).toHaveBeenCalledWith('server-1/remote-m', cap);
-      spy.mockRestore();
+
     });
   });
 
@@ -6362,22 +5764,7 @@ describe('ModelStore', () => {
         expect(modelStore.effectiveDraftMode).toBe('off');
       });
 
-      it('a remote active model resolves against the global pick', () => {
-        modelStore.setSpeculativeEnabled(true);
-        modelStore.setSelectedDraftModel('c/d/dr.gguf');
-        runInAction(() => {
-          modelStore.models = [
-            {
-              id: 'server-1/remote.gguf',
-              isDownloaded: true,
-              origin: ModelOrigin.REMOTE,
-            } as any,
-            draft(),
-          ];
-          modelStore.activeModelId = 'server-1/remote.gguf';
-        });
 
-        expect(modelStore.effectiveDraftMode).toBe('paired');
       });
 
       it('speculative off → off even with a resolvable draft', () => {
@@ -6734,25 +6121,6 @@ describe('ModelStore', () => {
       });
     });
 
-    describe('remote-engine release path', () => {
-      it('clears the engine and its multimodal state when there is no context', async () => {
-        const stopCompletion = jest.fn().mockResolvedValue(undefined);
-        runInAction(() => {
-          modelStore.context = undefined;
-          modelStore.engine = {stopCompletion} as any;
-          modelStore.activeModelId = 'server-1/remote.gguf';
-          modelStore.isMultimodalActive = true;
-          modelStore.activeProjectionModelId = 'proj';
-        });
 
-        await (modelStore as any)._releaseContextInternal(true);
-
-        expect(stopCompletion).toHaveBeenCalled();
-        expect(modelStore.engine).toBeUndefined();
-        expect(modelStore.activeModelId).toBeUndefined();
-        expect(modelStore.isMultimodalActive).toBe(false);
-        expect(modelStore.activeProjectionModelId).toBeUndefined();
-      });
-    });
   });
 });
