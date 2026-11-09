@@ -1,6 +1,6 @@
 import {dispatchAutomationDeepLink} from '../deepLink';
 
-import type {DeepLinkParams} from '../../services/DeepLinkService';
+import type {DeepLinkParams} from '../../utils/deepLinkTypes';
 
 import {
   takeMemorySnapshot,
