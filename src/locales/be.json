@@ -351,12 +351,6 @@
       },
       "modelUpdatedJustNowShort": "толькі што"
     },
-    "hubRun": {
-      "title": "Спампаваць мадэль",
-      "cancel": "Скасаваць",
-      "retry": "Паўтарыць спробу",
-      "invalidLinkTitle": "Няправільная спасылка"
-    },
     "modelsResetDialog": {
       "confirmReset": "Пацвердзіць скід",
       "proceedWithReset": "Працягнуць скід"
