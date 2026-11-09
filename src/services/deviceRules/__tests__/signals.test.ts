@@ -57,5 +57,15 @@ describe('readDeviceSignals', () => {
     expect(signals.ramBytes).toBeLessThan(3 * 1024 * 1024 * 1024);
   });
 
+  it('degrades to ram-only when the native CPU read throws', async () => {
+    (NativeHardwareInfo.getCPUInfo as jest.Mock).mockRejectedValue(
+      new Error('cpu boom'),
+    );
+
+    const signals = await readDeviceSignals();
+
+    expect(signals).toEqual({ramBytes: 8 * 1e9});
+  });
+
 );
 });
