@@ -94,8 +94,6 @@ describe('ChatSessionStore completion settings', () => {
 
       expect(result.enable_thinking).toBe(true);
     });
-
-);
   });
 
   describe('getCurrentCompletionSettings', () => {
