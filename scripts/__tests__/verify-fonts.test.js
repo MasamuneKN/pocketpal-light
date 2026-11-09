@@ -140,8 +140,6 @@ describe('verify-fonts.js', () => {
     );
   });
 
-
-
   it('fails when a wired Polish locale is not exempt from Fraunces glyph coverage', () => {
     // Polish is not shipped by Lite, but the guard must still catch it if a
     // future build wires it without adding it to NON_LATIN_LOCALES.

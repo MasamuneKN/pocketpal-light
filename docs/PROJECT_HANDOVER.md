@@ -1922,7 +1922,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The CI run was a manual `workflow_dispatch` with `build_android=false`: both `build-android` and the Android release dependency audit were skipped. No native compilation, APK/AAB generation, signing, or packaging occurred.
 - Next: fix the test suites in focused clusters, starting with Android-only script/test leftovers and current ModelStore/device-rule test wiring; then address the retained gallery-preview and benchmark test failures. Re-run non-packaging CI only. Keep the user's no-packaging restriction active.
 
-
 ## 118. Remove obsolete iOS font-validation test assumptions — 2026-11-09
 
 - Updated `scripts/__tests__/verify-fonts.test.js` to match the existing Android-only `scripts/verify-fonts.js` contract. The test harness no longer creates or copies a nonexistent iOS `Info.plist`, and the obsolete test requiring iOS `UIAppFonts` registration was removed. The success assertion now checks the script's Android-only success message.
