@@ -1,6 +1,5 @@
 import {makeAutoObservable, runInAction} from 'mobx';
 
-import type {HubRunRequest} from '../services/hubRunLink';
 
 /**
  * DeepLinkStore
@@ -10,7 +9,6 @@ import type {HubRunRequest} from '../services/hubRunLink';
  */
 class DeepLinkStore {
   pendingMessage: string | null = null;
-  pendingHubRun: HubRunRequest | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -28,17 +26,7 @@ class DeepLinkStore {
     });
   }
 
-  setPendingHubRun(request: HubRunRequest | null) {
-    runInAction(() => {
-      this.pendingHubRun = request;
-    });
-  }
 
-  clearPendingHubRun() {
-    runInAction(() => {
-      this.pendingHubRun = null;
-    });
-  }
 }
 
 export const deepLinkStore = new DeepLinkStore();
