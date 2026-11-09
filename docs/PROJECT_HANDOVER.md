@@ -1877,7 +1877,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Live `main` before this note: `774bc348489131f6217f0ef6dbc1b4bcaabc6c7d`. Formatting workflow [42565013351](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42565013351) completed with failure at its formatting-commit step; formatting itself succeeded, and a later automated formatting commit is now present on main. Do not treat that failed run as a source/test failure.
 - No APK/AAB, native compilation, signing, or packaging was performed. The user's prohibition remains active.
 
-
 ## 114. Remove non-download online features and confirm Android-only project surface — 2026-11-09
 
 - User confirmed the only online product capability permitted in Lite is model discovery/download and model-file retrieval. Removed Firebase feedback and benchmark APIs, Firebase App Check helper/export, feedback store/export, Firebase environment variable and reporting URLs, Firebase package dependencies, and reporting-sheet / benchmark-sharing UI and supporting components. Removed the benchmark submitted-state marker and preference while retaining local benchmark execution, display, and persisted history.
@@ -1887,7 +1886,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Clarification on toolchain lockfiles: the React Native CLI's transitive `cli-doctor` package currently pulls `cli-platform-ios` / `cli-platform-apple` in the Yarn development-tool dependency graph; Fastlane's Android release toolchain also carries generic Apple/Xcode Ruby libraries transitively. These are not app runtime dependencies and are not included in the Android APK. Removing them would require replacing or forking upstream React Native CLI/Fastlane tooling and is not safe as a routine cleanup. No iOS target, project, workflow, or app build is configured.
 - No packaging or native compilation was performed. APK/AAB creation, signing, and Android device runtime checks remain prohibited until the user explicitly lifts the restriction.
 - Latest source change before this note: `02035947fc198d15ed6f8f108165c6b79b1af3f5`. Verified `main` head at review start: `02035947fc198d15ed6f8f108165c6b79b1af3f5`.
-
 
 ## 115. Resolve stale type-check references and remove extra non-core UI — 2026-11-09
 
