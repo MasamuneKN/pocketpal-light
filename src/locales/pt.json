@@ -406,15 +406,6 @@
         "sortLikes": "Com Mais Gostos"
       }
     },
-    "hubRun": {
-      "title": "Descarregar modelo",
-      "resolving": "A carregar pormenores do modelo…",
-      "cancel": "Cancelar",
-      "retry": "Tentar Novamente",
-      "invalidLinkTitle": "Ligação inválida",
-      "invalidLinkMessage": "Esta ligação do Hugging Face está sem o modelo ou ficheiro, ou tem um identificador inválido.",
-      "resolveError": "Não foi possível carregar os pormenores do modelo. Verifique a sua conexão e tente novamente."
-    },
     "modelCard": {
       "alerts": {
         "deleteTitle": "Apagar Modelo",
@@ -1054,7 +1045,12 @@
         "total": "Total: ",
         "usage": "Uso: "
       },
-      "byteSizes": ["Bytes", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
