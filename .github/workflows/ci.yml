@@ -97,7 +97,7 @@ jobs:
           corepack enable
           corepack prepare yarn@1.22.22 --activate
 
-      # Step 3: Install dependencies and iOS Pods
+      # Step 3: Install Android/JavaScript dependencies
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
@@ -105,8 +105,7 @@ jobs:
       - name: Validate l10n files
         run: node scripts/validate-l10n.js
 
-      # Step 4b: Verify font registration (I8 — every fontFamily must
-      # be bundled on iOS + Android + listed in Info.plist UIAppFonts).
+      # Step 4b: Verify Android font registration.
       - name: Verify font registration
         run: node scripts/verify-fonts.js
 
