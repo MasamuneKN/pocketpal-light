@@ -66,7 +66,7 @@ describe('resolveReasoningCapability', () => {
   it('legacy fallback: supportsThinking false → no/detected', () => {
     const m = localModel();
     m.supportsThinking = false;
-    expect(resolveReasoningCapability(m, {})).toMatchObject({
+    expect(resolveReasoningCapability(m)).toMatchObject({
       isReasoning: 'no',
       source: 'detected',
     });
@@ -111,7 +111,7 @@ describe('resolveReasoningCapability', () => {
   });
 
   it("isReasoning 'unknown' is preserved (pill fail-open)", () => {
-    const m = remoteModel();
+    const m = localModel();
     expect(resolveReasoningCapability(m, {}).isReasoning).toBe('unknown');
   });
 });

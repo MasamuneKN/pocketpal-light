@@ -1958,8 +1958,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNAppleAuthentication (2.5.1):
-    - React-Core
   - RNAudioPcmStream (1.1.4):
     - React
   - RNCAsyncStorage (2.2.0):
@@ -2062,29 +2060,6 @@ PODS:
     - React-debug
     - React-Fabric
     - React-FabricComponents
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
-  - RNGoogleSignin (16.0.0):
-    - GoogleSignIn (~> 9.0)
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-bridging
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
     - React-featureflags
     - React-graphics
     - React-ImageManager
@@ -2581,7 +2556,6 @@ DEPENDENCIES:
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
   - fmt (from `build/rndeps-facades/fmt`)
   - glog (from `build/rndeps-facades/glog`)
-  - GRMustache.swift
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - llama-rn (from `../node_modules/llama.rn`)
   - NitroIap (from `../node_modules/react-native-iap`)
@@ -2700,16 +2674,8 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - AppAuth
-    - AppCheckCore
-    - GoogleSignIn
-    - GoogleUtilities
-    - GRMustache.swift
-    - GTMAppAuth
-    - GTMSessionFetcher
     - onnxruntime-c
     - openiap
-    - PromisesObjC
 
 EXTERNAL SOURCES:
   boost:
