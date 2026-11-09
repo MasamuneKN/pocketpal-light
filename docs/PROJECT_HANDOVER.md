@@ -1956,7 +1956,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Latest code commit for these corrections: `d81e9d7e`. The formatter/CI workflows for that exact commit were newly queued at the time of this update; do not assume formatting, typecheck, or Jest passes until their results are checked.
 - No APK/AAB packaging, signing, or native compilation was started. Continue with non-packaging checks only.
 
-
 ## 122. Fix remaining ESLint/formatter blockers in Jest files — 2026-11-09
 
 - CI run [42588708547](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42588708547) completed failure on code SHA `d81e9d7e`. Dependency install, localization validation, and font validation passed; ESLint failed before TypeScript or Jest. The actual blockers were two malformed test files (`AgentRunner.test.ts` at line 1914 and `ModelStore.test.ts` at line 798) plus one Prettier formatting error in `bundledRules.test.ts`.

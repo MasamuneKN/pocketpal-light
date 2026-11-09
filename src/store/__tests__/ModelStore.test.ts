@@ -279,9 +279,7 @@ describe('ModelStore', () => {
       },
     );
 
-    it.each([
-      {os: 'android', devices: ['Adreno']},
-    ])(
+    it.each([{os: 'android', devices: ['Adreno']}])(
       'preserves $os selection $devices without discovery',
       async ({os, devices}) => {
         Platform.OS = os as typeof Platform.OS;
@@ -2062,9 +2060,7 @@ describe('ModelStore', () => {
       initLlama.mockReset();
     });
 
-    it.each([
-      ['android', ['background']],
-    ] as Array<[string, AppStateStatus[]]>)(
+    it.each([['android', ['background']]] as Array<[string, AppStateStatus[]]>)(
       '%s sequence reloads the model only after the in-flight release finishes',
       async (_platform, leave) => {
         holdReleaseOfA();
