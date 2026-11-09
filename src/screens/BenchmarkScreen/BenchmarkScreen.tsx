@@ -1,5 +1,5 @@
 import {View, ScrollView} from 'react-native';
-import React, {useState, useCallback, useContext} from 'react';
+import React, {useState, useContext} from 'react';
 
 import {v4 as uuidv4} from 'uuid';
 import {observer} from 'mobx-react';
@@ -15,7 +15,6 @@ import {L10nContext} from '../../utils';
 import {t} from '../../locales';
 
 import {createStyles} from './styles';
-import {DeviceInfoCard} from './DeviceInfoCard';
 import {BenchResultCard} from './BenchResultCard';
 
 import {modelStore, benchmarkStore} from '../../store';
@@ -383,95 +382,6 @@ export const BenchmarkScreen: React.FC = observer(() => {
         {l10n.benchmark.messages.testWarning}
       </Text>
     </View>
-  );
-
-    <Dialog
-      testID="share-benchmark-dialog"
-      visible={showShareDialog}
-      onDismiss={() => {
-        setShowShareDialog(false);
-        setPendingShareResult(null);
-      }}
-      title={l10n.benchmark.dialogs.shareResults.title}
-      scrollable
-      actions={[
-        {
-          testID: 'share-benchmark-dialog-cancel-button',
-          label: l10n.benchmark.buttons.cancel,
-          onPress: () => {
-            setShowShareDialog(false);
-            setPendingShareResult(null);
-            setShareError(null);
-          },
-          disabled: isSubmitting,
-        },
-        {
-          testID: 'share-benchmark-dialog-confirm-button',
-          label: isSubmitting
-            ? l10n.benchmark.buttons.sharing
-            : l10n.benchmark.buttons.share,
-          onPress: handleConfirmShare,
-          mode: 'contained',
-          loading: isSubmitting,
-          disabled: isSubmitting,
-        },
-      ]}>
-      <Text variant="bodyMedium" style={styles.dialogSection}>
-        {l10n.benchmark.dialogs.shareResults.sharedDataTitle}
-      </Text>
-      <View style={styles.dialogList}>
-        <Text variant="bodyMedium">
-          {l10n.benchmark.dialogs.shareResults.deviceAndModelInfo}
-        </Text>
-        <Text variant="bodyMedium">
-          {l10n.benchmark.dialogs.shareResults.performanceMetrics}
-        </Text>
-      </View>
-
-      <Button
-        testID="share-benchmark-dialog-view-raw-data-button"
-        mode="text"
-        onPress={() => setShowDetails(!showDetails)}
-        icon={showDetails ? 'chevron-up' : 'chevron-down'}
-        style={styles.detailsButton}>
-        {showDetails
-          ? l10n.benchmark.buttons.hideRawData
-          : l10n.benchmark.buttons.viewRawData}
-      </Button>
-
-      {showDetails && pendingShareResult && deviceInfo && (
-        <View
-          testID="share-benchmark-dialog-raw-data-container"
-          style={styles.detailsContainer}>
-          <Text variant="bodySmall" style={styles.codeBlock}>
-            {JSON.stringify(
-              {
-                deviceInfo,
-                benchmark: pendingShareResult,
-              },
-              null,
-              2,
-            )}
-          </Text>
-        </View>
-      )}
-
-      {shareError && <Text style={styles.errorText}>{shareError}</Text>}
-
-      <View style={styles.checkboxContainer}>
-        <Checkbox
-          testID="dont-show-again-checkbox"
-          checked={dontShowAgain}
-          onPress={() => setDontShowAgain(!dontShowAgain)}
-        />
-        <Text
-          variant="bodySmall"
-          style={styles.checkboxLabel}
-          onPress={() => setDontShowAgain(!dontShowAgain)}>
-          {l10n.benchmark.dialogs.shareResults.dontShowAgain}
-        </Text>
-      </View>
-    </Dialog>
   );
 
   return (
