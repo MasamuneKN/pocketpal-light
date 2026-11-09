@@ -564,7 +564,6 @@ export type TokenNativeEvent = {
 export interface ModelFile {
   rfilename: string;
   size?: number;
-  url?: string;
   oid?: string;
   lfs?: {
     oid: string;
