@@ -57,7 +57,9 @@ describe('bundled Android rules', () => {
 
   it('keeps at least one ungated candidate in every tier', () => {
     for (const tier of TIERS) {
-      expect(rawCandidatesOf(raw, tier).some(candidate => !isGated(candidate))).toBe(true);
+      expect(
+        rawCandidatesOf(raw, tier).some(candidate => !isGated(candidate)),
+      ).toBe(true);
     }
   });
 });
