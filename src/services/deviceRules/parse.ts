@@ -4,7 +4,6 @@ import {CoreVersion, passesMinAppVersion, toCoreVersion} from './appVersion';
 import {
   Classifier,
   CpuHeuristicRule,
-  DeviceFamilyRule,
   DeviceRules,
   RamBand,
   RuleCandidate,
@@ -120,31 +119,6 @@ const parseTierMatrix = (v: unknown): TierMatrixEntry[] => {
   return out;
 };
 
-const parseDeviceFamily = (v: unknown): DeviceFamilyRule[] | undefined => {
-  if (!isObject(v) || !Array.isArray(v.rules)) {
-    return undefined;
-  }
-  const out: DeviceFamilyRule[] = [];
-  for (const raw of v.rules) {
-    if (
-      !isObject(raw) ||
-      !isObject(raw.match) ||
-      typeof raw.class !== 'string'
-    ) {
-      continue;
-    }
-    out.push({
-      match: {
-        idPrefix: asString(raw.match.id_prefix),
-        idMajorMin: asNumber(raw.match.id_major_min),
-        minRamBytes: asNumber(raw.match.min_ram_bytes),
-      },
-      class: raw.class,
-    });
-  }
-  return out;
-};
-
 const parseCpuHeuristic = (v: unknown): CpuHeuristicRule[] | undefined => {
   if (!isObject(v) || !Array.isArray(v.rules)) {
     return undefined;
@@ -183,9 +157,6 @@ const parseClassifier = (v: unknown): Classifier => {
   return {
     ramBands: parseRamBands(v.ram_bands),
     tierMatrix: parseTierMatrix(v.tier_matrix),
-    deviceIdToChip: asStringMap(v.device_id_to_chip),
-    chipToClass: asStringMap(v.chip_to_class),
-    deviceFamilyFallback: parseDeviceFamily(v.device_family_fallback),
     socModelToClass: asStringMap(v.soc_model_to_class),
     hardwareToClass: asStringMap(v.hardware_to_class),
     cpuHeuristic: parseCpuHeuristic(v.cpu_heuristic),
