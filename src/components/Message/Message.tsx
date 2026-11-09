@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {Pressable, Text, View, Animated} from 'react-native';
 
-import {oneOf} from '@flyerhq/react-native-link-preview';
 import {observer} from 'mobx-react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -16,18 +15,24 @@ import {ImageMessage} from '../ImageMessage';
 import {ReasoningBlock} from '../ReasoningBlock';
 import {TalentSurface} from '../TalentSurface';
 import {TextMessage} from '../TextMessage';
-import type {TextMessageTopLevelProps} from '../TextMessage';
 
 import {MessageType} from '../../utils/types';
 import {excludeDerivedMessageProps, UserContext} from '../../utils';
 import {visibleStepContent} from '../../utils/chat';
+
+
+const oneOf = (
+  renderer: ((...args: any[]) => React.ReactNode) | undefined,
+  fallback: React.ReactNode,
+) => (...args: any[]): React.ReactNode =>
+  renderer ? renderer(...args) : fallback;
 
 const hapticOptions = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
 };
 
-export interface MessageTopLevelProps extends TextMessageTopLevelProps {
+export interface MessageTopLevelProps {
   /**
    * True if THIS row is the active agent run. Computed once at the
    * ChatView level (last message AND `agentUiState.status` is in the
@@ -114,7 +119,6 @@ export const Message = observer(
     messageWidth,
     onMessagePress,
     onMessageLongPress,
-    onPreviewDataFetched,
     renderBubble,
     renderCustomMessage,
     renderFileMessage,
@@ -125,7 +129,6 @@ export const Message = observer(
     showName,
     showStatus,
     showUserAvatars,
-    usePreviewData,
   }: MessageProps) => {
     const user = React.useContext(UserContext);
     const theme = useTheme();
@@ -229,9 +232,7 @@ export const Message = observer(
                 enableAnimation,
                 message,
                 messageWidth,
-                onPreviewDataFetched,
                 showName,
-                usePreviewData,
               }}
             />,
           )(
@@ -279,9 +280,7 @@ export const Message = observer(
             enableAnimation={enableAnimation}
             message={turn}
             messageWidth={messageWidth}
-            onPreviewDataFetched={onPreviewDataFetched}
             showName={showNameForBlock}
-            usePreviewData={usePreviewData}
             step={stepFragment}
           />
         );

@@ -5,7 +5,6 @@ import {MD3Theme} from 'react-native-paper';
 import {TemplateConfig} from 'chat-formatter';
 import {ContextParams, TokenData} from 'llama.rn';
 import {CompletionParams} from './completionTypes';
-import {PreviewData} from '@flyerhq/react-native-link-preview';
 import {MD3Colors, MD3Typescale} from 'react-native-paper/lib/typescript/types';
 import type {TokenRadius, TokenStroke, TokenTypography} from '../theme/tokens';
 import {SkillKey} from '.';
@@ -178,7 +177,6 @@ export namespace MessageType {
 
   export interface PartialText {
     metadata?: Record<string, any>;
-    previewData?: PreviewData;
     text: string;
     type: 'text';
     imageUris?: string[]; // Optional array of image URIs for multimodal messages

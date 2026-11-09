@@ -199,7 +199,6 @@ export const ChatView = observer(
     onEndReached,
     onMessageLongPress: externalOnMessageLongPress,
     onMessagePress,
-    onPreviewDataFetched,
     onSendPress,
     onStopPress,
     renderBubble,
@@ -217,7 +216,6 @@ export const ChatView = observer(
     onInitialTextConsumed,
     textInputProps,
     timeFormat,
-    usePreviewData = true,
     user,
   }: ChatProps) => {
     // ============ THEME & LOCALIZATION ============
@@ -819,7 +817,6 @@ export const ChatView = observer(
                 messageWidth,
                 onMessageLongPress: handleMessageLongPress,
                 onMessagePress: handleMessagePress,
-                onPreviewDataFetched,
                 renderBubble,
                 renderCustomMessage,
                 renderFileMessage,
@@ -830,7 +827,6 @@ export const ChatView = observer(
                 showName,
                 showStatus,
                 showUserAvatars,
-                usePreviewData,
               }}
             />
           </View>
@@ -840,7 +836,6 @@ export const ChatView = observer(
         enableAnimation,
         handleMessageLongPress,
         handleMessagePress,
-        onPreviewDataFetched,
         renderBubble,
         renderCustomMessage,
         renderFileMessage,
@@ -848,7 +843,6 @@ export const ChatView = observer(
         renderTextMessage,
         showUserAvatars,
         size.width,
-        usePreviewData,
         user.id,
         isAgentActive,
         newestMessageId,
