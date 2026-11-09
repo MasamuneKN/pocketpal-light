@@ -22,7 +22,6 @@ import {
 import {visibleStepContent} from '../../utils/chat';
 
 export interface TextMessageProps {
-  enableAnimation?: boolean;
   /**
    * Either a legacy `Text` row, or an `AssistantTurn` row when paired
    * with a `step`. The component reads the author from `message`; `text`
@@ -80,6 +79,12 @@ export const TextMessage = ({
   // Extract imageUris from the message if available
   const imageUris = (message as any).imageUris || [];
   const hasImages = imageUris && imageUris.length > 0;
+
+  const renderPreviewHeader = (header: string) => (
+    <Text numberOfLines={1} style={headerText}>
+      {header}
+    </Text>
+  );
 
   // Render image thumbnails
   const renderImages = () => {

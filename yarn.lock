@@ -7949,13 +7949,6 @@ react-native-paper@5.15.3:
     color "^3.1.2"
     use-latest-callback "^0.2.3"
 
-react-native-parsed-text@^0.0.22:
-  version "0.0.22"
-  resolved "https://registry.yarnpkg.com/react-native-parsed-text/-/react-native-parsed-text-0.0.22.tgz#a23c756eaa5d6724296814755085127f9072e5f5"
-  integrity sha512-hfD83RDXZf9Fvth3DowR7j65fMnlqM9PpxZBGWkzVcUTFtqe6/yPcIoIAgrJbKn6YmtzkivmhWE2MCE4JKBXrQ==
-  dependencies:
-    prop-types "^15.7.x"
-
 react-native-permissions@5.6.0:
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-5.6.0.tgz#de5df5576c7762bc14da5b418bea025d300dacf6"

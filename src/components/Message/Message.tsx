@@ -229,7 +229,6 @@ export const Message = observer(
             renderTextMessage,
             <TextMessage
               {...{
-                enableAnimation,
                 message,
                 messageWidth,
                 showName,
