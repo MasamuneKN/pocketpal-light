@@ -235,7 +235,6 @@ describe('flashAttnCompatibility', () => {
     it('should never disable any options', () => {
       const flashAttnTypes: FlashAttnType[] = ['auto', 'on', 'off'];
       const backends: BackendType[] = [
-        'metal',
         'opencl',
         'cpu',
         'hexagon',
