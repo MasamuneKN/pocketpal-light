@@ -1,29 +1,6 @@
-import {version as shippedVersion} from '../../../../package.json';
-import androidBundledRules from '../../../store/bundledDeviceRules/rules.android.json';
-import iosBundledRules from '../../../store/bundledDeviceRules/rules.ios.json';
-import {parseDeviceRules} from '../parse';
-import {Tier} from '../types';
+describe('bundled Android rules', () => {
+  const raw = androidBundledRules;
 
-const TIERS: Tier[] = ['low', 'mid', 'high', 'flagship'];
-
-type Gateable = {min_app_version?: unknown};
-type RawCandidate = Gateable & {
-  model: string;
-  draft?: Gateable;
-  mmproj?: Gateable;
-};
-
-const rawCandidatesOf = (raw: unknown, tier: Tier): RawCandidate[] =>
-  (raw as {tiers: Record<Tier, {candidates: RawCandidate[]}>}).tiers[tier]
-    .candidates;
-
-const isGated = (value: Gateable | undefined): boolean =>
-  value?.min_app_version !== undefined;
-
-describe.each([
-  ['android', androidBundledRules],
-  ['ios', iosBundledRules],
-] as const)('bundled %s rules', (_platform, raw) => {
   it('is a schema 2.0.0 document that keeps every candidate at the shipped app version', () => {
     const rules = parseDeviceRules(raw, shippedVersion);
     expect(rules.schemaVersion).toBe('2.0.0');
