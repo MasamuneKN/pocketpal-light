@@ -2256,7 +2256,6 @@ describe('ModelStore', () => {
       expect(modelStore.activeModelId).toBe(modelB.id);
     });
 
-
     it('eject during the release wins over the reload', async () => {
       holdReleaseOfA();
 
@@ -2293,7 +2292,6 @@ describe('ModelStore', () => {
       expect(initLlama).not.toHaveBeenCalled();
       expect(modelStore.activeModelId).toBeUndefined();
     });
-
   });
 
   describe('benchmark mode', () => {
@@ -3517,7 +3515,6 @@ describe('ModelStore', () => {
       const defaultProj = modelStore.getDefaultProjectionModel('test-llm');
       expect(defaultProj).toBeUndefined();
     });
-
   });
 
   // Add tests for model path handling
@@ -6090,7 +6087,5 @@ describe('ModelStore', () => {
         expect(modelStore.activeProjectionModelId).toBeUndefined();
       });
     });
-
-
   });
 });
