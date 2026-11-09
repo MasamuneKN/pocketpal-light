@@ -72,6 +72,4 @@ describe('BenchmarkStore', () => {
 
     expect(store.latestResult).toEqual(olderResult);
   });
-
-
 });
