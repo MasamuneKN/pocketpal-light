@@ -51,61 +51,47 @@ export interface CpuInfo {
  * @returns Promise<GpuCapabilities> GPU support status and details
  */
 export async function checkGpuSupport(): Promise<GpuCapabilities> {
-  // Check for emulator first; OpenCL acceleration is not supported there.
+  // OpenCL acceleration is not supported on Android emulators.
   const isSimulator = await DeviceInfo.isEmulator();
   if (isSimulator) {
     return {
       isSupported: false,
       reason: 'simulator',
-      details: {
-        isSimulator: true,
-      },
+      details: {isSimulator: true},
     };
   }
 
-  // Android requires Adreno GPU + i8mm + dotprod CPU features for OpenCL
   try {
     const [gpuInfo, cpuInfo] = await Promise.all([
-        NativeHardwareInfo.getGPUInfo(),
-        NativeHardwareInfo.getCPUInfo(),
-      ]);
+      NativeHardwareInfo.getGPUInfo(),
+      NativeHardwareInfo.getCPUInfo(),
+    ]);
 
     const hasAdreno = gpuInfo.hasAdreno ?? false;
     const hasI8mm = cpuInfo.hasI8mm ?? false;
     const hasDotProd = cpuInfo.hasDotProd ?? false;
-
-    // All three conditions must be met for OpenCL support
     const isSupported = hasAdreno && hasI8mm && hasDotProd;
 
     let reason: GpuCapabilities['reason'];
     if (!isSupported) {
       if (!hasAdreno) {
-          reason = 'no_adreno';
-    } else if (!hasI8mm || !hasDotProd) {
+        reason = 'no_adreno';
+      } else if (!hasI8mm || !hasDotProd) {
         reason = 'missing_cpu_features';
       } else {
         reason = 'unknown';
       }
-      }
+    }
 
     return {
       isSupported,
       reason,
-      details: {
-        hasAdreno,
-        hasI8mm,
-        hasDotProd,
-      },
+      details: {hasAdreno, hasI8mm, hasDotProd},
     };
   } catch (error) {
     console.warn('Failed to check GPU support:', error);
-    return {
-      isSupported: false,
-      reason: 'unknown',
-    };
-    }
+    return {isSupported: false, reason: 'unknown'};
   }
-
 }
 
 /**
