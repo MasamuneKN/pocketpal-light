@@ -11,7 +11,7 @@
  *                                useDeepLinking.ts since RN's Android side
  *                                doesn't deliver the URL via DeepLinkService)
  */
-import type {DeepLinkParams} from '../services/DeepLinkService';
+import type {DeepLinkParams} from '../utils/deepLinkTypes';
 import {ROUTES} from '../utils/navigationConstants';
 import {isBenchmarkRunnerUrl, parseBenchmarkAutostart} from './benchmarkRoute';
 
