@@ -19,7 +19,7 @@ import {
 import {Menu} from '../Menu';
 import {styles} from './styles';
 
-import {chatSessionStore, modelStore, uiStore} from '../../store';
+import {chatSessionStore, modelStore} from '../../store';
 
 import {L10nContext} from '../../utils';
 import {Model} from '../../utils/types';
@@ -32,7 +32,6 @@ import {
 } from '../../utils/exportUtils';
 
 import {RenameModal} from '../RenameModal';
-import {UsageStats} from '../UsageStats';
 import {ChatGenerationSettingsSheet} from '../ChatGenerationSettingsSheet';
 
 export const HeaderRight: React.FC = observer(() => {
@@ -158,7 +157,6 @@ export const HeaderRight: React.FC = observer(() => {
 
   return (
     <View style={styles.headerRightContainer}>
-      {uiStore.displayMemUsage && <UsageStats width={40} height={20} />}
       <IconButton
         icon={() => <EditBoxIcon stroke={theme.colors.primary} />}
         testID="reset-button"
