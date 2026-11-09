@@ -46,7 +46,6 @@ export class UIStore {
     return localesSupportedLanguages;
   }
 
-  displayMemUsage = false;
 
   // Warning state for chat-related warnings (like multimodal warnings)
   chatWarning: ErrorState | null = null;
@@ -110,7 +109,6 @@ export class UIStore {
         'pageStates',
         'colorScheme',
         'autoNavigatetoChat',
-        'displayMemUsage',
         '_language',
         'toolCompatWarnedModels',
         'hasCompletedOnboarding',
@@ -158,12 +156,6 @@ export class UIStore {
   setAutoNavigateToChat(value: boolean) {
     runInAction(() => {
       this.autoNavigatetoChat = value;
-    });
-  }
-
-  setDisplayMemUsage(value: boolean) {
-    runInAction(() => {
-      this.displayMemUsage = value;
     });
   }
 
