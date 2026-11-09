@@ -30,7 +30,6 @@ describe('readDeviceSignals', () => {
   });
 
   it('aliases asimddp to the dotprod feature name the rules match', async () => {
-    Object.defineProperty(Platform, 'OS', {value: 'android'});
     (NativeHardwareInfo.getCPUInfo as jest.Mock).mockResolvedValue({
       cores: 8,
       socModel: 'MT6769V/CZ',
