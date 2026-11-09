@@ -30,7 +30,6 @@ setup_permissions(['Microphone'])
 #   use_frameworks! :linkage => linkage.to_sym
 # end
 use_frameworks! :linkage => :static
-$RNFirebaseAsStaticFramework = true
 
 ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 ENV['RNLLAMA_BUILD_FROM_SOURCE'] = '1'
