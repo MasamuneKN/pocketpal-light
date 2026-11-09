@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useRef, useContext} from 'react';
 import {
   View,
-  Platform,
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
@@ -26,7 +25,6 @@ import {
 
 import {
   MoonIcon,
-  CpuChipIcon,
   ShareIcon,
 } from '../../assets/icons';
 
@@ -47,9 +45,6 @@ import {hfStore, modelStore, uiStore} from '../../store';
 import {CacheType, ModelType} from '../../utils/types';
 import {
   L10nContext,
-  formatBytes,
-  clearAllSessionCaches,
-  getSessionCacheInfo,
 } from '../../utils';
 import {t} from '../../locales';
 import {checkGpuSupport} from '../../utils/deviceCapabilities';
@@ -81,8 +76,8 @@ export const SettingsScreen: React.FC = observer(() => {
   const [gpuSupported, setGpuSupported] = useState(false);
   const [deviceOptions, setDeviceOptions] = useState<DeviceOption[]>([]);
   const [currentBackend, setCurrentBackend] = useState<
-    'metal' | 'opencl' | 'hexagon' | 'cpu' | 'blas'
-  >(Platform.OS === 'ios' ? 'metal' : 'cpu');
+    'opencl' | 'hexagon' | 'cpu' | 'blas'
+  >('cpu');
   const debouncedUpdateStore = useRef(
     debounce((value: number) => {
       modelStore.setNContext(value);
@@ -92,7 +87,7 @@ export const SettingsScreen: React.FC = observer(() => {
   useEffect(() => {
     setContextSize(modelStore.contextInitParams.n_ctx.toString());
 
-    // Check for GPU support (Metal on iOS 18+, OpenCL on Android with Adreno + CPU features)
+    // Check Android GPU support (OpenCL with supported Adreno devices).
     const checkGpuCapabilities = async () => {
       const gpuCapabilities = await checkGpuSupport();
       setGpuSupported(gpuCapabilities.isSupported);
@@ -169,7 +164,7 @@ export const SettingsScreen: React.FC = observer(() => {
 
   const currentFlashAttnType =
     modelStore.contextInitParams.flash_attn_type ??
-    (Platform.OS === 'ios' ? 'auto' : 'off');
+    'off';
   const flashAttnOff =
     !modelStore.contextInitParams.flash_attn_type ||
     modelStore.contextInitParams.flash_attn_type === 'off';
@@ -256,20 +251,6 @@ export const SettingsScreen: React.FC = observer(() => {
     const devices = modelStore.contextInitParams.devices;
     const nGpuLayers = modelStore.contextInitParams.n_gpu_layers ?? 0;
 
-    // iOS
-    if (Platform.OS === 'ios') {
-      if (!devices || devices.length === 0) {
-        return nGpuLayers === 0 ? 'cpu' : 'auto';
-      }
-      if (devices[0] === 'Metal') {
-        return 'gpu';
-      }
-      if (devices[0] === 'CPU') {
-        return 'cpu';
-      }
-      return 'auto';
-    }
-
     // Android
     // No auto mode on Android - always explicit device selection
     if (!devices || devices.length === 0 || devices[0] === 'CPU') {
@@ -316,14 +297,10 @@ export const SettingsScreen: React.FC = observer(() => {
                 {deviceOptions.length > 1 ? (
                   <>
                     <Text variant="titleMedium" style={styles.textLabel}>
-                      {Platform.OS === 'ios'
-                        ? l10n.settings.deviceSelectionIOS
-                        : l10n.settings.deviceSelection}
+                      {l10n.settings.deviceSelection}
                     </Text>
                     <Text variant="labelSmall" style={styles.textDescription}>
-                      {Platform.OS === 'ios'
-                        ? l10n.settings.deviceSelectionIOSDescription
-                        : l10n.settings.deviceSelectionAndroidDescription}
+                      {l10n.settings.deviceSelectionAndroidDescription}
                     </Text>
                     <SegmentedButtons
                       value={getCurrentDeviceId()}
@@ -538,9 +515,7 @@ export const SettingsScreen: React.FC = observer(() => {
                       {l10n.settings.flashAttention}
                     </Text>
                     <Text variant="labelSmall" style={styles.textDescription}>
-                      {Platform.OS === 'ios'
-                        ? l10n.settings.flashAttentionIOSDescription
-                        : l10n.settings.flashAttentionAndroidDescription}
+                      {l10n.settings.flashAttentionAndroidDescription}
                     </Text>
                     <SegmentedButtons
                       value={
@@ -992,39 +967,7 @@ export const SettingsScreen: React.FC = observer(() => {
                 </View>
                 <Divider />
 
-                {/* Display Memory Usage (iOS only) */}
-                {Platform.OS === 'ios' && (
-                  <>
-                    <Divider />
-                    <View style={styles.switchContainer}>
-                      <View style={styles.textContainer}>
-                        <View style={styles.labelWithIconContainer}>
-                          <CpuChipIcon
-                            width={20}
-                            height={20}
-                            style={styles.settingIcon}
-                            stroke={theme.colors.onSurface}
-                          />
-                          <Text variant="titleMedium" style={styles.textLabel}>
-                            {l10n.settings.displayMemoryUsage}
-                          </Text>
-                        </View>
-                        <Text
-                          variant="labelSmall"
-                          style={styles.textDescription}>
-                          {l10n.settings.displayMemoryUsageDescription}
-                        </Text>
-                      </View>
-                      <Switch
-                        testID="display-memory-usage-switch"
-                        value={uiStore.displayMemUsage}
-                        onValueChange={value =>
-                          uiStore.setDisplayMemUsage(value)
-                        }
-                      />
-                    </View>
-                  </>
-                )}
+
               </View>
             </Card.Content>
           </Card>
@@ -1078,100 +1021,6 @@ export const SettingsScreen: React.FC = observer(() => {
             </Card.Content>
           </Card>
 
-          {/* Cache & Storage Settings - iOS only (for Shortcuts) */}
-          {Platform.OS === 'ios' && (
-            <Card elevation={0} style={styles.card}>
-              <Card.Title title={l10n.settings.cacheStorageTitle} />
-              <Card.Content>
-                <View style={styles.settingItemContainer}>
-                  {/* Clear Shortcuts Caches */}
-                  <View style={styles.switchContainer}>
-                    <View style={styles.textContainer}>
-                      <Text variant="titleMedium" style={styles.textLabel}>
-                        {l10n.settings.clearPalCaches}
-                      </Text>
-                      <Text variant="labelSmall" style={styles.textDescription}>
-                        {l10n.settings.clearPalCachesDescription}
-                      </Text>
-                    </View>
-                    <Button
-                      mode="outlined"
-                      onPress={async () => {
-                        try {
-                          const cacheInfo = await getSessionCacheInfo();
-
-                          if (cacheInfo.fileCount === 0) {
-                            Alert.alert(
-                              l10n.settings.clearPalCaches,
-                              l10n.settings.noCachesToClear,
-                            );
-                            return;
-                          }
-
-                          const formattedSize = formatBytes(
-                            cacheInfo.totalSizeBytes,
-                          );
-                          const confirmMessage = t(
-                            l10n.settings.clearCachesConfirmMessage,
-                            {
-                              fileCount: cacheInfo.fileCount.toString(),
-                              size: formattedSize,
-                            },
-                          );
-
-                          Alert.alert(
-                            l10n.settings.clearCachesConfirmTitle,
-                            confirmMessage,
-                            [
-                              {
-                                text: l10n.common.cancel,
-                                style: 'cancel',
-                              },
-                              {
-                                text: l10n.settings.clearCachesButton,
-                                style: 'destructive',
-                                onPress: async () => {
-                                  try {
-                                    const deletedCount =
-                                      await clearAllSessionCaches();
-                                    const successMessage = t(
-                                      l10n.settings.clearCachesSuccess,
-                                      {count: deletedCount.toString()},
-                                    );
-                                    Alert.alert(
-                                      l10n.settings.clearPalCaches,
-                                      successMessage,
-                                    );
-                                  } catch (error) {
-                                    console.error(
-                                      'Failed to clear caches:',
-                                      error,
-                                    );
-                                    Alert.alert(
-                                      l10n.settings.clearPalCaches,
-                                      l10n.settings.clearCachesError,
-                                    );
-                                  }
-                                },
-                              },
-                            ],
-                          );
-                        } catch (error) {
-                          console.error('Failed to get cache info:', error);
-                          Alert.alert(
-                            l10n.settings.clearPalCaches,
-                            l10n.settings.clearCachesError,
-                          );
-                        }
-                      }}
-                      style={styles.menuButton}>
-                      {l10n.settings.clearCachesButton}
-                    </Button>
-                  </View>
-                </View>
-              </Card.Content>
-            </Card>
-          )}
 
           {/* Export Options */}
           <Card elevation={0} style={styles.card}>
