@@ -498,15 +498,6 @@
       "vision": "Bildverarbeitung",
       "mtp": "Spekulativ (MTP)",
       "mtpDraft": "Spekulativer Entwurf"
-    },
-    "hubRun": {
-      "title": "Modell herunterladen",
-      "resolving": "Modelldetails werden geladen…",
-      "cancel": "Abbrechen",
-      "retry": "Erneut versuchen",
-      "invalidLinkTitle": "Ungültiger Link",
-      "invalidLinkMessage": "Bei diesem Hugging-Face-Link fehlt das Modell oder die Datei, oder sie sind ungültig.",
-      "resolveError": "Modelldetails konnten nicht geladen werden. Überprüfen Sie Ihre Verbindung und versuchen Sie es erneut."
     }
   },
   "completionParams": {
@@ -1043,7 +1034,12 @@
         "total": "Insgesamt ",
         "usage": "Verwendung: "
       },
-      "byteSizes": ["Bytes", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
