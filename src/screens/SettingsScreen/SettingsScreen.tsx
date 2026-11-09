@@ -271,7 +271,7 @@ export const SettingsScreen: React.FC = observer(() => {
     // Only update flash attention if current value is not valid for the selected device
     const currentFlashAttn =
       modelStore.contextInitParams.flash_attn_type ??
-      (Platform.OS === 'ios' ? 'auto' : 'off');
+      'off';
 
     if (!option.valid_flash_attn_types.includes(currentFlashAttn)) {
       // Current setting is invalid for this device, use the default
