@@ -2,12 +2,6 @@ module.exports = {
   project: {
     android: {},
   },
-  dependencies: {
-    '@invertase/react-native-apple-authentication': {
-    },
-    // PocketPal Lite has no camera, speech, purchase, or cloud-auth features.
-    '@react-native-google-signin/google-signin': {
-    },
-  },
+  // No platform-specific overrides are needed for the Android-only app.
   assets: ['./src/assets/fonts'],
 };
