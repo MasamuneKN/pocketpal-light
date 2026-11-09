@@ -57,7 +57,7 @@ describe('resolveReasoningCapability', () => {
   it('legacy fallback: supportsThinking true → yes/detected', () => {
     const m = localModel();
     m.supportsThinking = true;
-    expect(resolveReasoningCapability(m, {})).toMatchObject({
+    expect(resolveReasoningCapability(m)).toMatchObject({
       isReasoning: 'yes',
       source: 'detected',
     });

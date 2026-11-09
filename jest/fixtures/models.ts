@@ -8,7 +8,6 @@ import {
   Model,
   ModelFile,
   ModelOrigin,
-  ServerConfig,
 } from '../../src/utils/types';
 import {CompletionParams} from '../../src/utils/completionTypes';
 
