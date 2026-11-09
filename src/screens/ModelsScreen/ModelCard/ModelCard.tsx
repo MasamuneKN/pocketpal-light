@@ -1,7 +1,6 @@
 import React, {useCallback, useState, useEffect, useMemo} from 'react';
 import {
   Alert,
-  Linking,
   View,
   TouchableOpacity,
   LayoutAnimation,
@@ -52,7 +51,6 @@ import {
 } from '../../../utils';
 
 import {
-  LinkExternalIcon,
   SettingsIcon,
   CpuChipIcon,
   EyeIcon,
@@ -223,15 +221,6 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
         }
       }
     }, [model, l10n]);
-
-    const openHuggingFaceUrl = useCallback(() => {
-      if (model.hfUrl) {
-        Linking.openURL(model.hfUrl).catch(err => {
-          console.error('Failed to open URL:', err);
-          setSnackbarVisible(true);
-        });
-      }
-    }, [model.hfUrl]);
 
     const handleRemove = useCallback(() => {
       Alert.alert(
@@ -862,28 +851,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                   </TouchableOpacity>
                 )}
 
-                {/* HuggingFace Link */}
-                {model.hfUrl && (
-                  <TouchableOpacity
-                    testID="open-huggingface-url"
-                    onPress={openHuggingFaceUrl}
-                    style={styles.hfLinkButton}
-                    activeOpacity={0.7}>
-                    <View style={styles.hfLinkContent}>
-                      <LinkExternalIcon
-                        width={16}
-                        height={16}
-                        stroke={theme.colors.primary}
-                      />
-                      <Text style={styles.hfLinkText}>
-                        {
-                          l10n.models.modelCard.labels
-                            .viewModelCardOnHuggingFace
-                        }
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
+
               </View>
             )}
           </View>
