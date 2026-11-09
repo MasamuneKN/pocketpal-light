@@ -1,4 +1,4 @@
-import {AppState, AppStateStatus, Platform, Alert} from 'react-native';
+import {AppState, AppStateStatus, Alert} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 import {v4 as uuidv4} from 'uuid';
@@ -45,7 +45,7 @@ import {stopQuietly} from '../utils/stopQuietly';
 import type {OnboardingPalModelEntry} from './onboarding/onboardingPals';
 
 import {downloadManager, DownloadCancelledError} from '../services/downloads';
-import {classify, ClassifyPlatform} from '../services/deviceRules/classify';
+import {classify} from '../services/deviceRules/classify';
 import {deriveUrl, parseDeviceRules} from '../services/deviceRules/parse';
 import {readDeviceSignals} from '../services/deviceRules/signals';
 import {
@@ -57,7 +57,6 @@ import {
 } from '../services/deviceRules/types';
 
 import androidRulesRaw from './bundledDeviceRules/rules.android.json';
-import iosRulesRaw from './bundledDeviceRules/rules.ios.json';
 
 // Bump when the migration logic that re-merges the persisted model list
 // changes. Crossing this version runs the one-time prune-and-reconcile.
@@ -520,9 +519,7 @@ class ModelStore {
         ? 'off'
         : mode === 'embedded'
           ? 'auto'
-          : Platform.OS === 'ios'
-            ? 'auto'
-            : 'off';
+          : 'off';
     const flash_attn_type =
       this.contextInitParams.flash_attn_type ?? flashAttnModeDefault;
 
@@ -848,7 +845,6 @@ class ModelStore {
     const tier = classify(
       signals,
       rules.classifier,
-      Platform.OS as ClassifyPlatform,
     );
     const flat = rules.tiers[tier].models.flatMap(candidate => {
       const {hfModel, modelFile} = this.candidateToPair(candidate);
@@ -893,12 +889,11 @@ class ModelStore {
   private resolvePresets = async (): Promise<Model[]> => {
     try {
       const signals = await readDeviceSignals();
-      const bundledRaw = Platform.OS === 'ios' ? iosRulesRaw : androidRulesRaw;
+      const bundledRaw = androidRulesRaw;
       const rules = parseDeviceRules(bundledRaw, DeviceInfo.getVersion());
       const tier = classify(
         signals,
         rules.classifier,
-        Platform.OS as ClassifyPlatform,
       );
       runInAction(() => {
         this.deviceTier = tier;
@@ -1117,9 +1112,6 @@ class ModelStore {
    *          new path (DocumentDirectoryPath/models/preset/author/filename)
    * - HF: Uses DocumentDirectoryPath/models/hf/author/filename
    *
-   * IMPORTANT: This logic is duplicated in native Swift code for iOS Shortcuts
-   * See: ios/PocketPal/AppIntents/PalDataProvider.swift - parseModelPath() method
-   * If we modify this function, we need to update the Swift version as well.
    *
    * @param model - The model object containing necessary metadata (origin, filename, author, etc.)
    * @returns Promise<string> - The full path where the model file is or should be stored
@@ -1213,22 +1205,15 @@ class ModelStore {
    * Re-anchors a LOCAL model's stored absolute path onto the current app
    * container.
    *
-   * `fullPath` is persisted verbatim when the file is imported. On iOS the app
-   * container UUID can change (OS upgrade, backup/restore, reinstall), which
-   * invalidates every stored absolute path even though the file is still on
-   * disk under the new container. Imported models are copied into
-   * `<DocumentDirectoryPath>/models/local`, so the segment from `models/local`
-   * onward is stable and can be re-joined to the *current* documents path.
+   * `fullPath` is persisted verbatim when the file is imported. Imported
+   * models are copied into `<DocumentDirectoryPath>/models/local`, so the
+   * segment from `models/local` onward can be re-joined to the current path.
    *
    * Returns the recovered path (persistence is batched via
    * flushPendingLocalPathRecoveries) when the original is missing but the
    * re-anchored one exists; otherwise returns the stored path unchanged so
    * existing not-found handling still applies.
    *
-   * IMPORTANT: this re-anchoring is duplicated in native Swift for iOS
-   * Shortcuts — see the LOCAL branch of parseModelPath() in
-   * ios/PocketPal/AppIntents/PalDataProvider.swift. Keep the two in sync; the
-   * shared '/models/local/' marker must match on both sides.
    */
   resolveLocalModelPath = async (model: Model): Promise<string> => {
     const storedPath = model.fullPath!;
@@ -3531,11 +3516,7 @@ class ModelStore {
 
       // Process all image paths to handle file:// prefix
       const processedImagePaths = imagePaths.map(path =>
-        path.startsWith('file://')
-          ? Platform.OS === 'ios'
-            ? path.substring(7) // iOS: remove 'file://'
-            : path // Android: keep as is
-          : path,
+        path,
       );
 
       // Create a system message if provided
