@@ -71,7 +71,6 @@ import {PendingIndicator} from '../PendingIndicator';
 import {ChatPalModelPickerSheet} from '../ChatPalModelPickerSheet';
 import {ChatHeader} from '../ChatHeader';
 import {ChatEmptyPlaceholder} from '../ChatEmptyPlaceholder';
-import {ContentReportSheet} from '../ContentReportSheet';
 import {
   AlertIcon,
   CopyIcon,
@@ -255,8 +254,6 @@ export const ChatView = observer(
     const [menuPosition, setMenuPosition] = React.useState({x: 0, y: 0});
     const [selectedMessage, setSelectedMessage] =
       React.useState<MessageType.Any | null>(null);
-    const [isReportSheetVisible, setIsReportSheetVisible] =
-      React.useState(false);
 
     // Pagination state
     const [isNextPageLoading, setNextPageLoading] = React.useState(false);
@@ -634,7 +631,6 @@ export const ChatView = observer(
       regenerate: regenerateLabel,
       regenerateWith: regenerateWithLabel,
       edit: editLabel,
-      reportContent: reportContentLabel,
     } = l10n.components.chatView.menuItems;
 
     const isStopping = chatSessionStore.isStopping;
@@ -701,15 +697,7 @@ export const ChatView = observer(
         });
       }
 
-      baseItems.push({
-        label: reportContentLabel,
-        onPress: () => {
-          setIsReportSheetVisible(true);
-          handleMenuDismiss();
-        },
-        icon: () => <AlertIcon stroke={theme.colors.primary} />,
-        disabled: false,
-      });
+
 
       return baseItems;
     }, [
@@ -727,7 +715,6 @@ export const ChatView = observer(
       regenerateLabel,
       regenerateWithLabel,
       editLabel,
-      reportContentLabel,
     ]);
 
     // ============ RENDER FUNCTIONS ============
@@ -1151,11 +1138,6 @@ export const ChatView = observer(
             {menuItems.map(renderMenuItem)}
           </Menu>
 
-          {/* Content report sheet */}
-          <ContentReportSheet
-            isVisible={isReportSheetVisible}
-            onClose={() => setIsReportSheetVisible(false)}
-          />
 
           {increaseSheetOpen && activeModel && currentNCtx !== undefined ? (
             <IncreaseContextSheet
