@@ -795,8 +795,6 @@ describe('ModelStore', () => {
       }
     });
 
-);
-
     it('android: resolved LLMs defer oid/lfs to download (none baked)', () => {
       Platform.OS = 'android';
       const rules = parseDeviceRules(androidBundledRules, '1.17.3');
