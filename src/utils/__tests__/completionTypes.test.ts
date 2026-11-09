@@ -1,4 +1,14 @@
-import {cacheReuseTimings} from '../../../jest/fixtures/llamaServerTimings';
+const cacheReuseTimings = {
+  prompt_n: 100,
+  prompt_ms: 250,
+  prompt_per_token_ms: 2.5,
+  prompt_per_second: 400,
+  predicted_n: 20,
+  predicted_ms: 500,
+  predicted_per_token_ms: 25,
+  predicted_per_second: 40,
+  cache_n: 80,
+};
 import {normaliseTimings} from '../completionTypes';
 
 describe('normaliseTimings', () => {
