@@ -498,15 +498,6 @@
       "vision": "بینایی",
       "mtp": "گمانه‌زنانه (MTP)",
       "mtpDraft": "پیش‌نویس گمانه‌زنانه"
-    },
-    "hubRun": {
-      "title": "دانلود مدل",
-      "resolving": "در حال بارگذاری جزئیات مدل…",
-      "cancel": "لغو",
-      "retry": "تلاش مجدد",
-      "invalidLinkTitle": "لینک نامعتبر",
-      "invalidLinkMessage": "این لینک Hugging Face ناقص است یا مدل یا فایل نامعتبری دارد.",
-      "resolveError": "بارگذاری جزئیات مدل ممکن نشد. اتصال خود را بررسی کرده و دوباره تلاش کنید."
     }
   },
   "completionParams": {
@@ -1033,7 +1024,12 @@
         "total": "کل: ",
         "usage": "مصرف: "
       },
-      "byteSizes": ["Bytes", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
