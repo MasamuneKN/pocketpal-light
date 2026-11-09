@@ -5,7 +5,6 @@ const path = require('path');
 
 const GENERATOR_PATH = path.join(__dirname, '..', 'generate-app-icons.js');
 const {
-  APPICONSET,
   ANDROID_RES,
   SOURCE_DIR,
   SOURCE_FILES,
@@ -201,33 +200,6 @@ describe('buildTextOutputs', () => {
     ).toContain('<color name="ic_launcher_background">#FFFFFF</color>');
   });
 
-  it('writes Contents.json in Xcode single-size form', () => {
-    const contents =
-      buildTextOutputs(sources)[
-        'ios/PocketPal/Images.xcassets/AppIcon.appiconset/Contents.json'
-      ];
-    expect(contents.endsWith('}\n')).toBe(true);
-    const {images, info} = JSON.parse(contents);
-    expect(info).toEqual({author: 'xcode', version: 1});
-    expect(images.map(image => image.filename)).toEqual([
-      'AppIcon.png',
-      'AppIcon-dark.png',
-      'AppIcon-tinted.png',
-    ]);
-    expect(images.map(image => image.appearances?.[0].value)).toEqual([
-      undefined,
-      'dark',
-      'tinted',
-    ]);
-    for (const image of images) {
-      expect(image).toMatchObject({
-        idiom: 'universal',
-        platform: 'ios',
-        size: '1024x1024',
-      });
-      expect(Object.keys(image)).toEqual([...Object.keys(image)].sort());
-    }
-  });
 });
 
 function pngHeader(buffer) {
@@ -270,7 +242,6 @@ describe('generate', () => {
     writeSources({monochrome: canvas('<rect width="1" height="1"/>')});
     expect(() => generate({root})).toThrow('<rect>');
     expect(fs.existsSync(path.join(root, 'android'))).toBe(false);
-    expect(fs.existsSync(path.join(root, 'ios'))).toBe(false);
   });
 
   it('exits non-zero from the command line, naming the element', () => {
@@ -297,59 +268,15 @@ describe('generate', () => {
     },
   );
 
-  it('survives stray .DS_Store files, deleting the appiconset one', () => {
+  it('preserves unrelated Android resource files', () => {
     writeSources();
-    const strays = [`${APPICONSET}/.DS_Store`, `${ANDROID_RES}/.DS_Store`];
-    for (const stray of strays) {
-      fs.mkdirSync(path.dirname(path.join(root, stray)), {recursive: true});
-      fs.writeFileSync(path.join(root, stray), 'finder');
-    }
-
+    const stray = `${ANDROID_RES}/.DS_Store`;
+    fs.mkdirSync(path.dirname(path.join(root, stray)), {recursive: true});
+    fs.writeFileSync(path.join(root, stray), 'finder');
     generate({root});
-
-    expect(fs.existsSync(path.join(root, strays[0]))).toBe(false);
-    expect(fs.existsSync(path.join(root, strays[1]))).toBe(true);
+    expect(fs.existsSync(path.join(root, stray))).toBe(true);
   });
 
-  it('replaces case-variant icons without deleting a written output', () => {
-    writeSources();
-    const dir = path.join(root, APPICONSET);
-    fs.mkdirSync(dir, {recursive: true});
-    for (const name of ['appicon.png', 'Appicon-Dark.png']) {
-      fs.writeFileSync(path.join(dir, name), 'old');
-    }
-    const calls = spy =>
-      spy.mock.calls.map(([file], i) => ({
-        file: String(file).toLowerCase(),
-        order: spy.mock.invocationCallOrder[i],
-      }));
-    const write = jest.spyOn(fs, 'writeFileSync');
-    const remove = jest.spyOn(fs, 'rmSync');
-    let writes;
-    let removals;
-    try {
-      generate({root});
-    } finally {
-      writes = calls(write);
-      removals = calls(remove);
-      write.mockRestore();
-      remove.mockRestore();
-    }
-
-    const removedAfterWrite = removals.filter(removal =>
-      writes.some(
-        ({file, order}) => file === removal.file && order < removal.order,
-      ),
-    );
-    expect(removedAfterWrite).toEqual([]);
-    expect(removals).toHaveLength(2);
-    expect(fs.readdirSync(dir).sort()).toEqual([
-      'AppIcon-dark.png',
-      'AppIcon-tinted.png',
-      'AppIcon.png',
-      'Contents.json',
-    ]);
-  });
 
   it('refuses a preview directory that reaches the repo through a symlink', () => {
     writeSources();
@@ -368,29 +295,9 @@ describe('generate', () => {
     }
   });
 
-  it('writes opaque iOS icons, exact legacy sizes and drops stale icons', () => {
+  it('writes Android legacy icons at exact density sizes', () => {
     writeSources();
-    const stale = path.join(root, APPICONSET, 'iPhone_App_60_2x.png');
-    fs.mkdirSync(path.dirname(stale), {recursive: true});
-    fs.writeFileSync(stale, 'stale');
-
     generate({root});
-
-    expect(fs.readdirSync(path.join(root, APPICONSET)).sort()).toEqual([
-      'AppIcon-dark.png',
-      'AppIcon-tinted.png',
-      'AppIcon.png',
-      'Contents.json',
-    ]);
-    for (const name of [
-      'AppIcon.png',
-      'AppIcon-dark.png',
-      'AppIcon-tinted.png',
-    ]) {
-      expect(
-        pngHeader(fs.readFileSync(path.join(root, APPICONSET, name))),
-      ).toEqual({width: 1024, height: 1024, colorType: 2});
-    }
     const sizes = {mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxxhdpi: 192};
     for (const [density, size] of Object.entries(sizes)) {
       for (const name of ['ic_launcher', 'ic_launcher_round']) {
@@ -665,27 +572,6 @@ describe('committed outputs', () => {
       textOutputs[`${ANDROID_RES}/drawable/ic_launcher_monochrome.xml`];
     expect(monochrome).toContain('android:fillType="evenOdd"');
     expect(monochrome).toContain('<clip-path');
-  });
-
-  it('ships exactly three opaque 1024 iOS icons', () => {
-    const dir = path.join(repoRoot, APPICONSET);
-    expect(fs.readdirSync(dir).filter(visible).sort()).toEqual([
-      'AppIcon-dark.png',
-      'AppIcon-tinted.png',
-      'AppIcon.png',
-      'Contents.json',
-    ]);
-    for (const name of [
-      'AppIcon.png',
-      'AppIcon-dark.png',
-      'AppIcon-tinted.png',
-    ]) {
-      expect(pngHeader(fs.readFileSync(path.join(dir, name)))).toEqual({
-        width: 1024,
-        height: 1024,
-        colorType: 2,
-      });
-    }
   });
 
   it.each([
@@ -1152,40 +1038,16 @@ describe('committed PNG content', () => {
   const repoRoot = path.join(__dirname, '..', '..');
   const png = relative =>
     decodePng(fs.readFileSync(path.join(repoRoot, relative)));
-  const BACKDROP = [1, 1];
-  const PAL_BODY = [49, 33];
-  const RIGHT_EYE = [66, 46.5];
-  const POCKET = [88, 92];
-
-  it.each([
-    ['AppIcon.png', '#FFFFFF', '#F5DBBC', '#000000'],
-    ['AppIcon-dark.png', '#181715', '#A86C34', '#000000'],
-    ['AppIcon-tinted.png', '#000000', '#FFFFFF', '#000000'],
-  ])(
-    '%s paints backdrop %s, pal %s and eye %s with no transparency chunk',
-    (name, backdrop, pal, eye) => {
-      const icon = png(`${APPICONSET}/${name}`);
-      expect(icon.chunks).toEqual(['IHDR', 'IDAT', 'IEND']);
-      expect(icon.at(...BACKDROP)).toEqual({color: backdrop, alpha: 255});
-      expect(icon.at(...PAL_BODY)).toEqual({color: pal, alpha: 255});
-      expect(icon.at(...RIGHT_EYE)).toEqual({color: eye, alpha: 255});
-    },
-  );
 
   it.each(['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'])(
-    'masks the %s legacy icons as a rounded square and a circle over the iOS composition',
+    'masks the %s legacy icons as a rounded square and a circle',
     density => {
       const square = png(`${ANDROID_RES}/mipmap-${density}/ic_launcher.png`);
-      const round = png(
-        `${ANDROID_RES}/mipmap-${density}/ic_launcher_round.png`,
-      );
-      const ios = png(`${APPICONSET}/AppIcon.png`);
+      const round = png(`${ANDROID_RES}/mipmap-${density}/ic_launcher_round.png`);
       for (const icon of [square, round]) {
         expect(icon.colorType).toBe(6);
         expect(icon.at(0, 0).alpha).toBe(0);
-        for (const point of [PAL_BODY, POCKET]) {
-          expect(icon.at(...point)).toEqual(ios.at(...point));
-        }
+        expect(icon.at(...[49, 33]).color).toBe('#F5DBBC');
       }
       expect(square.at(14, 14)).toEqual({color: '#FFFFFF', alpha: 255});
       expect(round.at(14, 14).alpha).toBe(0);
@@ -1224,9 +1086,6 @@ describe('generate from the committed sources', () => {
   });
 
   const committed = [
-    ...listFiles(path.join(repoRoot, APPICONSET)).map(
-      file => `${APPICONSET}/${file}`,
-    ),
     ...fs
       .readdirSync(path.join(repoRoot, ANDROID_RES), {recursive: true})
       .filter(file => path.basename(file).startsWith('ic_launcher'))
@@ -1274,8 +1133,6 @@ describe('generate from the committed sources', () => {
       'canvas-foreground-dark.png',
       'canvas-foreground-light.png',
       'canvas-monochrome.png',
-      'ios-tinted-1024.png',
-      'ios-tinted-180.png',
     ]);
     expect(Object.keys(firstRun).some(file => file.includes('canvas-'))).toBe(
       false,
@@ -1349,29 +1206,6 @@ describe('generate on failure', () => {
     fs.rmSync(root, {recursive: true, force: true});
   });
 
-  it('refuses a subfolder in the appiconset before writing anything', () => {
-    root = fs.mkdtempSync(path.join(os.tmpdir(), 'app-icons-subfolder-'));
-    for (const key of Object.keys(SOURCE_FILES)) {
-      const target = path.join(root, SOURCE_DIR, SOURCE_FILES[key]);
-      fs.mkdirSync(path.dirname(target), {recursive: true});
-      fs.writeFileSync(target, canvas(SQUARE));
-    }
-    const contents = path.join(root, APPICONSET, 'Contents.json');
-    fs.mkdirSync(path.join(root, APPICONSET, 'old.imageset'), {
-      recursive: true,
-    });
-    fs.writeFileSync(contents, 'previous');
-
-    expect(() => generate({root})).toThrow('old.imageset is a directory');
-
-    expect(fs.readFileSync(contents, 'utf-8')).toBe('previous');
-    expect(fs.readdirSync(path.join(root, APPICONSET)).sort()).toEqual([
-      'Contents.json',
-      'old.imageset',
-    ]);
-    expect(fs.existsSync(path.join(root, 'android'))).toBe(false);
-  });
-
   it('leaves existing outputs and stale icons untouched', () => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'app-icons-keep-'));
     const sources = {
@@ -1385,7 +1219,6 @@ describe('generate on failure', () => {
       fs.writeFileSync(target, text);
     }
     const existing = {
-      [`${APPICONSET}/iPhone_App_60_2x.png`]: 'stale',
       [`${ANDROID_RES}/drawable/ic_launcher_foreground.xml`]: 'previous',
     };
     for (const [relative, content] of Object.entries(existing)) {
@@ -1398,8 +1231,5 @@ describe('generate on failure', () => {
     for (const [relative, content] of Object.entries(existing)) {
       expect(fs.readFileSync(path.join(root, relative), 'utf-8')).toBe(content);
     }
-    expect(fs.readdirSync(path.join(root, APPICONSET))).toEqual([
-      'iPhone_App_60_2x.png',
-    ]);
   });
 });
