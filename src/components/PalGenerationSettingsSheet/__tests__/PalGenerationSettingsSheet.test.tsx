@@ -9,7 +9,6 @@ import {
   chatSessionStore,
   defaultCompletionSettings,
   modelStore,
-  serverStore,
 } from '../../../store';
 import {ModelOrigin} from '../../../utils/types';
 import {L10nContext} from '../../../utils';
@@ -79,9 +78,7 @@ describe('PalGenerationSettingsSheet', () => {
 
       expect(getByTestId('sheet')).toBeTruthy();
       expect(getByTestId('completion-settings')).toBeTruthy();
-    });
-
-    it("never offers the active server's defaults, which govern another model", () => {
+    }    it("never offers the active server's defaults, which govern another model", () => {
       runInAction(() => {
         modelStore.models = [
           {

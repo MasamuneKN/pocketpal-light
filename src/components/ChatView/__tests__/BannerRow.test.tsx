@@ -5,9 +5,8 @@ import {fireEvent, render} from '../../../../jest/test-utils';
 import {modelsList} from '../../../../jest/fixtures/models';
 
 import {L10nContext} from '../../../utils';
-import {ModelOrigin} from '../../../utils/types';
 import {l10n} from '../../../locales';
-import {chatSessionStore, modelStore, serverStore} from '../../../store';
+import {chatSessionStore, modelStore} from '../../../store';
 
 import {BannerRow} from '../BannerRow';
 
@@ -179,9 +178,7 @@ describe('BannerRow', () => {
     });
     const {getByText} = renderBanner();
     expect(getByText(l10n.en.chat.contextFullEscalated)).toBeTruthy();
-  });
-
-  it('keeps the remote copy (no increase clause) for a remote model at the escalated failure count', () => {
+  });  it('keeps the remote copy (no increase clause) for a remote model at the escalated failure count', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [
@@ -230,9 +227,7 @@ describe('BannerRow', () => {
     const {getByText, queryByText} = renderBanner();
     expect(getByText(l10n.en.chat.contextFullEscalated)).toBeTruthy();
     expect(queryByText(l10n.en.chat.contextFullRemote)).toBeNull();
-  });
-
-  it('renders the remote hedged advisory for a remote model with no runtime n_ctx', () => {
+  });  it('renders the remote hedged advisory for a remote model with no runtime n_ctx', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [{id: 'remote-1', origin: ModelOrigin.REMOTE} as any];
@@ -262,9 +257,7 @@ describe('BannerRow', () => {
     runInAction(() => {
       modelStore.models = [];
     });
-  });
-
-  it('resolves context-full for a remote model from the server-reported contextLength', () => {
+  });  it('resolves context-full for a remote model from the server-reported contextLength', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [
@@ -302,9 +295,7 @@ describe('BannerRow', () => {
       serverStore.servers = [];
       serverStore.remoteCaps = {};
     });
-  });
-
-  it('ignores a window probed against another backend', () => {
+  });  it('ignores a window probed against another backend', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [
@@ -346,9 +337,7 @@ describe('BannerRow', () => {
       serverStore.servers = [];
       serverStore.remoteCaps = {};
     });
-  });
-
-  it('does not treat a per-model window of 0 as a full context', () => {
+  });  it('does not treat a per-model window of 0 as a full context', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [
@@ -380,9 +369,7 @@ describe('BannerRow', () => {
       serverStore.servers = [];
       serverStore.remoteCaps = {};
     });
-  });
-
-  it('uses the remote context-full copy (no increase clause) for a remote model', () => {
+  });  it('uses the remote context-full copy (no increase clause) for a remote model', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [
@@ -452,9 +439,7 @@ describe('BannerRow', () => {
     // banner would render at all.
     expect(getByTestId('context-warning-banner')).toBeTruthy();
     expect(getByTestId('banner-percent')).toHaveTextContent('81%');
-  });
-
-  it('resolves the near-limit warning + meter percent for a remote model', () => {
+  });  it('resolves the near-limit warning + meter percent for a remote model', () => {
     runInAction(() => {
       modelStore.activeModelId = 'remote-1';
       modelStore.models = [

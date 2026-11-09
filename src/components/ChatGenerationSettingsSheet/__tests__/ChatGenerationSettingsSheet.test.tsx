@@ -117,9 +117,7 @@ describe('ChatGenerationSettingsSheet', () => {
 
     expect(getByTestId('sheet')).toBeTruthy();
     expect(getByTestId('completion-settings')).toBeTruthy();
-  });
-
-  it('picks up a server default that lands while the sheet is open', async () => {
+  });  it('picks up a server default that lands while the sheet is open', async () => {
     const {getByTestId} = render(
       <ChatGenerationSettingsSheet {...defaultProps} />,
     );
@@ -145,9 +143,7 @@ describe('ChatGenerationSettingsSheet', () => {
         (modelStore as any).activeSamplerDefaults = undefined;
       });
     });
-  });
-
-  it('withholds server defaults while editing the preset, which governs every future chat', async () => {
+  });  it('withholds server defaults while editing the preset, which governs every future chat', async () => {
     const previousSessionId = (chatSessionStore as any).activeSessionId;
     runInAction(() => {
       (modelStore as any).activeSamplerDefaults = {top_k: 40};
