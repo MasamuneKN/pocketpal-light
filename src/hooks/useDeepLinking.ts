@@ -78,7 +78,9 @@ export const useDeepLinking = () => {
     Linking.getInitialURL()
       .then(url => {
         if (mounted && url) {
-          void handleDeepLink(url);
+          handleDeepLink(url).catch(error => {
+            console.error('Failed to handle initial deep link:', error);
+          });
         }
       })
       .catch(() => {
@@ -86,7 +88,9 @@ export const useDeepLinking = () => {
       });
 
     const subscription = Linking.addEventListener('url', ({url}) => {
-      void handleDeepLink(url);
+      handleDeepLink(url).catch(error => {
+        console.error('Failed to handle incoming deep link:', error);
+      });
     });
 
     return () => {
