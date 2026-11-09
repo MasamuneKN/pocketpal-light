@@ -14,7 +14,6 @@ import {useNavigation} from '@react-navigation/native';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import {
   Card,
-  Icon,
   ProgressBar,
   Button,
   IconButton,
@@ -35,7 +34,6 @@ import {useStorageCheck} from '../../../hooks/useStorageCheck';
 import {createStyles} from './styles';
 
 import {modelStore, uiStore} from '../../../store';
-import {t} from '../../../locales';
 
 import {
   Model,

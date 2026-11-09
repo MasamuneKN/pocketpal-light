@@ -10,7 +10,6 @@ import {
 
 import {useChatSession} from '../useChatSession';
 import {chatSessionStore, modelStore, palStore} from '../../store';
-import {resolveBannerVariant} from '../../utils/bannerVariantResolver';
 import {assistant} from '../../utils/chat';
 import {talentRegistry} from '../../services/talents';
 import type {MessageType} from '../../utils/types';

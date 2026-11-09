@@ -1,7 +1,6 @@
 import React from 'react';
 import {Linking, Alert} from 'react-native';
 
-import {runInAction} from 'mobx';
 
 import {render, fireEvent, waitFor, act} from '../../../../../jest/test-utils';
 import {
@@ -11,7 +10,6 @@ import {
   downloadingModel,
   largeMemoryModel,
 } from '../../../../../jest/fixtures/models';
-import {themeFixtures} from '../../../../../jest/fixtures/theme';
 
 // Unmock useMemoryCheck for memory warning tests
 jest.unmock('../../../../hooks/useMemoryCheck');
@@ -41,13 +39,6 @@ jest.mock('@react-navigation/native', () => ({
 
 const customRender = (ui: React.ReactElement, options: any = {}) =>
   render(ui, {withBottomSheetProvider: true, withNavigation: true, ...options});
-
-/**
- * Every `.svg` resolves to the same mock component, so the two header glyphs
- * are told apart by the stroke they are given, not by their type.
- */
-const glyphStroke = (glyphWrapper: any): string =>
-  glyphWrapper.props.children.props.stroke;
 
 describe('ModelCard', () => {
   beforeEach(() => {

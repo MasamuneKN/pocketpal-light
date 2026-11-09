@@ -11,7 +11,6 @@ import {useTheme} from '../../hooks';
 import {createStyles} from './styles';
 
 import {L10nContext} from '../../utils';
-import {t} from '../../locales';
 import {
   COMPLETION_PARAMS_METADATA,
   validateNumericField,
