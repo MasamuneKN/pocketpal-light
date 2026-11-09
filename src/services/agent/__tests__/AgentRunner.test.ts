@@ -1911,10 +1911,6 @@ describe('runAgent', () => {
       ]);
     });
 
-);
-
-);
-
     it('a consumer that stops at a start dispatches no call', async () => {
       const first = deferredTalent('first');
       const second = deferredTalent('second');
