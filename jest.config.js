@@ -9,7 +9,6 @@ module.exports = {
     '!**/types.{ts,tsx}',
     '!**/*.d.ts',
     '!**/ImageView.android.ts',
-    '!**/ImageView.ios.ts',
     '!**/ImageView.tsx',
     '!**/*.perf-test.{ts,tsx}',
   ],
