@@ -386,8 +386,6 @@ export class DownloadManager {
     console.log(`${TAG}: Attempting to cancel download:`, modelId);
     const job = this.downloadJobs.get(modelId);
     if (job) {
-      // Mark as user-cancelled so the iOS download promise rejection is
-      // recognised as a cancel, not surfaced as a "Download Failed" error.
       this.cancelledModelIds.add(modelId);
       try {
         if (NativeDownloadModule && job.downloadId) {
