@@ -1,5 +1,4 @@
 import React, {useRef} from 'react';
-import {AccessibilityInfo} from 'react-native';
 
 import {toJS} from 'mobx';
 import type {JinjaFormattedChatResult} from 'llama.rn';
@@ -9,9 +8,7 @@ import {L10nContext} from '../utils';
 import {
   chatSessionStore,
   modelStore,
-  NEW_SESSION_TITLE,
   palStore,
-  serverStore,
   uiStore,
 } from '../store';
 import type {GenerationLease} from '../store/generationLease';
@@ -21,13 +18,8 @@ import {
   resolveReasoningCapability,
 } from '../utils/reasoningCapability';
 
-import {MessageType, ModelOrigin, User} from '../utils/types';
-import {
-  RemoteModelNotReadyError,
-  RemoteModelRequestWithdrawnError,
-  createMultimodalWarning,
-} from '../utils/errors';
-import {routerFailureMessage} from '../utils/routerCopy';
+import {MessageType, User} from '../utils/types';
+import {createMultimodalWarning} from '../utils/errors';
 import {
   assembleMessages,
   resolveSystemMessages,
@@ -172,10 +164,7 @@ const prepareCompletion = async ({
   // hint — it never strips reasoning the model still returns (rendered by
   // ReasoningBlock); separate from include_thinking_in_context, which only
   // governs what prior <think> we SEND.
-  const reasoningCapability = resolveReasoningCapability(
-    modelStore.activeModel,
-    serverStore.remoteReasoning,
-  );
+  const reasoningCapability = resolveReasoningCapability(modelStore.activeModel);
   const isReasoningCapable = reasoningCapability.isReasoning !== 'no';
   cleanCompletionParams.reasoning_format = 'auto';
   // The enable_thinking:false hint only matters for reasoning-capable models;
@@ -245,7 +234,6 @@ const prepareCompletion = async ({
 // and (remote only) a 'length' finish reason derived from `stopped_limit`.
 function deriveSnapshotFromResult(
   result: CompletionResult,
-  isRemote: boolean,
 ): CompletionResultSnapshot {
   // Without a prompt term the total is a predicted-only tally, which is not an
   // occupancy number on either path.
@@ -253,11 +241,7 @@ function deriveSnapshotFromResult(
     result.tokens_evaluated === undefined
       ? undefined
       : result.tokens_evaluated + (result.tokens_predicted ?? 0);
-  // Local turns set context_full/truncated directly; finishReason only bridges
-  // the remote engine's signal (stopped_limit) into the OR predicate below, so
-  // it is intentionally remote-only.
-  const finishReason =
-    isRemote && result.stopped_limit === 1 ? 'length' : undefined;
+  const finishReason = undefined;
   const contextFull =
     result.context_full === true ||
     result.truncated === true ||
@@ -269,7 +253,7 @@ function deriveSnapshotFromResult(
     contextFull,
     tokensPredicted: result.tokens_predicted,
     finishReason,
-    isRemote,
+    isRemote: false,
   };
 }
 
@@ -323,7 +307,7 @@ async function applyEventToStore(
         const activeModel = modelStore.activeModel;
         if (
           activeModel &&
-          resolveReasoningCapability(activeModel, serverStore.remoteReasoning)
+          resolveReasoningCapability(activeModel)
             .isReasoning !== 'yes'
         ) {
           modelStore.recordReasoningObserved(activeModel.id);
@@ -385,10 +369,7 @@ async function applyEventToStore(
       // (not in the runner) because timings are an observability
       // concern of the hook, not the runner.
       const finalResult = event.result.finalResult;
-      const snapshot = deriveSnapshotFromResult(
-        finalResult,
-        modelStore.activeModel?.origin === ModelOrigin.REMOTE,
-      );
+      const snapshot = deriveSnapshotFromResult(finalResult);
       const draftTimings =
         finalResult.draft_tokens != null && finalResult.draft_tokens > 0
           ? {
@@ -411,9 +392,6 @@ async function applyEventToStore(
         },
       });
       chatSessionStore.recordCompletionSnapshot(snapshot);
-      if (snapshot.isRemote) {
-        modelStore.reprobeRemoteCapsAfterCompletion();
-      }
       if (event.result.hitMaxTurns) {
         console.warn(
           '[useChatSession] agent run hit maxTurns; surfacing last available content',
@@ -604,10 +582,6 @@ export const useChatSession = (
         multimodal: hasImages,
       },
     };
-    const wasUntitled =
-      (chatSessionStore.sessions.find(
-        s => s.id === chatSessionStore.activeSessionId,
-      )?.title ?? NEW_SESSION_TITLE) === NEW_SESSION_TITLE;
     await addMessage(textMessage);
     if (!lease.signal.aborted) {
       modelStore.setInferencing(true);
@@ -781,9 +755,7 @@ export const useChatSession = (
     } catch (error) {
       console.error('Completion error:', error);
       // Send stays blocked until an undone turn's rows are gone.
-      if (!(error instanceof RemoteModelRequestWithdrawnError)) {
-        runUi.stop();
-      }
+      runUi.stop();
 
       const errorMessage = (error as Error).message;
       // Native tool-call parser throws on truncated JSON when the model
@@ -835,12 +807,11 @@ export const useChatSession = (
         // the turn as full and pin `used` to the context window so the
         // sticky banner's freshness gate holds. Otherwise the count is
         // unknown, which is not zero.
-        const isRemote = modelStore.activeModel?.origin === ModelOrigin.REMOTE;
         const effectiveNCtx = modelStore.activeModelCaps.effectiveContextLength;
         const abortSnapshot: CompletionResultSnapshot = {
           used: treatAsContextFull ? effectiveNCtx : undefined,
           contextFull: treatAsContextFull,
-          isRemote,
+          isRemote: false,
         };
         await chatSessionStore.updateMessage(
           messageInfo.id,
@@ -867,8 +838,6 @@ export const useChatSession = (
         // does not rehydrate after a session switch / restart (it re-fires
         // on the next overflowing send).
         if (isContextFullError) {
-          const isRemote =
-            modelStore.activeModel?.origin === ModelOrigin.REMOTE;
           const effectiveNCtx =
             modelStore.activeModelCaps.effectiveContextLength;
           chatSessionStore.recordCompletionSnapshot({
@@ -887,31 +856,6 @@ export const useChatSession = (
       if (turnAbsorbedError) {
         // Footer already surfaces interrupted / truncationLikely; nothing
         // more to add to chat.
-      } else if (error instanceof RemoteModelRequestWithdrawnError) {
-        if (!hasPartialContent) {
-          await chatSessionStore.deleteMessageFromSession(
-            messageInfo.sessionId,
-            textMessage.id,
-          );
-          if (wasUntitled) {
-            await chatSessionStore.updateSessionTitleBySessionId(
-              messageInfo.sessionId,
-              NEW_SESSION_TITLE,
-            );
-          }
-          undone = {message, sessionId: messageInfo.sessionId};
-        }
-      } else if (error instanceof RemoteModelNotReadyError) {
-        const text = routerFailureMessage(
-          error.cause,
-          error.serverMessage,
-          l10n,
-        );
-        await chatSessionStore.addMessageToSession(
-          messageInfo.sessionId,
-          systemRow(text),
-        );
-        AccessibilityInfo.announceForAccessibility(text);
       } else if (errorMessage.includes('network')) {
         await addSystemMessage(l10n.common.networkError);
       } else if (isToolArgsParseError) {
