@@ -1,5 +1,5 @@
 jest.unmock('../../store');
-import {reaction, runInAction} from 'mobx';
+import {runInAction} from 'mobx';
 import {
   LlamaContext,
   getBackendDevicesInfo,
