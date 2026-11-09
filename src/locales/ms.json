@@ -498,15 +498,6 @@
       "vision": "Penglihatan",
       "mtp": "Spekulatif (MTP)",
       "mtpDraft": "Draf spekulatif"
-    },
-    "hubRun": {
-      "title": "Muat turun model",
-      "resolving": "Memuatkan butiran model…",
-      "cancel": "Batal",
-      "retry": "Cuba Lagi",
-      "invalidLinkTitle": "Pautan tidak sah",
-      "invalidLinkMessage": "Pautan Hugging Face ini tiada atau mempunyai model atau fail yang tidak sah.",
-      "resolveError": "Tidak dapat memuatkan butiran model. Semak sambungan anda dan cuba lagi."
     }
   },
   "completionParams": {
@@ -1033,7 +1024,12 @@
         "total": "Jumlah: ",
         "usage": "Penggunaan: "
       },
-      "byteSizes": ["Bait", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Bait",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
