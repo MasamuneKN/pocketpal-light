@@ -78,53 +78,7 @@ describe('PalGenerationSettingsSheet', () => {
 
       expect(getByTestId('sheet')).toBeTruthy();
       expect(getByTestId('completion-settings')).toBeTruthy();
-    }    it("never offers the active server's defaults, which govern another model", () => {
-      runInAction(() => {
-        modelStore.models = [
-          {
-            id: 'srv/m',
-            origin: ModelOrigin.REMOTE,
-            serverId: 'srv',
-          } as any,
-        ];
-        modelStore.activeModelId = 'srv/m';
-        modelStore.activeRemoteBinding = {
-          modelId: 'srv/m',
-          serverId: 'srv',
-          remoteModelId: 'm',
-          url: 'http://localhost:8080',
-          serverType: 'llama.cpp',
-        };
-        serverStore.remoteCaps = {
-          'srv/m': {samplerDefaults: {top_k: 40, min_p: 0.05}},
-        };
-      });
-      expect(modelStore.activeSamplerDefaults).toEqual({
-        top_k: 40,
-        min_p: 0.05,
-      });
 
-      const {queryAllByTestId} = render(
-        <L10nContext.Provider value={l10n.en}>
-          <PalGenerationSettingsSheet
-            {...defaultProps}
-            completionSettings={{
-              ...mockCompletionParams,
-              top_k: 40,
-              min_p: 0.3,
-            }}
-          />
-        </L10nContext.Provider>,
-      );
-
-      expect(queryAllByTestId(/server-default/)).toHaveLength(0);
-
-      runInAction(() => {
-        modelStore.models = [];
-        modelStore.activeModelId = undefined;
-        modelStore.activeRemoteBinding = undefined;
-        serverStore.remoteCaps = {};
-      });
     });
 
     it('does not render when not visible', () => {

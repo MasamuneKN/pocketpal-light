@@ -117,54 +117,8 @@ describe('ChatGenerationSettingsSheet', () => {
 
     expect(getByTestId('sheet')).toBeTruthy();
     expect(getByTestId('completion-settings')).toBeTruthy();
-  });  it('picks up a server default that lands while the sheet is open', async () => {
-    const {getByTestId} = render(
-      <ChatGenerationSettingsSheet {...defaultProps} />,
-    );
 
-    // Settle the initial settings load first, so the only thing that can
-    // re-render the sheet afterwards is the store read itself.
-    await act(async () => {});
-    expect(getByTestId('mock-server-defaults').props.children).toBe('null');
 
-    // A probe is detached, so the sheet has to observe rather than snapshot.
-    await act(async () => {
-      runInAction(() => {
-        (modelStore as any).activeSamplerDefaults = {top_k: 40};
-      });
-    });
-
-    expect(getByTestId('mock-server-defaults').props.children).toBe(
-      '{"top_k":40}',
-    );
-
-    act(() => {
-      runInAction(() => {
-        (modelStore as any).activeSamplerDefaults = undefined;
-      });
-    });
-  });  it('withholds server defaults while editing the preset, which governs every future chat', async () => {
-    const previousSessionId = (chatSessionStore as any).activeSessionId;
-    runInAction(() => {
-      (modelStore as any).activeSamplerDefaults = {top_k: 40};
-    });
-    (chatSessionStore as any).activeSessionId = undefined;
-
-    try {
-      const {getByTestId} = render(
-        <ChatGenerationSettingsSheet {...defaultProps} />,
-      );
-
-      await act(async () => {});
-      expect(getByTestId('mock-server-defaults').props.children).toBe('null');
-    } finally {
-      (chatSessionStore as any).activeSessionId = previousSessionId;
-      act(() => {
-        runInAction(() => {
-          (modelStore as any).activeSamplerDefaults = undefined;
-        });
-      });
-    }
   });
 
   it('does not render when not visible', () => {

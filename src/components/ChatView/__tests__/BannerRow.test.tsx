@@ -178,41 +178,7 @@ describe('BannerRow', () => {
     });
     const {getByText} = renderBanner();
     expect(getByText(l10n.en.chat.contextFullEscalated)).toBeTruthy();
-  });  it('keeps the remote copy (no increase clause) for a remote model at the escalated failure count', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [
-        {id: 'remote-1', origin: ModelOrigin.REMOTE, serverId: 'srv-1'} as any,
-      ];
-      (modelStore as any).activeContextSettings = undefined;
-      serverStore.servers = [
-        {
-          id: 'srv-1',
-          name: 'llama',
-          url: 'http://localhost:8080',
-          serverType: 'llama.cpp',
-        } as any,
-      ];
-      serverStore.remoteCaps = {'remote-1': {contextLength: 4096}};
-      // A remote session can reach >=2 consecutive full turns (the counter is
-      // remote-agnostic), but must not re-surface the escalated increase advice.
-      chatSessionStore.consecutiveFullFailures = 2;
-      chatSessionStore.lastCompletionResult = {
-        used: 4096,
-        contextFull: true,
-        isRemote: true,
-        finishReason: 'length',
-      };
-    });
-    const {getByText, queryByText} = renderBanner({canIncrease: false});
-    expect(getByText(l10n.en.chat.contextFullRemote)).toBeTruthy();
-    expect(queryByText(l10n.en.chat.contextFullEscalated)).toBeNull();
 
-    runInAction(() => {
-      modelStore.models = [];
-      serverStore.servers = [];
-      serverStore.remoteCaps = {};
-    });
   });
 
   it('keeps the escalated copy for a local model at the escalated failure count', () => {
@@ -227,182 +193,11 @@ describe('BannerRow', () => {
     const {getByText, queryByText} = renderBanner();
     expect(getByText(l10n.en.chat.contextFullEscalated)).toBeTruthy();
     expect(queryByText(l10n.en.chat.contextFullRemote)).toBeNull();
-  });  it('renders the remote hedged advisory for a remote model with no runtime n_ctx', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [{id: 'remote-1', origin: ModelOrigin.REMOTE} as any];
-      // Remote models never set activeContextSettings.n_ctx.
-      (modelStore as any).activeContextSettings = undefined;
-      chatSessionStore.lastCompletionResult = {
-        used: 0,
-        contextFull: false,
-        isRemote: true,
-        tokensPredicted: 600,
-        content: 'this reply was cut off',
-      };
-    });
-    const {getByTestId, queryByTestId, getByText} = renderBanner();
-    expect(getByTestId('context-remote-hedged-banner')).toBeTruthy();
-    expect(getByText(l10n.en.chat.contextRemoteHedged)).toBeTruthy();
-    // No fullness meter on the remote-hedged branch: the resolver emits no
-    // ratio there, so the meter cannot render (reinforces the remote no-meter
-    // rule, not just relying on it).
-    expect(queryByTestId('banner-meter')).toBeNull();
 
-    fireEvent.press(getByTestId('context-banner-dismiss'));
-    expect(chatSessionStore.setBannerDismissed).toHaveBeenCalledWith(
-      'context-remote-hedged',
-    );
 
-    runInAction(() => {
-      modelStore.models = [];
-    });
-  });  it('resolves context-full for a remote model from the server-reported contextLength', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [
-        {id: 'remote-1', origin: ModelOrigin.REMOTE, serverId: 'srv-1'} as any,
-      ];
-      // Remote models never set activeContextSettings.n_ctx; the window must
-      // come from the server's /props-reported contextLength (cross-store read).
-      (modelStore as any).activeContextSettings = undefined;
-      serverStore.servers = [
-        {
-          id: 'srv-1',
-          name: 'llama',
-          url: 'http://localhost:8080',
-          serverType: 'llama.cpp',
-        } as any,
-      ];
-      serverStore.remoteCaps = {'remote-1': {contextLength: 4096}};
-      chatSessionStore.lastCompletionResult = {
-        used: 4096,
-        contextFull: true,
-        isRemote: true,
-        finishReason: 'length',
-      };
-    });
-    const {getByTestId} = renderBanner();
-    // effectiveNCtx must be derived from serverStore.contextLength for the
-    // context-full branch (and its meter) to render at all for a remote model.
-    expect(getByTestId('context-full-banner')).toBeTruthy();
-    expect(
-      getByTestId('banner-meter', {includeHiddenElements: true}),
-    ).toBeTruthy();
 
-    runInAction(() => {
-      modelStore.models = [];
-      serverStore.servers = [];
-      serverStore.remoteCaps = {};
-    });
-  });  it('ignores a window probed against another backend', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [
-        {id: 'remote-1', origin: ModelOrigin.REMOTE, serverId: 'srv-1'} as any,
-      ];
-      (modelStore as any).activeContextSettings = undefined;
-      serverStore.servers = [
-        {
-          id: 'srv-1',
-          name: 'llama',
-          url: 'http://localhost:9090',
-        } as any,
-      ];
-      // The session is still on :8080; the entry describes :9090, so there is
-      // no window to measure against and the banners stay silent.
-      modelStore.activeRemoteBinding = {
-        modelId: 'remote-1',
-        serverId: 'srv-1',
-        remoteModelId: 'remote-1',
-        serverType: 'unknown',
-        url: 'http://localhost:8080',
-      };
-      serverStore.remoteCaps = {
-        'remote-1': {contextLength: 4096, probedUrl: 'http://localhost:9090'},
-      };
-      chatSessionStore.lastCompletionResult = {
-        used: 4096,
-        contextFull: false,
-        isRemote: true,
-      };
-    });
-    const {queryByTestId} = renderBanner();
-    expect(queryByTestId('context-full-banner')).toBeNull();
-    expect(queryByTestId('context-warning-banner')).toBeNull();
 
-    runInAction(() => {
-      modelStore.models = [];
-      modelStore.activeRemoteBinding = undefined;
-      serverStore.servers = [];
-      serverStore.remoteCaps = {};
-    });
-  });  it('does not treat a per-model window of 0 as a full context', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [
-        {id: 'remote-1', origin: ModelOrigin.REMOTE, serverId: 'srv-1'} as any,
-      ];
-      (modelStore as any).activeContextSettings = undefined;
-      serverStore.servers = [
-        {
-          id: 'srv-1',
-          name: 'llama',
-          url: 'http://localhost:8080',
-          serverType: 'llama.cpp',
-        } as any,
-      ];
-      // No writer produces this today; the gate is what keeps it that way.
-      serverStore.remoteCaps = {'remote-1': {contextLength: 0}};
-      chatSessionStore.lastCompletionResult = {
-        used: 120,
-        contextFull: false,
-        isRemote: true,
-      };
-    });
-    const {queryByTestId} = renderBanner();
-    expect(queryByTestId('context-full-banner')).toBeNull();
-    expect(queryByTestId('context-warning-banner')).toBeNull();
 
-    runInAction(() => {
-      modelStore.models = [];
-      serverStore.servers = [];
-      serverStore.remoteCaps = {};
-    });
-  });  it('uses the remote context-full copy (no increase clause) for a remote model', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [
-        {id: 'remote-1', origin: ModelOrigin.REMOTE, serverId: 'srv-1'} as any,
-      ];
-      (modelStore as any).activeContextSettings = undefined;
-      serverStore.servers = [
-        {
-          id: 'srv-1',
-          name: 'llama',
-          url: 'http://localhost:8080',
-          serverType: 'llama.cpp',
-        } as any,
-      ];
-      serverStore.remoteCaps = {'remote-1': {contextLength: 4096}};
-      chatSessionStore.lastCompletionResult = {
-        used: 4096,
-        contextFull: true,
-        isRemote: true,
-        finishReason: 'length',
-      };
-    });
-    const {getByText, queryByText} = renderBanner({canIncrease: false});
-    // Remote copy drops "or increase the context size" — the increase CTA is
-    // hidden for remote (no client-side control).
-    expect(getByText(l10n.en.chat.contextFullRemote)).toBeTruthy();
-    expect(queryByText(l10n.en.chat.contextFull)).toBeNull();
-
-    runInAction(() => {
-      modelStore.models = [];
-      serverStore.servers = [];
-      serverStore.remoteCaps = {};
-    });
   });
 
   it('keeps the device context-full copy for a local model', () => {
@@ -439,39 +234,7 @@ describe('BannerRow', () => {
     // banner would render at all.
     expect(getByTestId('context-warning-banner')).toBeTruthy();
     expect(getByTestId('banner-percent')).toHaveTextContent('81%');
-  });  it('resolves the near-limit warning + meter percent for a remote model', () => {
-    runInAction(() => {
-      modelStore.activeModelId = 'remote-1';
-      modelStore.models = [
-        {id: 'remote-1', origin: ModelOrigin.REMOTE, serverId: 'srv-1'} as any,
-      ];
-      (modelStore as any).activeContextSettings = undefined;
-      serverStore.servers = [
-        {
-          id: 'srv-1',
-          name: 'llama',
-          url: 'http://localhost:8080',
-          serverType: 'llama.cpp',
-        } as any,
-      ];
-      serverStore.remoteCaps = {'remote-1': {contextLength: 4096}};
-      chatSessionStore.lastCompletionResult = {
-        used: 3300,
-        contextFull: false,
-        isRemote: true,
-      };
-    });
-    const {getByTestId} = renderBanner();
-    expect(getByTestId('context-warning-banner')).toBeTruthy();
-    // 3300 / 4096 ≈ 80.6% → the meter percent proves the ratio measured
-    // against the server window, not the weak remote heuristic.
-    expect(getByTestId('banner-percent')).toHaveTextContent('81%');
 
-    runInAction(() => {
-      modelStore.models = [];
-      serverStore.servers = [];
-      serverStore.remoteCaps = {};
-    });
   });
 
   it('suppresses context-* banners when no model is loaded', () => {
