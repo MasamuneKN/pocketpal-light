@@ -308,11 +308,7 @@ export class DownloadManager {
       throw err;
     }
 
-    await this.startAndroidDownload(
-      model,
-      destinationPath,
-      effectiveAuthToken,
-    );
+    await this.startAndroidDownload(model, destinationPath, effectiveAuthToken);
   }
 
   private async startAndroidDownload(

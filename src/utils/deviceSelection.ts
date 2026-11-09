@@ -52,14 +52,12 @@ export async function resolveDeviceSelection(selection: {
   // Android has no Auto option: absent/empty devices are displayed as CPU.
   // Resolve persisted defaults and old CPU selections that retained GPU layers.
   if (
-    (!snapshot.devices?.length ||
-      (snapshot.devices.length === 1 && snapshot.devices[0] === 'CPU'))
+    !snapshot.devices?.length ||
+    (snapshot.devices.length === 1 && snapshot.devices[0] === 'CPU')
   ) {
     return {devices: ['CPU'], n_gpu_layers: 0};
   }
-  if (
-    !snapshot.devices?.some(name => name.startsWith('HTP'))
-  ) {
+  if (!snapshot.devices?.some(name => name.startsWith('HTP'))) {
     return snapshot;
   }
 
@@ -261,7 +259,6 @@ export async function isGpuAvailable(): Promise<boolean> {
 export async function getRecommendedDeviceId(): Promise<
   'auto' | 'gpu' | 'hexagon' | 'cpu'
 > {
-
   // Android: Always recommend CPU for reliability
   // Users can manually choose GPU or Hexagon if they want to experiment
   return 'cpu';

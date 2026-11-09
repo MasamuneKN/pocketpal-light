@@ -46,7 +46,6 @@ export class UIStore {
     return localesSupportedLanguages;
   }
 
-
   // Warning state for chat-related warnings (like multimodal warnings)
   chatWarning: ErrorState | null = null;
 

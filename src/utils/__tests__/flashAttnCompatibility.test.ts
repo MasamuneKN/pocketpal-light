@@ -71,8 +71,6 @@ describe('flashAttnCompatibility', () => {
     });
 
     describe('Quantized V with flash_attn=on', () => {
-;
-
       it('should be safe for CPU backend', () => {
         const result = isCacheTypeVSafe(CacheType.Q8_0, 'on', 'cpu');
         expect(result.safe).toBe(true);
@@ -101,8 +99,6 @@ describe('flashAttnCompatibility', () => {
     });
 
     describe('Quantized V with flash_attn=auto', () => {
-;
-
       it('should be safe for CPU backend', () => {
         const result = isCacheTypeVSafe(CacheType.Q8_0, 'auto', 'cpu');
         expect(result.safe).toBe(true);
@@ -124,8 +120,6 @@ describe('flashAttnCompatibility', () => {
         expect(result.safe).toBe(false);
         expect(result.reason).toContain('varies by device');
       });
-
-;
 
       it('should handle all quantized types with auto on OpenCL as unsafe', () => {
         const quantizedTypes = [
@@ -152,12 +146,7 @@ describe('flashAttnCompatibility', () => {
         CacheType.IQ4_NL,
       ];
       const flashAttnTypes: FlashAttnType[] = ['auto', 'on', 'off'];
-      const backends: BackendType[] = [
-        'opencl',
-        'cpu',
-        'hexagon',
-        'blas',
-      ];
+      const backends: BackendType[] = ['opencl', 'cpu', 'hexagon', 'blas'];
 
       cacheTypes.forEach(cacheType => {
         flashAttnTypes.forEach(flashAttn => {
@@ -234,12 +223,7 @@ describe('flashAttnCompatibility', () => {
   describe('getAllowedCacheTypeKOptions', () => {
     it('should never disable any options', () => {
       const flashAttnTypes: FlashAttnType[] = ['auto', 'on', 'off'];
-      const backends: BackendType[] = [
-        'opencl',
-        'cpu',
-        'hexagon',
-        'blas',
-      ];
+      const backends: BackendType[] = ['opencl', 'cpu', 'hexagon', 'blas'];
 
       flashAttnTypes.forEach(flashAttn => {
         backends.forEach(backend => {

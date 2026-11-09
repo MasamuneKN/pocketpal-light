@@ -850,8 +850,6 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                     </Text>
                   </TouchableOpacity>
                 )}
-
-
               </View>
             )}
           </View>

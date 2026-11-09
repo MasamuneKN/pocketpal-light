@@ -1,6 +1,5 @@
 import {makeAutoObservable, runInAction} from 'mobx';
 
-
 /**
  * DeepLinkStore
  *
@@ -25,8 +24,6 @@ class DeepLinkStore {
       this.pendingMessage = null;
     });
   }
-
-
 }
 
 export const deepLinkStore = new DeepLinkStore();

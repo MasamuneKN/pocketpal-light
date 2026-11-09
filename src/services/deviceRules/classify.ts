@@ -80,10 +80,7 @@ const resolveRamBand = (
   return null;
 };
 
-export function classify(
-  signals: DeviceSignals,
-  classifier: Classifier,
-): Tier {
+export function classify(signals: DeviceSignals, classifier: Classifier): Tier {
   const socClass = resolveSocClass(signals, classifier);
   const ramBand = resolveRamBand(signals.ramBytes, classifier);
 

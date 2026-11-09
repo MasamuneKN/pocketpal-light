@@ -515,11 +515,7 @@ class ModelStore {
 
     // Handle flash_attn_type (v2.0) - platform-specific default
     const flashAttnModeDefault =
-      mode === 'paired'
-        ? 'off'
-        : mode === 'embedded'
-          ? 'auto'
-          : 'off';
+      mode === 'paired' ? 'off' : mode === 'embedded' ? 'auto' : 'off';
     const flash_attn_type =
       this.contextInitParams.flash_attn_type ?? flashAttnModeDefault;
 
@@ -842,10 +838,7 @@ class ModelStore {
     rules: DeviceRules,
     signals: DeviceSignals,
   ): Model[] => {
-    const tier = classify(
-      signals,
-      rules.classifier,
-    );
+    const tier = classify(signals, rules.classifier);
     const flat = rules.tiers[tier].models.flatMap(candidate => {
       const {hfModel, modelFile} = this.candidateToPair(candidate);
       const llm = hfAsModel(hfModel, modelFile);
@@ -891,10 +884,7 @@ class ModelStore {
       const signals = await readDeviceSignals();
       const bundledRaw = androidRulesRaw;
       const rules = parseDeviceRules(bundledRaw, DeviceInfo.getVersion());
-      const tier = classify(
-        signals,
-        rules.classifier,
-      );
+      const tier = classify(signals, rules.classifier);
       runInAction(() => {
         this.deviceTier = tier;
         this.rulesVersion = rules.rulesVersion;
@@ -3515,9 +3505,7 @@ class ModelStore {
       }
 
       // Process all image paths to handle file:// prefix
-      const processedImagePaths = imagePaths.map(path =>
-        path,
-      );
+      const processedImagePaths = imagePaths.map(path => path);
 
       // Create a system message if provided
       const systemMessage = params.systemMessage?.trim()

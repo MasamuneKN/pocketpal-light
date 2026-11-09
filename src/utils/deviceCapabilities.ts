@@ -9,11 +9,7 @@ export interface GpuCapabilities {
   /** Whether GPU acceleration is supported on this device */
   isSupported: boolean;
   /** Reason why GPU is not supported (if applicable) */
-  reason?:
-    | 'no_adreno'
-    | 'missing_cpu_features'
-    | 'simulator'
-    | 'unknown';
+  reason?: 'no_adreno' | 'missing_cpu_features' | 'simulator' | 'unknown';
   /** Detailed information about missing requirements */
   details?: {
     hasAdreno?: boolean;

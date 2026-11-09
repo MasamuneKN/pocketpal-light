@@ -2,7 +2,6 @@
  * Mock DeepLinkStore for testing
  */
 
-
 export class DeepLinkStore {
   pendingMessage: string | null = null;
 

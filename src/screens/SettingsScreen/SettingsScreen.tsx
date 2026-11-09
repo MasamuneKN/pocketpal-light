@@ -23,10 +23,7 @@ import {
   SegmentedButtons,
 } from 'react-native-paper';
 
-import {
-  MoonIcon,
-  ShareIcon,
-} from '../../assets/icons';
+import {MoonIcon, ShareIcon} from '../../assets/icons';
 
 import {TextInput} from '../../components/TextInput';
 import {Menu} from '../../components/Menu';
@@ -43,9 +40,7 @@ import {useMenuAnchor} from './useMenuAnchor';
 import {hfStore, modelStore, uiStore} from '../../store';
 
 import {CacheType, ModelType} from '../../utils/types';
-import {
-  L10nContext,
-} from '../../utils';
+import {L10nContext} from '../../utils';
 import {t} from '../../locales';
 import {exportLegacyChatSessions} from '../../utils/exportUtils';
 import {getDeviceOptions, DeviceOption} from '../../utils/deviceSelection';
@@ -72,7 +67,7 @@ export const SettingsScreen: React.FC = observer(() => {
   const draftValueCacheMenu = useMenuAnchor();
   const draftModelMenu = useMenuAnchor();
   const [showHfTokenDialog, setShowHfTokenDialog] = useState(false);
-    const [deviceOptions, setDeviceOptions] = useState<DeviceOption[]>([]);
+  const [deviceOptions, setDeviceOptions] = useState<DeviceOption[]>([]);
   const [currentBackend, setCurrentBackend] = useState<
     'opencl' | 'hexagon' | 'cpu' | 'blas'
   >('cpu');
@@ -150,8 +145,7 @@ export const SettingsScreen: React.FC = observer(() => {
   };
 
   const currentFlashAttnType =
-    modelStore.contextInitParams.flash_attn_type ??
-    'off';
+    modelStore.contextInitParams.flash_attn_type ?? 'off';
   const flashAttnOff =
     !modelStore.contextInitParams.flash_attn_type ||
     modelStore.contextInitParams.flash_attn_type === 'off';
@@ -256,8 +250,7 @@ export const SettingsScreen: React.FC = observer(() => {
 
     // Only update flash attention if current value is not valid for the selected device
     const currentFlashAttn =
-      modelStore.contextInitParams.flash_attn_type ??
-      'off';
+      modelStore.contextInitParams.flash_attn_type ?? 'off';
 
     if (!option.valid_flash_attn_types.includes(currentFlashAttn)) {
       // Current setting is invalid for this device, use the default
@@ -506,8 +499,7 @@ export const SettingsScreen: React.FC = observer(() => {
                     </Text>
                     <SegmentedButtons
                       value={
-                        modelStore.contextInitParams.flash_attn_type ??
-                        'off'
+                        modelStore.contextInitParams.flash_attn_type ?? 'off'
                       }
                       onValueChange={value =>
                         modelStore.setFlashAttnType(
@@ -953,8 +945,6 @@ export const SettingsScreen: React.FC = observer(() => {
                   />
                 </View>
                 <Divider />
-
-
               </View>
             </Card.Content>
           </Card>
@@ -1007,7 +997,6 @@ export const SettingsScreen: React.FC = observer(() => {
               </View>
             </Card.Content>
           </Card>
-
 
           {/* Export Options */}
           <Card elevation={0} style={styles.card}>

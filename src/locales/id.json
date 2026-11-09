@@ -1024,12 +1024,7 @@
         "total": "Total: ",
         "usage": "Penggunaan: "
       },
-      "byteSizes": [
-        "Byte",
-        "KB",
-        "MB",
-        "GB"
-      ]
+      "byteSizes": ["Byte", "KB", "MB", "GB"]
     },
     "chatView": {
       "menuItems": {

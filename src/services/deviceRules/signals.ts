@@ -29,7 +29,6 @@ export async function readDeviceSignals(): Promise<DeviceSignals> {
     ramBytes = RAM_FLOOR_BYTES;
   }
 
-
   try {
     const cpu = await NativeHardwareInfo.getCPUInfo();
     return {
