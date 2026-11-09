@@ -16,7 +16,6 @@ import {chatSessionStore, modelStore} from '../../../store';
 import {l10n} from '../../../locales';
 import {ModelOrigin} from '../../../utils/types';
 import {mockLlamaContextParams} from '../../../../jest/fixtures/models';
-import {bodyExtras} from '../../../api/servers';
 
 const render = (ui: React.ReactElement, options: any = {}) =>
   baseRender(ui, {withBottomSheetProvider: true, ...options});
@@ -859,60 +858,4 @@ describe('ChatScreen graded effort pill cycle', () => {
       expect(pill().getByText(effortLabel('high'))).toBeTruthy(),
     );
   });
-});
-
-describe('ChatScreen on/off toggle → reasoning carrier (remote)', () => {
-  let savedModels: any[];
-  let savedSessionId: string | null | undefined;
-  // Session-backed persistence so the simple on/off toggle round-trips through
-  // updateSessionCompletionSettings, mirroring real session behaviour.
-  let persisted: {
-    enable_thinking: boolean;
-    reasoning?: {enabled: boolean; effort?: string};
-  };
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    savedModels = modelStore.models;
-    savedSessionId = chatSessionStore.activeSessionId;
-    persisted = {enable_thinking: true, reasoning: undefined};
-    runInAction(() => {
-      modelStore.context = new LlamaContext(mockLlamaContextParams);
-      // No entry → resolver reports isReasoning 'unknown' (pill shown,
-      // fail-open) and supportsEffort false (simple on/off toggle).
-      chatSessionStore.activeSessionId = 'session-1';
-    });
-    modelStore.engine = {
-      completion: jest.fn(),
-      stopCompletion: jest.fn(),
-    } as any;
-    (
-      chatSessionStore.getCurrentCompletionSettings as jest.Mock
-    ).mockImplementation(async () => ({...persisted}));
-    (
-      chatSessionStore.updateSessionCompletionSettings as jest.Mock
-    ).mockImplementation(async (s: any) => {
-      persisted = {
-        enable_thinking: s.enable_thinking,
-        reasoning: s.reasoning,
-      };
-      runInAction(() => {
-        const session = chatSessionStore.sessions.find(
-          x => x.id === 'session-1',
-        );
-        if (session) {
-          (session as any).completionSettings = {...persisted};
-        }
-      });
-    });
-  });
-
-  afterEach(() => {
-    modelStore.models = savedModels;
-    runInAction(() => {
-      modelStore.activeModelId = undefined;
-      chatSessionStore.activeSessionId = savedSessionId as any;
-    });
-  });
-
 });
