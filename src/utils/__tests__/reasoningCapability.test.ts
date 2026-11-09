@@ -15,13 +15,6 @@ const localModel = (overrides: Partial<Model> = {}): Model =>
     ...overrides,
   }) as Model;
 
-const remoteModel = (overrides: Partial<Model> = {}): Model =>
-  ({
-    id: 'server-1/remote-x',
-    origin: ModelOrigin.REMOTE,
-    ...overrides,
-  }) as Model;
-
 const cap = (
   overrides: Partial<ReasoningCapability> = {},
 ): ReasoningCapability => ({
@@ -35,7 +28,7 @@ const cap = (
 
 describe('resolveReasoningCapability', () => {
   it('returns unknown for no model (fail-open)', () => {
-    expect(resolveReasoningCapability(undefined, {})).toMatchObject({
+    expect(resolveReasoningCapability(undefined)).toMatchObject({
       isReasoning: 'unknown',
       source: 'unknown',
     });
@@ -44,22 +37,12 @@ describe('resolveReasoningCapability', () => {
   it('local model reads model.reasoning', () => {
     const m = localModel();
     m.reasoning = cap({isReasoning: 'yes', source: 'learned'});
-    expect(resolveReasoningCapability(m, {})).toMatchObject({
+    expect(resolveReasoningCapability(m)).toMatchObject({
       isReasoning: 'yes',
       source: 'learned',
     });
   });
 
-  it('remote model reads the keyed remoteReasoning map', () => {
-    const m = remoteModel();
-    const remote = {
-      'server-1/remote-x': cap({isReasoning: 'yes', source: 'user'}),
-    };
-    expect(resolveReasoningCapability(m, remote)).toMatchObject({
-      isReasoning: 'yes',
-      source: 'user',
-    });
-  });
 
   it('user source wins precedence over detection', () => {
     const m = localModel();
