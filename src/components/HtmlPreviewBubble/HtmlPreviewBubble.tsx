@@ -66,7 +66,7 @@ const HEAD_INJECTION = `<meta http-equiv="Content-Security-Policy" content="${CS
 </style>`;
 
 const FRAGMENT_STYLES = `<style>
-  html, body { margin: 0; padding: 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  html, body { margin: 0; padding: 12px; font-family: Roboto, sans-serif; }
   @media (prefers-color-scheme: dark) {
     html, body { background: #1c1c1e; color: #f5f5f7; }
     a { color: #4ea3ff; }
