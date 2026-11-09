@@ -843,7 +843,7 @@ export const useChatSession = (
           chatSessionStore.recordCompletionSnapshot({
             used: effectiveNCtx,
             contextFull: true,
-            isRemote,
+            isRemote: false,
           });
           turnAbsorbedError = true;
         }

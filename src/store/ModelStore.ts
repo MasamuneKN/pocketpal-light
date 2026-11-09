@@ -3086,15 +3086,12 @@ class ModelStore {
 
   /**
    * Learn-from-stream entry point. The first time a model actually emits
-   * reasoning, flip axis-1 to learned 'yes'. Routes remote ids to ServerStore
-   * (one direction). Idempotent and monotonic; never overrides a user
+   * reasoning, flip axis-1 to learned 'yes'. Idempotent and monotonic; never overrides a user
    * declaration (handled by the per-store writers).
    */
   recordReasoningObserved = (modelId: string): void => {
     const localModel = this.models.find(m => m.id === modelId);
-    if (!localModel) {
-      // Not a persisted local model → remote; delegate to ServerStore.
-    }
+    if (!localModel) return;
     const existing = localModel.reasoning;
     if (existing?.source === 'user' || existing?.isReasoning === 'yes') {
       return;
@@ -3112,13 +3109,11 @@ class ModelStore {
   };
 
   /**
-   * Manual model-card override. Top of precedence; routes remote ids to
-   * ServerStore, local to the persisted Model.
+   * Manual model-card override. Top of precedence for a persisted model.
    */
   setReasoningOverride = (modelId: string, cap: ReasoningCapability): void => {
     const localModel = this.models.find(m => m.id === modelId);
-    if (!localModel) {
-    }
+    if (!localModel) return;
     runInAction(() => {
       localModel.reasoning = cap;
       localModel.supportsThinking = cap.isReasoning === 'yes';

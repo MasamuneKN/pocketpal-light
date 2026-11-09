@@ -5,5 +5,3 @@ export * from './HFStore';
 export * from './BenchmarkStore';
 export * from './PalStore';
 export * from './DeepLinkStore';
-export * from './ServerStore';
-export * from './RouterStore';

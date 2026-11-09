@@ -18,7 +18,7 @@ import {
 } from '../../utils/modelSettings';
 import {CompletionParams} from '../../utils/completionTypes';
 import {SamplerParam} from '../../utils/samplerParams';
-import {serverDefaultState, stepOf} from './serverDefaultState';
+import {stepOf} from './serverDefaultState';
 
 const displayNameOf = (name: string): string =>
   name.toUpperCase().replace(/_/g, ' ');
