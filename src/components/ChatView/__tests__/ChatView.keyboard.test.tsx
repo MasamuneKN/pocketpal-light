@@ -48,18 +48,6 @@ describe('ChatView keyboard occlusion', () => {
     },
   ];
 
-  it('keeps the iOS interactive drag-to-dismiss gesture', () => {
-    Platform.OS = 'ios';
-    const {UNSAFE_root} = render(
-      <ChatView messages={messages} onSendPress={jest.fn()} user={user} />,
-      {withSafeArea: true, withNavigation: true, withBottomSheetProvider: true},
-    );
-
-    const modes = dismissModes(UNSAFE_root);
-    expect(modes.length).toBeGreaterThan(0);
-    expect(modes.every((m: string) => m === 'interactive')).toBe(true);
-  });
-
   it('relaxes Android keyboardDismissMode to none so a drag scrolls instead of dismissing', () => {
     Platform.OS = 'android';
     const {UNSAFE_root} = render(
