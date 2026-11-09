@@ -174,7 +174,6 @@ describe('ModelStore generation lease', () => {
     const releasing = modelStore.releaseContext();
     await waitUntil(() => lease!.signal.aborted);
 
-    modelStore.reprobeRemoteCapsAfterCompletion();
     lease!.end();
 
     await releasing;
