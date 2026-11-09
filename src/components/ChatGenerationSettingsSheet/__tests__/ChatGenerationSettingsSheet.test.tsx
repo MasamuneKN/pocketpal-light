@@ -3,10 +3,7 @@ import {fireEvent, render, act} from '../../../../jest/test-utils';
 import {Alert} from 'react-native';
 import {ChatGenerationSettingsSheet} from '../ChatGenerationSettingsSheet';
 
-import {
-  chatSessionStore,
-  defaultCompletionSettings,
-} from '../../../store';
+import {chatSessionStore, defaultCompletionSettings} from '../../../store';
 import {validateCompletionSettings} from '../../../utils/modelSettings';
 
 // Mock modelSettings validation
