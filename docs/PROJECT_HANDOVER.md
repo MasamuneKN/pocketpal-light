@@ -2001,3 +2001,11 @@ The user has now explicitly authorized running the tests and actions considered 
 - Retained the local ChatScreen tests, including local/HF model origin reasoning controls, message sending/stopping, and gallery attachment/capability behaviour where backed by local model state.
 - The new CI run on the latest main commit is pending; no claims are made yet about the updated Jest result.
 - Packaging prohibition remains unchanged: no APK/AAB, native compilation, or packaging workflow until all non-packaging issues are resolved and the user explicitly authorizes it.
+
+## 125. Latest CI result and generation-lease test cleanup — 2026-11-09
+
+- CI run [42616390754](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42616390754) on `ff382bdf8e531f00148b4068fd4ea3c374af7a90`: dependency install, localization validation, font validation, ESLint, and TypeScript all passed. Jest failed with **10/259 suites failed, 249 passed; 98/3,916 tests failed, 3,818 passed; 310 snapshots passed**. Android build and release dependency audit jobs were skipped; no APK/AAB/native build was run.
+- Formatter workflow [42616179723](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42616179723) passed.
+- Remaining failing suites: `ModelStore.test.ts`, `BannerRow.test.tsx`, `ChatView.test.tsx`, `PalGenerationSettingsSheet.test.tsx`, `AssistantTurnFooter.test.tsx`, `CompletionSettings.test.tsx`, `ModelSettingsSheet.test.tsx`, `BenchmarkScreen.test.tsx`, `ChatGenerationSettingsSheet.test.tsx`, and `ModelStore.generationLease.test.ts`.
+- Failure evidence includes stale references to removed `reprobeRemoteCapsAfterCompletion` in the generation-lease test. Removed that obsolete remote-capability reprobe call while retaining the test's actual guarantee: a held generation lease must not block a queued context release. Commit: `c09a0157191a6e62df682aab68dae8839cf8615b`.
+- Next: wait for/check CI on the latest main SHA, inspect the exact failing assertions in the 10 suites, fix only obsolete online/iOS expectations or restore correct Android/local behavior. Preserve model download, offline inference, persistence, gallery and benchmark coverage. No packaging/native compilation until all non-packaging issues are resolved and the user explicitly authorizes packaging.
