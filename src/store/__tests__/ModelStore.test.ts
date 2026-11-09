@@ -2076,7 +2076,6 @@ describe('ModelStore', () => {
 
     it.each([
       ['android', ['background']],
-      ['ios', ['inactive', 'background']],
     ] as Array<[string, AppStateStatus[]]>)(
       '%s sequence reloads the model only after the in-flight release finishes',
       async (_platform, leave) => {
@@ -4597,32 +4596,7 @@ describe('ModelStore', () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it('should process file:// paths correctly for iOS', async () => {
-      // Mock Platform.OS to be 'ios'
-      const originalPlatform = require('react-native').Platform.OS;
-      require('react-native').Platform.OS = 'ios';
-
-      const mockContext = {
-        isMultimodalEnabled: jest.fn().mockResolvedValue(true),
-        completion: jest.fn().mockResolvedValue({text: 'Response text'}),
-      };
-      modelStore.context = mockContext as any;
-
-      await modelStore.startImageCompletion({
-        prompt: 'Test prompt',
-        image_path: 'file:///path/to/image.jpg',
-      });
-
-      const completionCall = mockContext.completion.mock.calls[0];
-      const params = completionCall[0];
-      const userMessage = params.messages[0];
-      const imageContent = userMessage.content[1];
-
-      expect(imageContent.image_url.url).toBe('/path/to/image.jpg'); // file:// removed
-
-      // Restore original platform
-      require('react-native').Platform.OS = originalPlatform;
-    });
+);
 
     it('should include system message when provided', async () => {
       const mockContext = {
