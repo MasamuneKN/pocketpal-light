@@ -89,7 +89,7 @@ describe('resolveReasoningCapability', () => {
       effortValues: ['low', 'medium', 'high'],
       effortSource: 'user',
     });
-    const r = resolveReasoningCapability(m, {});
+    const r = resolveReasoningCapability(m);
     expect(r.supportsEffort).toBe(true);
     expect(r.effortValues).toEqual(['low', 'medium', 'high']);
   });
@@ -103,7 +103,7 @@ describe('resolveReasoningCapability', () => {
       effortValues: ['low', 'high'],
       effortSource: 'user',
     });
-    const r = resolveReasoningCapability(m, {});
+    const r = resolveReasoningCapability(m);
     expect(r.isReasoning).toBe('no');
     expect(r.supportsEffort).toBe(false);
     expect(r.effortValues).toEqual([]);
@@ -112,7 +112,7 @@ describe('resolveReasoningCapability', () => {
 
   it("isReasoning 'unknown' is preserved (pill fail-open)", () => {
     const m = localModel();
-    expect(resolveReasoningCapability(m, {}).isReasoning).toBe('unknown');
+    expect(resolveReasoningCapability(m).isReasoning).toBe('unknown');
   });
 });
 

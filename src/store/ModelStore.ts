@@ -745,7 +745,6 @@ class ModelStore {
 
     // Upgrade past the bundled floor to the online rules override in the
     // background; reconcile (id-keyed, dedup) folds in any newer set.
-    this.upgradeToFetchedRules();
 
     await this.initializeGpuSettings(); // Should be awaited to ensure GPU settings are applied before initializing context
 
