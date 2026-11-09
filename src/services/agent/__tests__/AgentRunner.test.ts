@@ -1748,8 +1748,6 @@ describe('runAgent', () => {
       );
       expect(execute.mock.calls[0]).toHaveLength(1);
     });
-
-);
   });
 
   describe('concurrent dispatch', () => {
@@ -1917,13 +1915,6 @@ describe('runAgent', () => {
 
 );
 
-);
-
-);
-
-,
-    );
-
     it('a consumer that stops at a start dispatches no call', async () => {
       const first = deferredTalent('first');
       const second = deferredTalent('second');
@@ -2024,8 +2015,6 @@ describe('runAgent', () => {
         [0, 1, 2, 3, 4, 5].map(i => `tool_call_finished c${i}`),
       );
     });
-
-);
 
     it('a consumer that returns with calls still queued starts none of them', async () => {
       const controller = new AbortController();
@@ -2139,8 +2128,6 @@ describe('runAgent', () => {
         'run_finished',
       ]);
     });
-
-);
 
     describe('when dispatching one call throws', () => {
       const unhandled = jest.fn();
