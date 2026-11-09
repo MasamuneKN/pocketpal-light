@@ -7,8 +7,6 @@ import {
   ScrollView,
   type TextInputInstance,
   Alert,
-  Linking,
-  TouchableOpacity,
 } from 'react-native';
 
 import {debounce} from 'lodash';
@@ -30,7 +28,6 @@ import {
   MoonIcon,
   CpuChipIcon,
   ShareIcon,
-  LinkExternalIcon,
 } from '../../assets/icons';
 
 import {TextInput} from '../../components/TextInput';
@@ -63,10 +60,6 @@ import {
   getAllowedCacheTypeKOptions,
   getAllowedCacheTypeVOptions,
 } from '../../utils/flashAttnCompatibility';
-
-// OpenCL documentation URL (not localized)
-const OPENCL_DOCS_URL =
-  'https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/OPENCL.md#model-preparation';
 
 export const SettingsScreen: React.FC = observer(() => {
   const l10n = useContext(L10nContext);
@@ -384,35 +377,6 @@ export const SettingsScreen: React.FC = observer(() => {
                   </>
                 )}
 
-                {/* OpenCL quantization note for Android */}
-                {Platform.OS === 'android' &&
-                  gpuSupported &&
-                  (modelStore.contextInitParams.n_gpu_layers ?? 0) > 0 && (
-                    <View>
-                      <Text variant="labelSmall" style={styles.textDescription}>
-                        {l10n.settings.openCLQuantizationNote}
-                      </Text>
-                      <TouchableOpacity
-                        onPress={() => Linking.openURL(OPENCL_DOCS_URL)}
-                        style={styles.linkContainer}>
-                        <Text
-                          variant="labelSmall"
-                          style={[
-                            styles.textDescription,
-                            {color: theme.colors.primary},
-                          ]}>
-                          {l10n.settings.openCLDocsLink}
-                        </Text>
-                        <LinkExternalIcon
-                          width={12}
-                          height={12}
-                          stroke={theme.colors.primary}
-                          style={styles.linkIcon}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  )}
-              </View>
               <Divider />
 
               {/* Context Size */}
