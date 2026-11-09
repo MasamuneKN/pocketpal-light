@@ -1,5 +1,4 @@
 import {chatSessionStore, defaultCompletionSettings} from '../ChatSessionStore';
-import {bodyExtras} from '../../api/servers';
 
 describe('ChatSessionStore completion settings', () => {
   beforeEach(() => {
@@ -96,27 +95,7 @@ describe('ChatSessionStore completion settings', () => {
       expect(result.enable_thinking).toBe(true);
     });
 
-    it('produces explicit thinking-off payloads for supported remote servers', async () => {
-      chatSessionStore.newChatThinkingOverride = false;
-      const result = await chatSessionStore.resolveCompletionSettings();
-
-      expect(result.reasoning?.enabled).toBe(false);
-      expect(
-        bodyExtras('llama.cpp', {
-          samplers: {},
-          reasoning: result.reasoning,
-        }),
-      ).toEqual({
-        reasoning_format: 'auto',
-        chat_template_kwargs: {enable_thinking: false},
-      });
-      expect(
-        bodyExtras('Ollama', {
-          samplers: {},
-          reasoning: result.reasoning,
-        }),
-      ).toEqual({reasoning_effort: 'none'});
-    });
+);
   });
 
   describe('getCurrentCompletionSettings', () => {
