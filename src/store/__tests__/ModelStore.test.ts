@@ -21,7 +21,6 @@ import {
   ModelOrigin,
   ModelType,
   RemoteSessionBinding,
-  ServerConfig,
 } from '../../utils/types';
 import {getDisplayNameFromFilename} from '../../utils/formatters';
 import {getModelMemoryRequirement} from '../../utils/memoryEstimator';

@@ -3,14 +3,11 @@ import {Alert} from 'react-native';
 import {render, fireEvent, waitFor, act} from '../../../../jest/test-utils';
 
 import {PalGenerationSettingsSheet} from '../PalGenerationSettingsSheet';
-import {runInAction} from 'mobx';
 
 import {
   chatSessionStore,
   defaultCompletionSettings,
-  modelStore,
 } from '../../../store';
-import {ModelOrigin} from '../../../utils/types';
 import {L10nContext} from '../../../utils';
 import {l10n, t} from '../../../locales';
 import {validateCompletionSettings} from '../../../utils/modelSettings';

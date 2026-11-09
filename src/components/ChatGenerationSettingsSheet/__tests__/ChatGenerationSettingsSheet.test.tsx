@@ -2,12 +2,10 @@ import React from 'react';
 import {fireEvent, render, act} from '../../../../jest/test-utils';
 import {Alert} from 'react-native';
 import {ChatGenerationSettingsSheet} from '../ChatGenerationSettingsSheet';
-import {runInAction} from 'mobx';
 
 import {
   chatSessionStore,
   defaultCompletionSettings,
-  modelStore,
 } from '../../../store';
 import {validateCompletionSettings} from '../../../utils/modelSettings';
 
