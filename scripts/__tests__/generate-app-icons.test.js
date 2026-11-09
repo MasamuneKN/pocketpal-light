@@ -199,7 +199,6 @@ describe('buildTextOutputs', () => {
       outputs['android/app/src/main/res/values/ic_launcher_background.xml'],
     ).toContain('<color name="ic_launcher_background">#FFFFFF</color>');
   });
-
 });
 
 function pngHeader(buffer) {
@@ -276,7 +275,6 @@ describe('generate', () => {
     generate({root});
     expect(fs.existsSync(path.join(root, stray))).toBe(true);
   });
-
 
   it('refuses a preview directory that reaches the repo through a symlink', () => {
     writeSources();
@@ -1043,7 +1041,9 @@ describe('committed PNG content', () => {
     'masks the %s legacy icons as a rounded square and a circle',
     density => {
       const square = png(`${ANDROID_RES}/mipmap-${density}/ic_launcher.png`);
-      const round = png(`${ANDROID_RES}/mipmap-${density}/ic_launcher_round.png`);
+      const round = png(
+        `${ANDROID_RES}/mipmap-${density}/ic_launcher_round.png`,
+      );
       for (const icon of [square, round]) {
         expect(icon.colorType).toBe(6);
         expect(icon.at(0, 0).alpha).toBe(0);
