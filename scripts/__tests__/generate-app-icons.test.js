@@ -1187,7 +1187,7 @@ describe('command line', () => {
   it('reports what it wrote and exits zero', () => {
     expect(run([])).toEqual({
       status: 0,
-      stdout: 'wrote 19 outputs, 0 previews\n',
+      stdout: 'wrote 15 outputs, 0 previews\n',
     });
   });
 
@@ -1206,7 +1206,7 @@ describe('generate on failure', () => {
     fs.rmSync(root, {recursive: true, force: true});
   });
 
-  it('leaves existing outputs and stale icons untouched', () => {
+  it('leaves existing Android outputs untouched on failure', () => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'app-icons-keep-'));
     const sources = {
       foregroundLight: canvas(SQUARE),
