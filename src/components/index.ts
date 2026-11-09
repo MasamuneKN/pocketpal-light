@@ -58,7 +58,6 @@ export * from './DownloadProgressCard';
 export * from './ToolErrorBlock';
 export * from './ToolMetricsFooter';
 export * from './ToolUsedChip';
-export * from './UsageStats';
 export * from './VisionDownloadSheet';
 
 export * from './PalHeaderRight';
