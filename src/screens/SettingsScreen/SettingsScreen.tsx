@@ -6,6 +6,7 @@ import {
   ScrollView,
   type TextInputInstance,
   Alert,
+  Platform,
 } from 'react-native';
 
 import {debounce} from 'lodash';
