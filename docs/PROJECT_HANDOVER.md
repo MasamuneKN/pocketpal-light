@@ -1929,3 +1929,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - CI run [42584640637](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42584640637) reached successful dependency installation, localization validation, font registration, and ESLint. It was cancelled during TypeScript before Jest began; Android build and release dependency audit were also cancelled. Do not count this as a completed validation run.
 - Remaining Android-only generator issue: `scripts/generate-app-icons.js` still generates iOS AppIcon/Contents.json assets and its tests assert those outputs. This is a real repository tooling leftover, not an Android runtime dependency. Remove the iOS output path and rewrite generator tests to assert Android-only outputs before treating the Android-only source audit as complete.
 - No APK/AAB, native compilation, signing, or packaging was performed. The prohibition remains active.
+
+## 119. Remove iOS launcher-icon generation from Android-only tooling — 2026-11-09
+
+- Live `main` before this handover update: `661379cbc56e3f6beea13d5d4e5140692cedccc5`.
+- Removed the iOS AppIcon output path from `scripts/generate-app-icons.js`: no Xcode `Contents.json`, iOS icon PNGs, iOS preview files, or stale AppIcon cleanup remains. The generator now writes only Android adaptive/vector resources and the ten legacy density PNGs (15 generated outputs total).
+- Reworked `scripts/__tests__/generate-app-icons.test.js` to verify Android adaptive icon resources, all five legacy density sizes, PNG masking/content, deterministic regeneration, and Android-only preview output. Removed tests for iOS assets and corrected the CLI output count from 19 to 15.
+- Generator and test changes are committed as `d48b8a00`, `d658feb4`, and `661379cb` (the latter corrects the output count and test naming). A text scan of both current files found no iOS/AppIcon/Xcode output references.
+- Validation is not yet complete: the focused Jest suite and full non-packaging CI still need to run. The Android generator is not being executed against the repository because that would rewrite committed icon assets; tests exercise it in temporary directories. Do not start APK/AAB packaging or native compilation. The user's no-packaging restriction remains active.
+- Next: run the focused icon-generator Jest suite and non-packaging CI; then continue with the remaining ModelStore/device-rule Jest failure cluster.
