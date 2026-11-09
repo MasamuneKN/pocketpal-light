@@ -209,8 +209,7 @@ const createStyles = (theme: Theme) =>
 // only meaningful property is backgroundColor, resolved from the system
 // color scheme. Deliberately carries NO branding, NO Text, NO
 // SafeAreaProvider, NO insets, and NO spinner: a flat colored View has
-// nothing to match against either native launch surface (iOS has a branded
-// storyboard, Android has no native launch screen), so it cannot diverge
+// nothing to match against the Android launch surface, so it cannot diverge
 // from native on any axis and reads simply as "app launching".
 const splashStyles = StyleSheet.create({
   light: {flex: 1, backgroundColor: '#ffffff'},
