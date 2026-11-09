@@ -1,6 +1,6 @@
 import * as RNFS from '@dr.pogodin/react-native-fs';
 import {makeAutoObservable, observable, runInAction} from 'mobx';
-import {NativeEventEmitter, Platform} from 'react-native';
+import {NativeEventEmitter} from 'react-native';
 
 import {
   DownloadEventCallbacks,
@@ -69,9 +69,7 @@ export class DownloadManager {
     this.downloadJobs = observable.map(new Map());
     makeAutoObservable(this);
 
-    if (Platform.OS === 'android') {
-      this.setupAndroidEventListener();
-    }
+    this.setupAndroidEventListener();
   }
 
   private setupAndroidEventListener() {
@@ -310,174 +308,11 @@ export class DownloadManager {
       throw err;
     }
 
-    if (Platform.OS === 'ios') {
-      await this.startIOSDownload(model, destinationPath, effectiveAuthToken);
-    } else {
-      await this.startAndroidDownload(
-        model,
-        destinationPath,
-        effectiveAuthToken,
-      );
-    }
-  }
-
-  private async startIOSDownload(
-    model: Model,
-    destinationPath: string,
-    authToken?: string | null,
-  ): Promise<void> {
-    try {
-      const downloadJob: DownloadJob = {
-        model,
-        state: {
-          isDownloading: true,
-          progress: null,
-          error: null,
-        },
-        destination: destinationPath,
-        lastBytesWritten: 0,
-        lastUpdateTime: Date.now(),
-      };
-
-      runInAction(() => {
-        this.downloadJobs.set(model.id, downloadJob);
-      });
-      this.callbacks.onStart?.(model.id);
-
-      // Create the download task
-      const downloadResult = RNFS.downloadFile({
-        fromUrl: model.downloadUrl!,
-        toFile: destinationPath,
-        background: uiStore.iOSBackgroundDownloading,
-        discretionary: false,
-        progressInterval: 800,
-        headers: {
-          'User-Agent': hfUserAgent(),
-          ...(authToken ? {Authorization: `Bearer ${authToken}`} : {}),
-        },
-        begin: res => {
-          console.log(`${TAG}: Download started for ID: ${model.id}`, {
-            statusCode: res.statusCode,
-            contentLength: res.contentLength,
-            headers: res.headers,
-            jobId: downloadResult.jobId,
-          });
-
-          // Initialize progress
-          const progress: DownloadProgress = {
-            bytesDownloaded: 0,
-            bytesTotal: res.contentLength,
-            progress: 0,
-            speed: '0 B/s',
-            eta: uiStore.l10n.common.calculating,
-            rawSpeed: 0,
-            rawEta: 0,
-          };
-
-          runInAction(() => {
-            downloadJob.state.progress = progress;
-          });
-          this.callbacks.onProgress?.(model.id, progress);
-        },
-        progress: res => {
-          if (!this.downloadJobs.has(model.id)) {
-            return;
-          }
-
-          const job = this.downloadJobs.get(model.id)!;
-          const currentTime = Date.now();
-          const timeDiff = (currentTime - job.lastUpdateTime) / 1000 || 1;
-          const bytesDiff = res.bytesWritten - job.lastBytesWritten;
-          const speedBps = bytesDiff / timeDiff;
-          const speedMBps = (speedBps / (1024 * 1024)).toFixed(2);
-
-          const remainingBytes = res.contentLength - res.bytesWritten;
-          const etaSeconds = speedBps > 0 ? remainingBytes / speedBps : 0;
-          const etaMinutes = Math.ceil(etaSeconds / 60);
-          const l10nData = uiStore.l10n;
-          const etaText =
-            etaSeconds >= 60
-              ? `${etaMinutes} ${l10nData.common.minutes}`
-              : `${Math.ceil(etaSeconds)} ${l10nData.common.seconds}`;
-
-          const progress: DownloadProgress = {
-            bytesDownloaded: res.bytesWritten,
-            bytesTotal: res.contentLength,
-            progress: (res.bytesWritten / res.contentLength) * 100,
-            speed: `${formatBytes(res.bytesWritten)} (${speedMBps} MB/s)`,
-            eta: etaText,
-            rawSpeed: speedBps,
-            rawEta: etaSeconds,
-          };
-
-          runInAction(() => {
-            job.state.progress = progress;
-            job.lastBytesWritten = res.bytesWritten;
-            job.lastUpdateTime = currentTime;
-          });
-
-          this.callbacks.onProgress?.(model.id, progress);
-        },
-      });
-
-      // Store the jobId immediately for cancellation
-      downloadJob.jobId = downloadResult.jobId;
-      console.log(
-        `${TAG}: Created download with jobId: ${downloadResult.jobId}`,
-      );
-
-      // Add job to map after setting jobId
-      runInAction(() => {
-        this.downloadJobs.set(model.id, downloadJob);
-      });
-
-      // Wait for the download to complete
-      const result = await downloadResult.promise;
-
-      if (result.statusCode === 200) {
-        console.log(
-          `${TAG}: Download completed successfully for ID: ${model.id}`,
-        );
-        this.callbacks.onComplete?.(model.id);
-        runInAction(() => {
-          this.downloadJobs.delete(model.id);
-        });
-        // Cancel may race with a download that already completed; clear any
-        // stale marker so it can't suppress a later genuine failure.
-        this.cancelledModelIds.delete(model.id);
-      } else {
-        console.error(
-          `${TAG}: Download failed with status: ${result.statusCode} for ID: ${model.id}`,
-        );
-        throw new Error(`Download failed with status: ${result.statusCode}`);
-      }
-    } catch (error) {
-      // RNFS.stopDownload aborts the task, rejecting this promise. A user
-      // cancel is not a failure — surface it as a distinct cancellation.
-      if (this.cancelledModelIds.delete(model.id)) {
-        console.log(`${TAG}: Download cancelled by user for ID: ${model.id}`);
-        runInAction(() => {
-          this.downloadJobs.delete(model.id);
-        });
-        throw new DownloadCancelledError(model.id);
-      }
-
-      console.error(`${TAG}: Download failed for ID: ${model.id}:`, error);
-      runInAction(() => {
-        const job = this.downloadJobs.get(model.id);
-        if (job) {
-          job.state.error =
-            error instanceof Error ? error : new Error(String(error));
-          job.state.isDownloading = false;
-        }
-        this.downloadJobs.delete(model.id);
-      });
-      this.callbacks.onError?.(
-        model.id,
-        error instanceof Error ? error : new Error(String(error)),
-      );
-      throw error;
-    }
+    await this.startAndroidDownload(
+      model,
+      destinationPath,
+      effectiveAuthToken,
+    );
   }
 
   private async startAndroidDownload(
@@ -555,22 +390,10 @@ export class DownloadManager {
       // recognised as a cancel, not surfaced as a "Download Failed" error.
       this.cancelledModelIds.add(modelId);
       try {
-        if (Platform.OS === 'ios') {
-          console.log(
-            `${TAG}: Cancelling iOS download for ID: ${modelId}, jobId: ${job.jobId}`,
-          );
-          if (job.jobId) {
-            RNFS.stopDownload(job.jobId); // job.jobId is now correctly typed as number
-          }
-        } else if (
-          Platform.OS === 'android' &&
-          NativeDownloadModule &&
-          job.downloadId
-        ) {
+        if (NativeDownloadModule && job.downloadId) {
           console.log(`${TAG}: Cancelling Android download:`, modelId);
           await NativeDownloadModule.cancelDownload(job.downloadId);
-          // Android cancel emits no failure event, so nothing consumes the
-          // cancelled-id marker — clear it here to avoid leaking entries.
+          // Android cancel emits no failure event, so clear the marker here.
           this.cancelledModelIds.delete(modelId);
         }
 
@@ -623,7 +446,7 @@ export class DownloadManager {
 
   cleanup() {
     console.log(`${TAG}: Cleaning up download manager`);
-    if (Platform.OS === 'android' && this.eventEmitter) {
+    if (this.eventEmitter) {
       console.log(`${TAG}: Removing Android event listeners`);
       this.eventEmitter.removeAllListeners('onDownloadProgress');
       this.eventEmitter.removeAllListeners('onDownloadComplete');
@@ -639,7 +462,7 @@ export class DownloadManager {
    * This should be called after the model store is initialized.
    */
   syncWithActiveDownloads = async (models: Model[]): Promise<void> => {
-    if (Platform.OS !== 'android' || !NativeDownloadModule) {
+    if (!NativeDownloadModule) {
       return;
     }
 
