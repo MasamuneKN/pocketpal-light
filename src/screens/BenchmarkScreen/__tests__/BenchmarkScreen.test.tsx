@@ -1,4 +1,5 @@
 import React from 'react';
+import {runInAction} from 'mobx';
 
 import {cloneDeep} from 'lodash';
 import {LlamaContext} from 'llama.rn';
@@ -54,8 +55,10 @@ describe('BenchmarkScreen', () => {
 
       // Complete loading
       await act(async () => {
-        modelStore.isContextLoading = false;
-        modelStore.loadingModel = undefined;
+        runInAction(() => {
+          modelStore.isContextLoading = false;
+          modelStore.loadingModel = undefined;
+        });
       });
 
       // Verify loading indicator is removed
