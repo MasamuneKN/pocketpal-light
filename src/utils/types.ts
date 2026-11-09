@@ -838,7 +838,6 @@ export interface BenchmarkResult {
   };
   wallTimeMs?: number;
   uuid: string;
-  submitted?: boolean;
   initSettings?: ContextInitParams | LegacyContextInitParams;
 }
 
