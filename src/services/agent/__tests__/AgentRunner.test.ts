@@ -1750,8 +1750,6 @@ describe('runAgent', () => {
     });
 
 );
-
-);
   });
 
   describe('concurrent dispatch', () => {
