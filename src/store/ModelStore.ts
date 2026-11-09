@@ -106,8 +106,6 @@ import {
 } from '../utils/memoryEstimator';
 import {loadLlamaModelInfo} from 'llama.rn';
 
-
-
 class ModelStore {
   models: Model[] = [];
   version: number | undefined = undefined; // Persisted version
@@ -199,19 +197,19 @@ class ModelStore {
   pendingProjectionCleanupIds: string[] = [];
 
   constructor() {
-    makeAutoObservable<
-      ModelStore,
-      'generationSlot' | 'isReleasingContext'
-    >(this, {
-      generationSlot: false,
-      isReleasingContext: false,
-      isGenerationBusy: false,
-      activeModel: computed,
-      activeModelCaps: computed({equals: comparer.structural}),
-      contextId: computed,
-      memoryEstimateSettings: computed,
-      activeDownloads: computed,
-    });
+    makeAutoObservable<ModelStore, 'generationSlot' | 'isReleasingContext'>(
+      this,
+      {
+        generationSlot: false,
+        isReleasingContext: false,
+        isGenerationBusy: false,
+        activeModel: computed,
+        activeModelCaps: computed({equals: comparer.structural}),
+        contextId: computed,
+        memoryEstimateSettings: computed,
+        activeDownloads: computed,
+      },
+    );
     makePersistable(this, {
       name: 'ModelStore',
       properties: [
@@ -1079,20 +1077,14 @@ class ModelStore {
       console.log('Active → Inactive: No auto-release action');
     } else if (prevAppState === 'inactive' && nextAppState === 'background') {
       // inactive → background: release if enabled
-      if (
-        this.isAutoReleaseEnabled &&
-        this.activeModelId
-      ) {
+      if (this.isAutoReleaseEnabled && this.activeModelId) {
         console.log('Inactive → Background: Auto-releasing context');
         this.markAutoReleased(this.activeModelId);
         await this.releaseContext();
       }
     } else if (prevAppState === 'active' && nextAppState === 'background') {
       // active → background: release if enabled (direct transition)
-      if (
-        this.isAutoReleaseEnabled &&
-        this.activeModelId
-      ) {
+      if (this.isAutoReleaseEnabled && this.activeModelId) {
         console.log('Active → Background: Auto-releasing context');
         this.markAutoReleased(this.activeModelId);
         await this.releaseContext();
@@ -2445,7 +2437,6 @@ class ModelStore {
     return this.capsFor(this.activeModel);
   }
 
-
   get lastUsedModel(): Model | undefined {
     return this.lastUsedModelId
       ? this.models.find(m => m.id === this.lastUsedModelId && m.isDownloaded)
@@ -2463,7 +2454,6 @@ class ModelStore {
   get contextId(): string | undefined {
     return this.context ? String(this.context.id) : undefined;
   }
-
 
   setActiveModel(modelId: string) {
     this.activeModelId = modelId;

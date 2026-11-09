@@ -13,12 +13,7 @@ import {
 
 import {useChatSession} from '../useChatSession';
 
-import {
-  chatSessionStore,
-  modelStore,
-  palStore,
-  uiStore,
-} from '../../store';
+import {chatSessionStore, modelStore, palStore, uiStore} from '../../store';
 
 import {l10n} from '../../locales';
 import {assistant} from '../../utils/chat';

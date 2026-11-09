@@ -53,10 +53,7 @@ describe('BenchResultCard', () => {
 
   it('renders benchmark result data correctly', () => {
     const {getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-      />,
+      <BenchResultCard result={mockResult} onDelete={mockOnDelete} />,
     );
 
     // Model info
@@ -81,40 +78,28 @@ describe('BenchResultCard', () => {
     // Test with milliseconds
     const shortResult = {...mockResult, wallTimeMs: 500};
     const {getByText, rerender} = render(
-      <BenchResultCard
-        result={shortResult}
-        onDelete={mockOnDelete}
-      />,
+      <BenchResultCard result={shortResult} onDelete={mockOnDelete} />,
     );
     expect(getByText('500ms')).toBeTruthy();
 
     // Test with seconds
     const secondsResult = {...mockResult, wallTimeMs: 3500};
     rerender(
-      <BenchResultCard
-        result={secondsResult}
-        onDelete={mockOnDelete}
-      />,
+      <BenchResultCard result={secondsResult} onDelete={mockOnDelete} />,
     );
     expect(getByText('3s')).toBeTruthy();
 
     // Test with minutes and seconds
     const minutesResult = {...mockResult, wallTimeMs: 125000}; // 2m 5s
     rerender(
-      <BenchResultCard
-        result={minutesResult}
-        onDelete={mockOnDelete}
-      />,
+      <BenchResultCard result={minutesResult} onDelete={mockOnDelete} />,
     );
     expect(getByText('2m 5s')).toBeTruthy();
   });
 
   it('handles delete button press', () => {
     const {getByTestId} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-      />,
+      <BenchResultCard result={mockResult} onDelete={mockOnDelete} />,
     );
 
     const deleteButton = getByTestId('delete-result-button');
@@ -132,10 +117,7 @@ describe('BenchResultCard', () => {
     };
 
     const {queryByText} = render(
-      <BenchResultCard
-        result={minimalResult}
-        onDelete={mockOnDelete}
-      />,
+      <BenchResultCard result={minimalResult} onDelete={mockOnDelete} />,
     );
 
     // These should not be in the DOM
@@ -164,10 +146,7 @@ describe('BenchResultCard', () => {
       };
 
       const {getByText} = render(
-        <BenchResultCard
-          result={resultWithAuto}
-          onDelete={mockOnDelete}
-        />,
+        <BenchResultCard result={resultWithAuto} onDelete={mockOnDelete} />,
       );
 
       expect(getByText(/Flash Attention Enabled/)).toBeTruthy();
@@ -193,10 +172,7 @@ describe('BenchResultCard', () => {
       };
 
       const {getByText} = render(
-        <BenchResultCard
-          result={resultWithOn}
-          onDelete={mockOnDelete}
-        />,
+        <BenchResultCard result={resultWithOn} onDelete={mockOnDelete} />,
       );
 
       expect(getByText(/Flash Attention Enabled/)).toBeTruthy();
@@ -222,10 +198,7 @@ describe('BenchResultCard', () => {
       };
 
       const {getByText} = render(
-        <BenchResultCard
-          result={resultWithOff}
-          onDelete={mockOnDelete}
-        />,
+        <BenchResultCard result={resultWithOff} onDelete={mockOnDelete} />,
       );
 
       expect(getByText(/Flash Attention Disabled/)).toBeTruthy();
@@ -251,10 +224,7 @@ describe('BenchResultCard', () => {
       };
 
       const {getByText} = render(
-        <BenchResultCard
-          result={legacyResult}
-          onDelete={mockOnDelete}
-        />,
+        <BenchResultCard result={legacyResult} onDelete={mockOnDelete} />,
       );
 
       // Should display as enabled (legacy true -> auto)
@@ -281,10 +251,7 @@ describe('BenchResultCard', () => {
       };
 
       const {getByText} = render(
-        <BenchResultCard
-          result={legacyResult}
-          onDelete={mockOnDelete}
-        />,
+        <BenchResultCard result={legacyResult} onDelete={mockOnDelete} />,
       );
 
       // Should display as disabled (legacy false -> off)
@@ -312,10 +279,7 @@ describe('BenchResultCard', () => {
       };
 
       const {getByText} = render(
-        <BenchResultCard
-          result={resultWithOff}
-          onDelete={mockOnDelete}
-        />,
+        <BenchResultCard result={resultWithOff} onDelete={mockOnDelete} />,
       );
 
       expect(getByText(/Flash Attention Disabled/)).toBeTruthy();

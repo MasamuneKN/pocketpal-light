@@ -545,8 +545,6 @@ export interface Model {
   // list. Lets reconcile prune stale, non-downloaded rule stubs without touching
   // user-added HF/LOCAL or downloaded models.
   isRulePreset?: boolean;
-
-
 }
 
 export type DraftConfig =

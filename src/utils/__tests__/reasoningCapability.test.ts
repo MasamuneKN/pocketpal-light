@@ -43,7 +43,6 @@ describe('resolveReasoningCapability', () => {
     });
   });
 
-
   it('user source wins precedence over detection', () => {
     const m = localModel();
     m.supportsThinking = false; // detection said no

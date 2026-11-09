@@ -1309,5 +1309,4 @@ describe('useChatSession — AssistantTurn integration', () => {
     deleteMessageSpy.mockResolvedValue(undefined);
     errSpy.mockRestore();
   });
-
 });

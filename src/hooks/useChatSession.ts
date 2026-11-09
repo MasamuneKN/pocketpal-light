@@ -5,12 +5,7 @@ import type {JinjaFormattedChatResult} from 'llama.rn';
 
 import {randId} from '../utils';
 import {L10nContext} from '../utils';
-import {
-  chatSessionStore,
-  modelStore,
-  palStore,
-  uiStore,
-} from '../store';
+import {chatSessionStore, modelStore, palStore, uiStore} from '../store';
 import type {GenerationLease} from '../store/generationLease';
 import type {PersistedTurnTimings} from '../utils/completionTypes';
 import {
@@ -164,7 +159,9 @@ const prepareCompletion = async ({
   // hint — it never strips reasoning the model still returns (rendered by
   // ReasoningBlock); separate from include_thinking_in_context, which only
   // governs what prior <think> we SEND.
-  const reasoningCapability = resolveReasoningCapability(modelStore.activeModel);
+  const reasoningCapability = resolveReasoningCapability(
+    modelStore.activeModel,
+  );
   const isReasoningCapable = reasoningCapability.isReasoning !== 'no';
   cleanCompletionParams.reasoning_format = 'auto';
   // The enable_thinking:false hint only matters for reasoning-capable models;
@@ -307,8 +304,7 @@ async function applyEventToStore(
         const activeModel = modelStore.activeModel;
         if (
           activeModel &&
-          resolveReasoningCapability(activeModel)
-            .isReasoning !== 'yes'
+          resolveReasoningCapability(activeModel).isReasoning !== 'yes'
         ) {
           modelStore.recordReasoningObserved(activeModel.id);
         }

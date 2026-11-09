@@ -696,8 +696,6 @@ export const ChatView = observer(
         });
       }
 
-
-
       return baseItems;
     }, [
       selectedMessage,
@@ -1136,7 +1134,6 @@ export const ChatView = observer(
             anchor={menuPosition}>
             {menuItems.map(renderMenuItem)}
           </Menu>
-
 
           {increaseSheetOpen && activeModel && currentNCtx !== undefined ? (
             <IncreaseContextSheet

@@ -129,8 +129,6 @@ export const ModelsScreen: React.FC = observer(() => {
     handleDismissError();
   };
 
-
-
   const handleAddLocalModel = async () => {
     if (isCopyingModel) {
       return;

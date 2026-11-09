@@ -3,15 +3,8 @@ import React from 'react';
 import {cloneDeep} from 'lodash';
 import {LlamaContext} from 'llama.rn';
 
-import {
-  act,
-  fireEvent,
-  render,
-  waitFor,
-} from '../../../../jest/test-utils';
-import {
-  mockResult,
-} from '../../../../jest/fixtures/benchmark';
+import {act, fireEvent, render, waitFor} from '../../../../jest/test-utils';
+import {mockResult} from '../../../../jest/fixtures/benchmark';
 
 import {BenchmarkScreen} from '../BenchmarkScreen';
 
@@ -21,9 +14,7 @@ import {mockLlamaContextParams} from '../../../../jest/fixtures/models';
 
 describe('BenchmarkScreen', () => {
   beforeEach(() => {
-    benchmarkStore.results = [
-      cloneDeep(mockResult),
-    ];
+    benchmarkStore.results = [cloneDeep(mockResult)];
     jest.clearAllMocks();
 
     // Reset modelStore state to avoid cross-test leakage

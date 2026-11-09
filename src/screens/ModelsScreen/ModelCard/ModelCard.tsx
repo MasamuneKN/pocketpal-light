@@ -600,9 +600,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
           <View style={styles.compactHeader}>
             <View style={styles.headerContent}>
               <View style={styles.headerLeft}>
-                <View style={styles.modelTypeIcon}>
-                  {getModelTypeIcon()}
-                </View>
+                <View style={styles.modelTypeIcon}>{getModelTypeIcon()}</View>
                 <Text
                   variant="titleSmall"
                   style={styles.compactModelName}
@@ -642,25 +640,24 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
             )}
 
             {/* Display warnings */}
-            {(shortMemoryWarning || multimodalWarning) &&
-              isDownloaded && (
-                <TouchableRipple
-                  testID="memory-warning-button"
-                  onPress={handleWarningPress}
-                  style={styles.warningContainer}>
-                  <View style={styles.warningContent}>
-                    <IconButton
-                      icon="alert-circle-outline"
-                      iconColor={theme.colors.error}
-                      size={20}
-                      style={styles.warningIcon}
-                    />
-                    <Text style={styles.warningText}>
-                      {shortMemoryWarning || multimodalWarning}
-                    </Text>
-                  </View>
-                </TouchableRipple>
-              )}
+            {(shortMemoryWarning || multimodalWarning) && isDownloaded && (
+              <TouchableRipple
+                testID="memory-warning-button"
+                onPress={handleWarningPress}
+                style={styles.warningContainer}>
+                <View style={styles.warningContent}>
+                  <IconButton
+                    icon="alert-circle-outline"
+                    iconColor={theme.colors.error}
+                    size={20}
+                    style={styles.warningIcon}
+                  />
+                  <Text style={styles.warningText}>
+                    {shortMemoryWarning || multimodalWarning}
+                  </Text>
+                </View>
+              </TouchableRipple>
+            )}
 
             {integrityError && (
               <TouchableRipple
@@ -852,8 +849,6 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                       </Text>
                     </View>
                   )}
-
-
                 </View>
 
                 {/* Projection model warning */}

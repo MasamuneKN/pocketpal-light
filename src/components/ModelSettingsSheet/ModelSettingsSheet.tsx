@@ -37,8 +37,7 @@ export const ModelSettingsSheet: React.FC<ModelSettingsSheetProps> = memo(
 
     // Reasoning override (seeded from the resolver so the controls show the
     // effective state). Axis-1 is reasoning yes/no; axis-2 graded effort + set.
-    const seedReasoning = () =>
-      resolveReasoningCapability(model);
+    const seedReasoning = () => resolveReasoningCapability(model);
     const [isReasoningModel, setIsReasoningModel] = useState(
       () => seedReasoning().isReasoning === 'yes',
     );

@@ -1,4 +1,3 @@
-
 export const HF_DOMAIN = 'https://huggingface.co';
 export const HF_API_BASE = `${HF_DOMAIN}/api/models`;
 

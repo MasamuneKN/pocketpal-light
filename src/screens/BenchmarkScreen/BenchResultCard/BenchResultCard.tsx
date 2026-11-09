@@ -34,7 +34,6 @@ export const BenchResultCard = ({result, onDelete}: Props) => {
     return `${seconds}s`;
   };
 
-
   return (
     <Card elevation={0} style={styles.resultCard}>
       <Card.Content>
@@ -225,7 +224,6 @@ export const BenchResultCard = ({result, onDelete}: Props) => {
             {new Date(result.timestamp).toLocaleString()}
           </Text>
         </View>
-
       </Card.Content>
     </Card>
   );

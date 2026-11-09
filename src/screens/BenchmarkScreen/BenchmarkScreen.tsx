@@ -521,7 +521,6 @@ export const BenchmarkScreen: React.FC = observer(() => {
               ]}>
               <Text>{l10n.benchmark.dialogs.clearAllResults.message}</Text>
             </Dialog>
-
           </Card.Content>
         </Card>
       </ScrollView>

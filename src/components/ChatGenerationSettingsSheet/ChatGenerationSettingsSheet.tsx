@@ -227,10 +227,7 @@ const ChatGenerationSettingsSheetImpl = ({
       isVisible={isVisible}
       onClose={onCloseSheet}>
       <Sheet.ScrollView contentContainerStyle={styles.scrollviewContainer}>
-        <CompletionSettings
-          settings={settings}
-          onChange={updateSettings}
-        />
+        <CompletionSettings settings={settings} onChange={updateSettings} />
       </Sheet.ScrollView>
       <Sheet.Actions>
         <View style={styles.actionsContainer}>
