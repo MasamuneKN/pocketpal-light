@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Writes every launcher icon output (Android adaptive + legacy, iOS AppIcon)
+ * Writes Android adaptive and legacy launcher icons
  * from the SVG sources in scripts/app-icon/.
  *
  * Usage: node scripts/generate-app-icons.js [--preview <dir outside the repo>]
@@ -31,17 +31,9 @@ const SAFE_RADIUS = 51.3333;
 const ROUNDED_MASK = '<rect width="112" height="112" rx="25.7471"/>';
 const CIRCLE_MASK = '<circle cx="56" cy="56" r="56"/>';
 const MASK_ID = 'icon-mask';
-const IOS_SIZE = 1024;
 const LEGACY_SIZES = {mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxxhdpi: 192};
 
 const ANDROID_RES = 'android/app/src/main/res';
-const APPICONSET = 'ios/PocketPal/Images.xcassets/AppIcon.appiconset';
-
-const IOS_ICONS = [
-  {filename: 'AppIcon.png'},
-  {filename: 'AppIcon-dark.png', appearance: 'dark'},
-  {filename: 'AppIcon-tinted.png', appearance: 'tinted'},
-];
 
 const ALLOWED_ATTRIBUTES = {
   svg: ['xmlns', 'viewBox'],
@@ -451,24 +443,6 @@ function backgroundColorXml() {
   ].join('\n');
 }
 
-function appIconContents() {
-  const images = IOS_ICONS.map(({filename, appearance}) => ({
-    ...(appearance && {
-      appearances: [{appearance: 'luminosity', value: appearance}],
-    }),
-    filename,
-    idiom: 'universal',
-    platform: 'ios',
-    size: '1024x1024',
-  }));
-  const json = JSON.stringify(
-    {images, info: {author: 'xcode', version: 1}},
-    null,
-    2,
-  );
-  return `${json}\n`;
-}
-
 function buildTextOutputs(sources) {
   return {
     [`${ANDROID_RES}/drawable/ic_launcher_foreground.xml`]: toVectorDrawable(
@@ -480,7 +454,6 @@ function buildTextOutputs(sources) {
     [`${ANDROID_RES}/mipmap-anydpi-v26/ic_launcher.xml`]: ADAPTIVE_ICON,
     [`${ANDROID_RES}/mipmap-anydpi-v26/ic_launcher_round.xml`]: ADAPTIVE_ICON,
     [`${ANDROID_RES}/values/ic_launcher_background.xml`]: backgroundColorXml(),
-    [`${APPICONSET}/Contents.json`]: appIconContents(),
   };
 }
 
@@ -550,28 +523,9 @@ function opaqueRgbPng({width, height, pixels}, label) {
   ]);
 }
 
-function iosCompositions(trees) {
-  return {
-    'AppIcon.png': composition(trees.foregroundLight, {
-      background: BACKGROUND_LIGHT,
-    }),
-    'AppIcon-dark.png': composition(trees.foregroundDark, {
-      background: BACKGROUND_DARK,
-    }),
-    'AppIcon-tinted.png': composition(trees.monochrome, {
-      background: TINT_BACKGROUND,
-      recolor: TINT_FOREGROUND,
-    }),
-  };
-}
-
 function buildRasterOutputs(trees) {
   const {Resvg} = require('@resvg/resvg-js');
   const outputs = {};
-  for (const [filename, svg] of Object.entries(iosCompositions(trees))) {
-    const image = render(Resvg, svg, IOS_SIZE);
-    outputs[`${APPICONSET}/${filename}`] = opaqueRgbPng(image, filename);
-  }
   const legacy = {
     ic_launcher: ROUNDED_MASK,
     ic_launcher_round: CIRCLE_MASK,
@@ -633,9 +587,6 @@ function buildPreviews(trees) {
   for (const size of [1024, 144]) {
     svgs[`android-monochrome-themed-${size}.png`] = [themed, size];
   }
-  for (const size of [1024, 180]) {
-    svgs[`ios-tinted-${size}.png`] = [tinted, size];
-  }
   return Object.fromEntries(
     Object.entries(svgs).map(([name, [svg, size]]) => [
       name,
@@ -684,22 +635,6 @@ function writeFiles(base, files) {
   }
 }
 
-function staleAppIcons(root, outputs) {
-  const dir = path.join(root, APPICONSET);
-  if (!fs.existsSync(dir)) {
-    return [];
-  }
-  return fs
-    .readdirSync(dir, {withFileTypes: true})
-    .filter(entry => !(`${APPICONSET}/${entry.name}` in outputs))
-    .map(entry => {
-      if (entry.isDirectory()) {
-        fail(`${APPICONSET}/${entry.name} is a directory, not an icon`);
-      }
-      return path.join(dir, entry.name);
-    });
-}
-
 function generate({root = REPO_ROOT, previewDir} = {}) {
   if (previewDir) {
     assertOutsideRepo(root, previewDir);
@@ -710,9 +645,6 @@ function generate({root = REPO_ROOT, previewDir} = {}) {
   );
   const outputs = {...buildTextOutputs(sources), ...buildRasterOutputs(trees)};
   const previews = previewDir ? buildPreviews(trees) : {};
-  for (const file of staleAppIcons(root, outputs)) {
-    fs.rmSync(file);
-  }
   writeFiles(root, outputs);
   if (previewDir) {
     writeFiles(previewDir, previews);
@@ -743,7 +675,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  APPICONSET,
   ANDROID_RES,
   SOURCE_DIR,
   SOURCE_FILES,
