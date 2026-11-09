@@ -1,49 +1,63 @@
+import androidBundledRules from '../../../store/bundledDeviceRules/rules.android.json';
+import {parseDeviceRules} from '../parse';
+import type {Tier} from '../types';
+
+const TIERS: Tier[] = ['low', 'mid', 'high', 'flagship'];
+const APP_VERSION = '1.22.0';
+const rawCandidatesOf = (raw: typeof androidBundledRules, tier: Tier) =>
+  (raw.tiers as Record<string, {candidates: any[]}>)[tier].candidates;
+const isGated = (value: any): boolean =>
+  value !== undefined && value !== null && value.min_app_version !== undefined;
+
 describe('bundled Android rules', () => {
   const raw = androidBundledRules;
 
-  it('is a schema 2.0.0 document that keeps every candidate at the shipped app version', () => {
-    const rules = parseDeviceRules(raw, shippedVersion);
+  it('is a schema 2.0.0 document and retains all candidates at the shipped app version', () => {
+    const rules = parseDeviceRules(raw, APP_VERSION);
+    expect(rules.platform).toBe('android');
     expect(rules.schemaVersion).toBe('2.0.0');
     for (const tier of TIERS) {
       const rawCandidates = rawCandidatesOf(raw, tier);
       const models = rules.tiers[tier].models;
-      expect(models.map(m => m.model)).toEqual(rawCandidates.map(c => c.model));
-      models.forEach((m, i) => {
-        expect(m.draft !== undefined).toBe(
-          rawCandidates[i].draft !== undefined,
+      expect(models.map(model => model.model)).toEqual(
+        rawCandidates.map(candidate => candidate.model),
+      );
+      models.forEach((model, index) => {
+        expect(model.draft !== undefined).toBe(
+          rawCandidates[index].draft !== undefined,
         );
-        expect(m.mmproj !== undefined).toBe(
-          rawCandidates[i].mmproj !== undefined,
+        expect(model.mmproj !== undefined).toBe(
+          rawCandidates[index].mmproj !== undefined,
         );
       });
     }
   });
 
-  it('drops only the gated candidates under an unknown app version', () => {
-    const shipped = parseDeviceRules(raw, shippedVersion);
+  it('drops only version-gated candidates when the app version is unknown', () => {
+    const shipped = parseDeviceRules(raw, APP_VERSION);
     const unknown = parseDeviceRules(raw, 'unknown');
     for (const tier of TIERS) {
-      const rawCandidates = rawCandidatesOf(raw, tier);
+      const candidates = rawCandidatesOf(raw, tier);
       expect(unknown.tiers[tier].models).toEqual(
         shipped.tiers[tier].models.filter(
-          (_m, i) => !isGated(rawCandidates[i]),
+          (_model, index) => !isGated(candidates[index]),
         ),
       );
     }
   });
 
-  it('gates no mmproj or draft', () => {
+  it('does not version-gate projector or draft references', () => {
     for (const tier of TIERS) {
-      for (const c of rawCandidatesOf(raw, tier)) {
-        expect(isGated(c.mmproj)).toBe(false);
-        expect(isGated(c.draft)).toBe(false);
+      for (const candidate of rawCandidatesOf(raw, tier)) {
+        expect(isGated(candidate.mmproj)).toBe(false);
+        expect(isGated(candidate.draft)).toBe(false);
       }
     }
   });
 
-  it('keeps an ungated candidate in every tier', () => {
+  it('keeps at least one ungated candidate in every tier', () => {
     for (const tier of TIERS) {
-      expect(rawCandidatesOf(raw, tier).some(c => !isGated(c))).toBe(true);
+      expect(rawCandidatesOf(raw, tier).some(candidate => !isGated(candidate))).toBe(true);
     }
   });
 });
