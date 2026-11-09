@@ -35,7 +35,6 @@ import {ModelsHeaderRight} from './src/components/ModelsHeaderRight';
 import {HeaderLeft} from './src/components/HeaderLeft';
 import {AppWithMigration} from './src/components/DatabaseMigration/AppWithMigration';
 import {DownloadOverlay} from './src/components/DownloadOverlay';
-import {HubRunSheetHost} from './src/components/HubRunSheetHost';
 import {MarkdownProvider} from './src/components/MarkdownView';
 import {
   ChatScreen,
@@ -175,7 +174,6 @@ const App = observer(() => {
                       }
                     />
                     <DownloadOverlay />
-                    <HubRunSheetHost />
                   </BottomSheetModalProvider>
                 </NavigationContainer>
               </MarkdownProvider>
