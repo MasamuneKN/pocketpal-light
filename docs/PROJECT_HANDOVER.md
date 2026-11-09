@@ -1860,3 +1860,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - Static source/build configuration review is now complete for the app-owned CMake target, the exact llama.rn native build configuration, ABI/variant allowlist, Hexagon SDK provisioning, and declared artifact payload contract. No source change was needed in this pass.
 - Still unverified by design: actual llama.rn CMake compilation/linking, the final appmodules and rnllama ELF files, R8 output after minification, APK ZIP alignment and payload checks, production signing, and physical-device runtime. These require artifact creation and remain blocked by the user's no-packaging restriction.
 - Live `main` before this handover update: `62e7ec1c95e5f6bb4b5caa14e2970738aa897691`. No APK/AAB, native compilation, signing, or packaging was performed.
+
+
+## 112. Confirm remaining Firebase reporting surface before removing build environment — 2026-11-09
+
+- Live `main` before this note: `71bb9b7fd293f360011b29f3450570fe0cc2f4b3`.
+- Traced `FIREBASE_FUNCTIONS_URL` from `src/config/urls.ts` into `src/api/benchmark.ts` and `src/api/feedback.ts`. It is not a sign-in dependency: it backs optional online benchmark submission and feedback/content-report/model-load-error uploads. Those requests also require Firebase App Check. The local benchmark calculation and saved benchmark history are implemented separately in `BenchmarkScreen` and `BenchmarkStore`.
+- The manual Android workflow currently writes `FIREBASE_FUNCTIONS_URL=https://disabled.invalid` into its temporary CI `.env`. Removing that one line alone would not remove the reporting code; the config has a placeholder fallback, and the API/UI paths remain in the app.
+- No change was made because the project decision says local/offline and removes cloud sign-in/PalsHub, but does not explicitly say whether user-triggered feedback, content/error reports, and benchmark sharing must also be retired. Do not silently break those UI paths or leave them appearing functional while deleting only their environment variable.
+- Product decision needed before changing this surface: retain these as optional online-only extras, or remove their UI/API/App Check dependencies as part of a stricter fully local-only build. This does not block local inference or gallery storage technically, but it affects the strictness of the offline-only scope.
+- No APK/AAB, native compilation, signing, or packaging was performed.
