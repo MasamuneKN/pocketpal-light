@@ -1887,3 +1887,16 @@ The user has now explicitly authorized running the tests and actions considered 
 - Clarification on toolchain lockfiles: the React Native CLI's transitive `cli-doctor` package currently pulls `cli-platform-ios` / `cli-platform-apple` in the Yarn development-tool dependency graph; Fastlane's Android release toolchain also carries generic Apple/Xcode Ruby libraries transitively. These are not app runtime dependencies and are not included in the Android APK. Removing them would require replacing or forking upstream React Native CLI/Fastlane tooling and is not safe as a routine cleanup. No iOS target, project, workflow, or app build is configured.
 - No packaging or native compilation was performed. APK/AAB creation, signing, and Android device runtime checks remain prohibited until the user explicitly lifts the restriction.
 - Latest source change before this note: `02035947fc198d15ed6f8f108165c6b79b1af3f5`. Verified `main` head at review start: `02035947fc198d15ed6f8f108165c6b79b1af3f5`.
+
+
+## 115. Resolve stale type-check references and remove extra non-core UI — 2026-11-09
+
+- The CI run on earlier cleanup commit `dd341203` failed at TypeScript (not Jest). Its four diagnostics were: missing `../services/DeepLinkService` type import in automation; missing `UIStore.displayMemUsage`; removed `APPLE_MEDIA_TERMS_URL` still imported by the unused Apple-specific `LicenseNotice`; and a stale `urls.modelWebPage` call in Hugging Face model normalization.
+- Fixed the automation type imports to use the existing `src/utils/deepLinkTypes.ts` in both implementation types and the E2E deep-link test.
+- Removed the unused Apple media-terms notice component rather than restoring an Apple/iOS URL to the Android-only code.
+- Removed the unused memory-usage graph from the chat header and its tests. It was a non-core periodically polling UI surface; this also removed the stale `displayMemUsage` reference instead of resurrecting an obsolete store flag.
+- Removed Hugging Face model-page URL generation and its optional model type field. Model metadata/search and model-file download URLs remain; the extra model-page navigation URL is no longer generated. This aligns online behavior with model discovery and downloading only.
+- Updated the remaining ErrorSnackbar test fixture from deleted `firebase` service to supported `localapi`.
+- CI run `42577928736` failed at TypeScript with the four errors above. New CI run `42579375854` for the current cleanup checkpoint `673d192cdfc181fb344a44992dfb34fc65b09de1` is pending; its result is not yet available. Formatting/validation run `42579375870` is also pending. Do not treat either as passed.
+- Android-only tree audit found no iOS project/source/config files. React Native CLI's transitive development-only doctor dependency still contains Apple/iOS platform tooling in `yarn.lock`; Fastlane's Android release toolchain includes generic Xcode-related Ruby dependencies. Neither is an app runtime dependency or included in the Android APK. They are retained to avoid breaking the React Native CLI and Android Fastlane release toolchain; there is no iOS target, project, workflow, or package task.
+- No APK/AAB, native compilation, signing, or packaging was performed. The user's prohibition remains active.
