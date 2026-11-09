@@ -106,8 +106,8 @@ import {
 } from '../utils/memoryEstimator';
 import {loadLlamaModelInfo} from 'llama.rn';
 
-const pairedDraftModel = (draftConfig: DraftConfig): Model | undefined =>
-  draftConfig.mode === 'paired' ? draftConfig.draftModel : undefined;
+const pairedDraftModel = (draftConfig?: DraftConfig): Model | undefined =>
+  draftConfig?.mode === 'paired' ? draftConfig.draftModel : undefined;
 
 class ModelStore {
   models: Model[] = [];
