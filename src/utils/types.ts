@@ -563,6 +563,8 @@ export type TokenNativeEvent = {
 
 export interface ModelFile {
   rfilename: string;
+  /** Hugging Face resolve URL used only to download the model file. */
+  url?: string;
   size?: number;
   oid?: string;
   lfs?: {
