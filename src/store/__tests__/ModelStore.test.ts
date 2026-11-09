@@ -3388,11 +3388,6 @@ describe('ModelStore', () => {
     });
 
     describe('capability resolution', () => {
-
-
-
-      });
-
       it('does not report another model as vision-active', () => {
         const other = {
           id: 'other-local',
@@ -3419,9 +3414,6 @@ describe('ModelStore', () => {
           modelStore.capsFor(other).effectiveContextLength,
         ).toBeUndefined();
         expect(modelStore.activeModelCaps.effectiveContextLength).toBe(4096);
-      });
-
-
       });
     });
 
@@ -3525,6 +3517,7 @@ describe('ModelStore', () => {
       const defaultProj = modelStore.getDefaultProjectionModel('test-llm');
       expect(defaultProj).toBeUndefined();
     });
+
   });
 
   // Add tests for model path handling
