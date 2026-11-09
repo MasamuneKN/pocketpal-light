@@ -177,8 +177,6 @@ export const BenchmarkScreen: React.FC = observer(() => {
         timestamp: new Date().toISOString(),
         modelId: modelStore.activeModel.id,
         modelName: modelStore.activeModel.name,
-        oid: modelStore.activeModel.hfModelFile?.oid,
-        rfilename: modelStore.activeModel.hfModelFile?.rfilename,
         filename: modelStore.activeModel.filename,
         peakMemoryUsage: peakMemoryUsage || undefined,
         wallTimeMs,
