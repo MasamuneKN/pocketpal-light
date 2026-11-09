@@ -3,12 +3,11 @@
  * Based on llama.cpp backend and cache type compatibility matrix
  */
 
-import {Platform} from 'react-native';
 import {CacheType} from './types';
 import {getAvailableDevices} from './deviceSelection';
 
 export type FlashAttnType = 'auto' | 'on' | 'off';
-export type BackendType = 'metal' | 'opencl' | 'hexagon' | 'cpu' | 'blas';
+export type BackendType = 'opencl' | 'hexagon' | 'cpu' | 'blas';
 
 /**
  * Determines the backend type based ONLY on the devices array
@@ -22,11 +21,6 @@ export async function inferBackendType(
     const primaryDevice = devices[0];
     const deviceLower = primaryDevice.toLowerCase();
 
-    // Metal backend (iOS)
-    if (deviceLower === 'metal') {
-      return 'metal';
-    }
-
     // CPU backend (explicit CPU selection)
     if (deviceLower === 'cpu') {
       return 'cpu';
@@ -39,21 +33,10 @@ export async function inferBackendType(
 
     // Any other device on Android is assumed to be GPU (OpenCL/Vulkan)
     // (e.g., "Adreno 730", "Mali-G78", etc.)
-    if (Platform.OS === 'android') {
-      return 'opencl';
-    }
-
-    // Fallback to cpu for unknown devices (on iOS)
-    return 'cpu';
+    return 'opencl';
   }
 
-  // No devices specified = auto-select
-  // iOS: Always uses Metal
-  if (Platform.OS === 'ios') {
-    return 'metal';
-  }
-
-  // Android: Check what's actually available
+  // No devices specified = check Android hardware available for auto-select.
   // Auto mode will use GPU if available, otherwise CPU
   const availableDevices = await getAvailableDevices();
   const hasGpu = availableDevices.some(d => d.type === 'gpu');
@@ -120,7 +103,7 @@ export function isCacheTypeVSafe(
           'Hexagon flash attention support varies by device (use "off" with F16/F32 for safety)',
       };
     }
-    // Metal, CPU, BLAS: safe with 'on'
+    // CPU and BLAS: safe with 'on'
     return {safe: true};
   }
 
@@ -147,8 +130,7 @@ export function isCacheTypeVSafe(
     };
   }
 
-  // Metal, CPU, BLAS + 'auto' + quantized V = ✅ Safe
-  // These backends reliably support flash attention with 'auto'
+  // CPU and BLAS + 'auto' + quantized V = safe.
   return {safe: true};
 }
 
