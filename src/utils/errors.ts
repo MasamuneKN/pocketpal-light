@@ -17,17 +17,6 @@ export class NetworkError extends Error {
 }
 
 /**
- * AppCheckError - Used for Firebase App Check verification errors
- * Examples: App not installed from official store, verification failed, etc.
- */
-export class AppCheckError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'AppCheckError';
-  }
-}
-
-/**
  * The router load a remote model needed was withdrawn by the user's own
  * action: a cancel, or an edit or removal of its server. A type of its own so
  * a surface can stay silent: the user knows why it ended.
@@ -92,7 +81,7 @@ export interface ErrorState {
     | 'server'
     | 'multimodal'
     | 'unknown';
-  service?: 'huggingface' | 'firebase' | 'localapi';
+  service?: 'huggingface' | 'localapi';
   message: string;
   context: 'search' | 'download' | 'modelDetails' | 'chat' | 'modelInit';
   recoverable: boolean;
