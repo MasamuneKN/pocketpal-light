@@ -7,7 +7,6 @@ import {runInAction} from 'mobx';
 import {Bubble} from '../../components/Bubble';
 import {ChatView} from '../../components/ChatView';
 import {ErrorSnackbar} from '../../components/ErrorSnackbar';
-import {ModelErrorReportSheet} from '../../components/ModelErrorReportSheet';
 
 import {useChatSession} from '../../hooks/useChatSession';
 import {usePendingMessage} from '../../hooks/useDeepLinking';
@@ -20,7 +19,6 @@ import {
   resolveReasoningCapability,
 } from '../../utils/reasoningCapability';
 import {MessageType} from '../../utils/types';
-import {ErrorState} from '../../utils/errors';
 import {user, assistant} from '../../utils/chat';
 
 const renderBubble = ({
@@ -50,10 +48,6 @@ export const ChatScreen: React.FC = observer(() => {
   } | null>(null);
   const l10n = React.useContext(L10nContext);
 
-  // State for model error report sheet
-  const [isErrorReportVisible, setIsErrorReportVisible] = useState(false);
-  const [errorToReport, setErrorToReport] = useState<ErrorState | null>(null);
-
   const {handleSendPress, handleStopPress} = useChatSession(
     currentMessageInfo,
     user,
@@ -62,20 +56,6 @@ export const ChatScreen: React.FC = observer(() => {
 
   // Handle deep linking for message prefill
   const {pendingMessage, clearPendingMessage} = usePendingMessage();
-
-  // Handlers for model error report
-  const handleReportModelError = React.useCallback(() => {
-    if (modelStore.modelLoadError) {
-      setErrorToReport(modelStore.modelLoadError);
-      setIsErrorReportVisible(true);
-      modelStore.clearModelLoadError();
-    }
-  }, []);
-
-  const handleCloseErrorReport = React.useCallback(() => {
-    setIsErrorReportVisible(false);
-    setErrorToReport(null);
-  }, []);
 
   const visionEnabled = modelStore.activeModelCaps.visionActive;
   const chatCovered = false;
@@ -228,14 +208,8 @@ export const ChatScreen: React.FC = observer(() => {
         <ErrorSnackbar
           error={modelStore.modelLoadError}
           onDismiss={() => modelStore.clearModelLoadError()}
-          onReport={handleReportModelError}
         />
       )}
-      <ModelErrorReportSheet
-        isVisible={isErrorReportVisible}
-        onClose={handleCloseErrorReport}
-        error={errorToReport}
-      />
     </>
   );
 });
