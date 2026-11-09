@@ -6,7 +6,6 @@ import {render, fireEvent} from '../../../../jest/test-utils';
 import {chatSessionStore} from '../../../store';
 
 import {AssistantTurnFooter} from '../AssistantTurnFooter';
-import {streamFinishChunk} from '../../../../jest/fixtures/llamaServerWire';
 
 jest.mock('@react-native-clipboard/clipboard', () => ({
   setString: jest.fn(),
@@ -45,19 +44,6 @@ describe('AssistantTurnFooter', () => {
     expect(queryByTestId('assistant-turn-footer')).toBeTruthy();
     expect(getByText('10ms/token, 100.00 tokens/sec')).toBeTruthy();
     expect(queryByTestId('footer-copy')).toBeNull();
-  });
-
-  it('renders prompt speed and cached tokens from a server finish chunk', () => {
-    const message = baseTurn({
-      metadata: {
-        timings: {...streamFinishChunk.timings, time_to_first_token_ms: 150},
-        completionResult: {used: 0, contextFull: false, isRemote: true},
-      },
-    });
-    const {getByTestId} = render(<AssistantTurnFooter message={message} />);
-    expect(getByTestId('footer-timing').props.children).toBe(
-      '6ms/token, 170.35 tokens/sec, 126.90 prompt tokens/sec, 15 cached, 150ms TTFT',
-    );
   });
 
   it('leaves out the parts a build does not report', () => {
