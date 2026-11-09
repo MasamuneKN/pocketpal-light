@@ -179,7 +179,6 @@ jest.mock('react-native-share', () => ({
 }));
 
 jest.mock('react-native-image-picker');
-jest.mock('react-native-vision-camera');
 
 jest.mock('../src/database', () => {
   return {
