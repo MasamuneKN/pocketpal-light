@@ -318,7 +318,6 @@ jobs:
       - name: Create Android .env file
         run: |
           cat > .env <<'EOL'
-          FIREBASE_FUNCTIONS_URL=https://disabled.invalid
           APP_URL=pocketpal://app
           EOL
 
@@ -492,7 +491,6 @@ jobs:
       - name: Create dummy .env file for CI
         run: |
           cat > .env << 'EOL'
-          FIREBASE_FUNCTIONS_URL=https://dummy-firebase-url.com
 
           # PalsHub/Supabase Configuration
           SUPABASE_URL=https://dummy-supabase-url.supabase.co
