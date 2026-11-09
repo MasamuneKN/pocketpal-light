@@ -25,8 +25,8 @@ export interface TextMessageProps {
   enableAnimation?: boolean;
   /**
    * Either a legacy `Text` row, or an `AssistantTurn` row when paired
-   * with a `step`. The component reads `author` / `previewData` /
-   * `metadata` from `message` regardless; `text` is only consulted
+   * with a `step`. The component reads the author from `message`; `text`
+   * is only consulted
    * when `step` is undefined.
    */
   message: MessageType.DerivedText | MessageType.DerivedAssistantTurn;

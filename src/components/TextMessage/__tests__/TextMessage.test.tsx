@@ -26,7 +26,6 @@ describe('text message', () => {
         message={derivedTextMessage}
         messageWidth={440}
         showName={false}
-        usePreviewData={false}
         step={{content: echo, toolCalls: [call]}}
       />,
     );
@@ -40,38 +39,9 @@ describe('text message', () => {
         message={{...derivedTextMessage, text: echo}}
         messageWidth={440}
         showName={false}
-        usePreviewData={false}
       />,
     );
     expect(queryByText(/web_search/)).not.toBeNull();
-  });
-
-  it('renders and handles email press', async () => {
-    expect.assertions(1);
-    const email = 'john@flyer.chat';
-    const getPreviewDataMock = jest
-      .spyOn(utils, 'getPreviewData')
-      .mockResolvedValue({});
-    const openUrlMock = jest.spyOn(Linking, 'openURL');
-    const {getByText} = render(
-      <TextMessage
-        message={{
-          ...derivedTextMessage,
-          author: {id: 'newUserId', firstName: 'John'},
-          text: email,
-        }}
-        messageWidth={440}
-        onPreviewDataFetched={jest.fn}
-        showName
-        usePreviewData
-      />,
-    );
-    await waitFor(() => getByText(email));
-    const text = getByText(email);
-    fireEvent.press(text);
-    expect(openUrlMock).toHaveBeenCalledWith(`mailto:${email}`);
-    getPreviewDataMock.mockRestore();
-    openUrlMock.mockRestore();
   });
 
   it('renders URLs as ordinary message text without fetching previews', () => {
