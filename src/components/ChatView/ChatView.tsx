@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   FlatList,
   FlatListProps,
-  Platform,
   StatusBar,
   View,
   TouchableOpacity,
@@ -931,15 +930,7 @@ export const ChatView = observer(
               {...unwrap(flatListProps)}
               data={chatMessages}
               inverted={chatMessages.length > 0}
-              // iOS keeps the interactive (drag-to-dismiss) gesture. On Android,
-              // "interactive" makes a drag forcibly close the keyboard as the
-              // only outcome, so the user can never scroll the list to reveal
-              // content the keyboard is hiding; "none" lets the drag scroll
-              // while the input stays focused. Tap-to-dismiss on send is
-              // preserved via Keyboard.dismiss() in wrappedOnSendPress.
-              keyboardDismissMode={
-                Platform.OS === 'ios' ? 'interactive' : 'none'
-              }
+              keyboardDismissMode="none"
               keyExtractor={keyExtractor}
               onEndReached={handleEndReached}
               ref={list}
