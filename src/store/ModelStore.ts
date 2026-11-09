@@ -47,7 +47,6 @@ import type {OnboardingPalModelEntry} from './onboarding/onboardingPals';
 import {downloadManager, DownloadCancelledError} from '../services/downloads';
 import {classify, ClassifyPlatform} from '../services/deviceRules/classify';
 import {deriveUrl, parseDeviceRules} from '../services/deviceRules/parse';
-import {fetchRules} from '../services/deviceRules/rules';
 import {readDeviceSignals} from '../services/deviceRules/signals';
 import {
   DeviceRules,
@@ -888,10 +887,9 @@ class ModelStore {
     return presets;
   };
 
-  // Resolve the preset list from the bundled offline floor only — no network. This
-  // populates the model list immediately on first launch so a slow or hanging
-  // rules fetch can never leave the list empty. The fetched online override is
-  // applied afterwards by upgradeToFetchedRules (fire-and-forget).
+  // Resolve the preset list from bundled device rules only. The Lite app has
+  // no online device-rule update path; model discovery/downloads are the only
+  // network-dependent workflow.
   private resolvePresets = async (): Promise<Model[]> => {
     try {
       const signals = await readDeviceSignals();
@@ -910,32 +908,6 @@ class ModelStore {
     } catch (error) {
       console.warn('[ModelStore] preset resolution failed:', error);
       return [];
-    }
-  };
-
-  // Fetch the online rules override and, if it parses to a usable rule set,
-  // re-classify and reconcile so the list upgrades past the bundled floor. Runs
-  // off the first-population path (fire-and-forget); any failure leaves the
-  // already-applied bundled presets in place.
-  private upgradeToFetchedRules = async (): Promise<void> => {
-    try {
-      const fetched = await fetchRules(DeviceInfo.getVersion());
-      if (!fetched) {
-        return;
-      }
-      const signals = await readDeviceSignals();
-      const tier = classify(
-        signals,
-        fetched.classifier,
-        Platform.OS as ClassifyPlatform,
-      );
-      runInAction(() => {
-        this.deviceTier = tier;
-        this.rulesVersion = fetched.rulesVersion;
-      });
-      this.reconcilePresets(this.resolvePresetModels(fetched, signals));
-    } catch (error) {
-      console.warn('[ModelStore] fetched-rules upgrade failed:', error);
     }
   };
 
