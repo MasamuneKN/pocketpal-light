@@ -17,8 +17,6 @@ type Props = {
   onDelete: (timestamp: string) => void;
 };
 
-type ErrorType = 'network' | 'appCheck' | 'server' | 'generic' | null;
-
 export const BenchResultCard = ({result, onDelete}: Props) => {
   const theme = useTheme();
   const styles = createStyles(theme);
