@@ -819,8 +819,6 @@ describe('ModelStore', () => {
         expect(rules.tiers[tier].models.length).toBeGreaterThan(0);
       }
     });
-
-);
   });
 
   describe('preset migration / reconcile', () => {
@@ -1169,8 +1167,6 @@ describe('ModelStore', () => {
       );
       await expect((modelStore as any).resolvePresets()).resolves.toEqual([]);
     });
-
-);
 
 );
   });
