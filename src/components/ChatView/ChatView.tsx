@@ -124,8 +124,6 @@ export interface ChatProps extends Omit<ChatTopLevelProps, 'onSendPress'> {
    * `emptyChatPlaceholder` and `emptyChatPlaceholderTextStyle` are ignored
    * in this case. */
   emptyState?: () => React.ReactNode;
-  /** Forwarded to each `Message`. */
-  enableAnimation?: boolean;
   flatListProps?: Partial<FlatListProps<MessageType.DerivedAny[]>>;
   inputProps?: ChatInputAdditionalProps;
   /** Used for pagination (infinite scroll) together with {@link ChatProps.onEndReached}.
@@ -189,7 +187,6 @@ export const ChatView = observer(
     customDateHeaderText,
     dateFormat,
     disableImageGallery,
-    enableAnimation,
     flatListProps,
     inputProps,
     isLastPage,
@@ -805,7 +802,6 @@ export const ChatView = observer(
           <View>
             <Message
               {...{
-                enableAnimation,
                 isActiveRun,
                 activeRunPendingTalentNames: isActiveRun
                   ? activeRunPendingTalentNames
@@ -833,7 +829,6 @@ export const ChatView = observer(
         );
       },
       [
-        enableAnimation,
         handleMessageLongPress,
         handleMessagePress,
         renderBubble,

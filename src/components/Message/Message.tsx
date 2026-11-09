@@ -92,7 +92,6 @@ export interface MessageTopLevelProps {
 }
 
 export interface MessageProps extends MessageTopLevelProps {
-  enableAnimation?: boolean;
   message: MessageType.DerivedAny;
   messageWidth: number;
   roundBorder: boolean;
@@ -110,7 +109,6 @@ export interface MessageProps extends MessageTopLevelProps {
  * update. `observer` also provides shallow-prop comparison. */
 export const Message = observer(
   ({
-    enableAnimation,
     // isActiveRun / activeRunPendingTalentNames / isGeneratingToolCall
     // are kept on MessageTopLevelProps for ChatView's prop API but not
     // consumed here — pending UX is owned by ChatView's PendingIndicator
@@ -276,7 +274,6 @@ export const Message = observer(
         const showNameForBlock = showName && !nameShown;
         const child = (
           <TextMessage
-            enableAnimation={enableAnimation}
             message={turn}
             messageWidth={messageWidth}
             showName={showNameForBlock}
