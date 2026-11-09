@@ -34,14 +34,12 @@ import {
   mockHFModel1,
 } from '../../../jest/fixtures/models';
 import * as RNFS from '@dr.pogodin/react-native-fs';
-import DeviceInfo from 'react-native-device-info';
 
 import {modelStore, uiStore, serverStore} from '..';
 import {LOOKIE_DEFAULT_MODEL} from '../builtinPalModels';
 import {classify} from '../../services/deviceRules/classify';
 import {getVisionModelSizeBreakdown} from '../../utils/multimodalHelpers';
 import {MODEL_LIST_VERSION} from '../ModelStore';
-import * as parseModule from '../../services/deviceRules/parse';
 import {parseDeviceRules} from '../../services/deviceRules/parse';
 import {readDeviceSignals} from '../../services/deviceRules/signals';
 import androidBundledRules from '../bundledDeviceRules/rules.android.json';
