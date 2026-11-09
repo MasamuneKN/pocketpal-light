@@ -5279,9 +5279,6 @@ describe('ModelStore', () => {
       ]);
     });
 
-
-    });
-
     it('setReasoningOverride writes a user capability on a local model', () => {
       const m = createModel({id: 'local-1', origin: ModelOrigin.PRESET});
       modelStore.models = [m];
@@ -5297,9 +5294,6 @@ describe('ModelStore', () => {
         supportsEffort: true,
       });
       expect(modelStore.models[0].supportsThinking).toBe(true);
-    });
-
-
     });
   });
 
