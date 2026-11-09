@@ -579,11 +579,6 @@ function buildPreviews(trees) {
     recolor: '#1F3760',
     mask: CIRCLE_MASK,
   });
-  const tinted = composition(trees.monochrome, {
-    background: TINT_BACKGROUND,
-    recolor: TINT_FOREGROUND,
-    mask: ROUNDED_MASK,
-  });
   for (const size of [1024, 144]) {
     svgs[`android-monochrome-themed-${size}.png`] = [themed, size];
   }
