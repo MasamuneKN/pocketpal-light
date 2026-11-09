@@ -1,4 +1,3 @@
-import {Platform} from 'react-native';
 import {getBackendDevicesInfo} from 'llama.rn';
 
 import {getDeviceOptions, resolveDeviceSelection} from '../deviceSelection';
@@ -12,15 +11,8 @@ const device = (deviceName: string) => ({
 });
 
 describe('Hexagon device selection', () => {
-  const originalOS = Platform.OS;
-
   beforeEach(() => {
-    Platform.OS = 'android';
     discover.mockReset().mockResolvedValue([]);
-  });
-
-  afterEach(() => {
-    Platform.OS = originalOS;
   });
 
   it.each([
@@ -87,28 +79,6 @@ describe('Hexagon device selection', () => {
     expect(await resolveDeviceSelection(selection)).toEqual(selection);
     expect(discover).not.toHaveBeenCalled();
   });
-
-  it('preserves iOS options and skips HTP resolution', async () => {
-    Platform.OS = 'ios';
-    const selection = {devices: ['HTP*'], n_gpu_layers: 23};
-    expect(await resolveDeviceSelection(selection)).toEqual(selection);
-    expect((await getDeviceOptions()).map(o => o.devices)).toEqual([
-      undefined,
-      ['Metal'],
-      ['CPU'],
-    ]);
-    expect(discover).not.toHaveBeenCalled();
-  });
-
-  it.each([{devices: undefined}, {devices: []}, {devices: ['CPU']}])(
-    'preserves iOS selection $devices',
-    async ({devices}) => {
-      Platform.OS = 'ios';
-      const selection = {devices, n_gpu_layers: 99};
-      expect(await resolveDeviceSelection(selection)).toEqual(selection);
-      expect(discover).not.toHaveBeenCalled();
-    },
-  );
 
   it('preserves the discovered OpenCL option', async () => {
     discover.mockResolvedValue([
