@@ -1,7 +1,6 @@
 import {
   Classifier,
   CpuHeuristicRule,
-  DeviceFamilyRule,
   DeviceSignals,
   SocClass,
   Tier,
@@ -10,42 +9,6 @@ import {
 // Pure, deterministic, no I/O. Always returns a tier: the wire rules carry a
 // last-resort match (`{}`) for both the soc-class fallback and the tier matrix,
 // and a hardcoded floor guarantees totality even if a malformed file lacks it.
-
-export type ClassifyPlatform = 'ios' | 'android';
-
-const parseIdMajor = (machine: string): number | null => {
-  // e.g. "iPhone15,2" -> 15
-  const match = machine.match(/^([A-Za-z]+)(\d+),/);
-  return match ? parseInt(match[2], 10) : null;
-};
-
-const parseIdPrefix = (machine: string): string => {
-  const match = machine.match(/^([A-Za-z]+)/);
-  return match ? match[1] : machine;
-};
-
-const matchDeviceFamily = (
-  rules: DeviceFamilyRule[],
-  machine: string | undefined,
-  ramBytes: number,
-): SocClass | null => {
-  const prefix = machine ? parseIdPrefix(machine) : undefined;
-  const major = machine ? parseIdMajor(machine) : null;
-  for (const rule of rules) {
-    const {idPrefix, idMajorMin, minRamBytes} = rule.match;
-    if (idPrefix !== undefined && idPrefix !== prefix) {
-      continue;
-    }
-    if (idMajorMin !== undefined && (major === null || major < idMajorMin)) {
-      continue;
-    }
-    if (minRamBytes !== undefined && ramBytes < minRamBytes) {
-      continue;
-    }
-    return rule.class;
-  }
-  return null;
-};
 
 const matchCpuHeuristic = (
   rules: CpuHeuristicRule[],
@@ -80,27 +43,7 @@ const matchCpuHeuristic = (
 const resolveSocClass = (
   signals: DeviceSignals,
   classifier: Classifier,
-  platform: ClassifyPlatform,
 ): SocClass | null => {
-  if (platform === 'ios') {
-    const machine = signals.machine;
-    if (machine && classifier.deviceIdToChip && classifier.chipToClass) {
-      const chip = classifier.deviceIdToChip[machine];
-      if (chip && classifier.chipToClass[chip]) {
-        return classifier.chipToClass[chip];
-      }
-    }
-    if (classifier.deviceFamilyFallback) {
-      return matchDeviceFamily(
-        classifier.deviceFamilyFallback,
-        machine,
-        signals.ramBytes,
-      );
-    }
-    return null;
-  }
-
-  // Android
   if (signals.socModel && classifier.socModelToClass) {
     // MediaTek SOC_MODEL strings carry a vendor suffix (e.g. "MT6769V/CZ"); the
     // classifier keys are the base model ("MT6769"). Strip it on a lookup miss.
@@ -140,9 +83,8 @@ const resolveRamBand = (
 export function classify(
   signals: DeviceSignals,
   classifier: Classifier,
-  platform: ClassifyPlatform,
 ): Tier {
-  const socClass = resolveSocClass(signals, classifier, platform);
+  const socClass = resolveSocClass(signals, classifier);
   const ramBand = resolveRamBand(signals.ramBytes, classifier);
 
   if (socClass !== null && ramBand !== null) {
