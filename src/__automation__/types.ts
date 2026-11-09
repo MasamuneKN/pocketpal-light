@@ -6,4 +6,4 @@
  * DO need shared types have a home for them.
  */
 
-export type {DeepLinkParams} from '../services/DeepLinkService';
+export type {DeepLinkParams} from '../utils/deepLinkTypes';
