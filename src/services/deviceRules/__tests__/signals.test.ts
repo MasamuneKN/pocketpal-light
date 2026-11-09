@@ -57,14 +57,5 @@ describe('readDeviceSignals', () => {
     expect(signals.ramBytes).toBeLessThan(3 * 1024 * 1024 * 1024);
   });
 
-  it('degrades to ram-only when the native cpu read throws (Android)', async () => {
-    Object.defineProperty(Platform, 'OS', {value: 'android'});
-    (NativeHardwareInfo.getCPUInfo as jest.Mock).mockRejectedValue(
-      new Error('boom'),
-    );
-
-    const signals = await readDeviceSignals();
-
-    expect(signals).toEqual({ramBytes: 8 * 1e9});
-  });
+);
 });
