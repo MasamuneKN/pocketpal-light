@@ -21,10 +21,8 @@ jobs:
       # android/gradle.properties sets rnllamaBuildFromSource, and a subproject's
       # value beats the root project's, so only an environment property or -P wins.
       ORG_GRADLE_PROJECT_rnllamaBuildFromSource: 'true'
-      # This job caches no node_modules, so llama.rn's postinstall runs every
-      # time and downloads ~100 MB of prebuilt jniLibs plus the iOS xcframework.
-      # A from-source Android build uses neither. The DSP libraries under bin/
-      # are tarball content and arrive regardless.
+      # A from-source Android build does not need llama.rn's prebuilt JNI
+      # libraries. The DSP libraries under bin/ are tarball content.
       RNLLAMA_SKIP_POSTINSTALL: '1'
     steps:
       - name: Checkout
@@ -57,56 +55,8 @@ jobs:
       - name: Set up the Hexagon SDK
         uses: ./.github/actions/setup-hexagon-sdk
 
-      - name: Create dummy google-services.json for CI
-        run: |
-          cat > android/app/google-services.json << 'EOL'
-          {
-            "project_info": {
-              "project_number": "000000000000",
-              "project_id": "dummy-project-for-ci",
-              "storage_bucket": "dummy-project-for-ci.appspot.com"
-            },
-            "client": [
-              {
-                "client_info": {
-                  "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
-                  "android_client_info": {
-                    "package_name": "com.pocketpalai"
-                  }
-                },
-                "api_key": [{
-                  "current_key": "dummy-api-key-for-ci-builds"
-                }]
-              },
-              {
-                "client_info": {
-                  "mobilesdk_app_id": "1:000000000000:android:1111111111111111",
-                  "android_client_info": {
-                    "package_name": "com.pocketpalai.e2e"
-                  }
-                },
-                "api_key": [{
-                  "current_key": "dummy-api-key-for-ci-builds"
-                }]
-              }
-            ]
-          }
-          EOL
-
-      - name: Create dummy .env file for CI
-        run: |
-          cat > .env << 'EOL'
-          FIREBASE_FUNCTIONS_URL=https://dummy-firebase-url.com
-          SUPABASE_URL=https://dummy-supabase-url.supabase.co
-          SUPABASE_ANON_KEY=dummy-anon-key-for-ci-builds
-          PALSHUB_API_BASE_URL=https://dummy-palshub-api.com
-          APP_URL=pocketpal://app
-          ENABLE_PALSHUB_INTEGRATION=true
-          ENABLE_AUTHENTICATION=true
-          ENABLE_OFFLINE_MODE=true
-          GOOGLE_IOS_CLIENT_ID=dummy-ios-client-id.apps.googleusercontent.com
-          GOOGLE_WEB_CLIENT_ID=dummy-web-client-id.apps.googleusercontent.com
-          EOL
+      - name: Create .env file for CI
+        run: printf 'APP_URL=pocketpal://app\\n' > .env
 
       - name: Create dummy release keystore for CI
         working-directory: android/app
