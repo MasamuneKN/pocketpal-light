@@ -1908,7 +1908,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Latest CI run `42579594472` on `672716d7` failed at TypeScript. Diagnostics revealed a mistaken earlier removal of `ModelFile.url`, which is the actual Hugging Face model-file download URL (not a model webpage URL), plus a stale export for the removed UsageStats component. Restored `ModelFile.url?: string` and removed the stale export in commits `e0bc0fe` and `8f2ac65`. A new CI run on `8f2ac65` is pending; its result must be checked before considering the type/test gate green.
 - No APK/AAB, native compilation, signing, or packaging was performed. The prohibition remains active.
 
-
 ## 117. Diagnose post-cleanup Jest failures — 2026-11-09
 
 - Live `main` at review: `d988c580310f55f02e5e3e981d515f4fa27613b0` (formatter-generated commit after `2c9e590`). The formatter workflow [42582433379](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42582433379) completed successfully and applied Prettier changes.
