@@ -249,7 +249,6 @@ export const SettingsScreen: React.FC = observer(() => {
 
   const getCurrentDeviceId = (): string => {
     const devices = modelStore.contextInitParams.devices;
-    const nGpuLayers = modelStore.contextInitParams.n_gpu_layers ?? 0;
 
     // Android
     // No auto mode on Android - always explicit device selection
@@ -353,6 +352,7 @@ export const SettingsScreen: React.FC = observer(() => {
                     </Text>
                   </>
                 )}
+              </View>
 
               <Divider />
 
