@@ -47,7 +47,6 @@ import {
   L10nContext,
 } from '../../utils';
 import {t} from '../../locales';
-import {checkGpuSupport} from '../../utils/deviceCapabilities';
 import {exportLegacyChatSessions} from '../../utils/exportUtils';
 import {getDeviceOptions, DeviceOption} from '../../utils/deviceSelection';
 import {
@@ -73,8 +72,7 @@ export const SettingsScreen: React.FC = observer(() => {
   const draftValueCacheMenu = useMenuAnchor();
   const draftModelMenu = useMenuAnchor();
   const [showHfTokenDialog, setShowHfTokenDialog] = useState(false);
-  const [gpuSupported, setGpuSupported] = useState(false);
-  const [deviceOptions, setDeviceOptions] = useState<DeviceOption[]>([]);
+    const [deviceOptions, setDeviceOptions] = useState<DeviceOption[]>([]);
   const [currentBackend, setCurrentBackend] = useState<
     'opencl' | 'hexagon' | 'cpu' | 'blas'
   >('cpu');
@@ -86,17 +84,6 @@ export const SettingsScreen: React.FC = observer(() => {
 
   useEffect(() => {
     setContextSize(modelStore.contextInitParams.n_ctx.toString());
-
-    // Check Android GPU support (OpenCL with supported Adreno devices).
-    const checkGpuCapabilities = async () => {
-      const gpuCapabilities = await checkGpuSupport();
-      setGpuSupported(gpuCapabilities.isSupported);
-    };
-
-    checkGpuCapabilities().catch(error => {
-      console.warn('Failed to check GPU capabilities:', error);
-      setGpuSupported(false);
-    });
 
     const loadDeviceOptions = async () => {
       try {
