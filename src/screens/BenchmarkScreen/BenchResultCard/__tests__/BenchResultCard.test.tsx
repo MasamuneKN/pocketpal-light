@@ -1,15 +1,7 @@
 import React from 'react';
-import {Alert} from 'react-native';
 import {fireEvent, render} from '../../../../../jest/test-utils';
 import {BenchResultCard} from '../BenchResultCard';
 import {BenchmarkResult, CacheType} from '../../../../utils/types';
-
-// Mock Linking - need to spy on the actual Linking object
-const mockOpenURL = jest.fn().mockImplementation(() => Promise.resolve());
-jest.spyOn(Linking, 'openURL').mockImplementation(mockOpenURL);
-
-// Mock Alert
-jest.spyOn(Alert, 'alert').mockImplementation(jest.fn());
 
 describe('BenchResultCard', () => {
   const mockResult: BenchmarkResult = {
@@ -92,7 +84,6 @@ describe('BenchResultCard', () => {
       <BenchResultCard
         result={shortResult}
         onDelete={mockOnDelete}
-        onShare={mockOnShare}
       />,
     );
     expect(getByText('500ms')).toBeTruthy();
@@ -180,7 +171,6 @@ describe('BenchResultCard', () => {
         <BenchResultCard
           result={resultWithAuto}
           onDelete={mockOnDelete}
-          onShare={mockOnShare}
         />,
       );
 
