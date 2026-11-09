@@ -1995,3 +1995,11 @@ The user has now explicitly authorized running the tests and actions considered 
 - These latest test edits have not yet completed CI. Re-run formatter and CI from the newest main commit; inspect the remaining failures, especially the large ModelStore suite and local ChatScreen/settings tests.
 - Do not remove retained local inference, model download, local storage/persistence, gallery, or benchmark tests to reduce failure counts. Fix test fixtures/mocks or production regressions instead.
 - Keep APK/AAB packaging and native compilation prohibited until all non-packaging issues are resolved and the user explicitly permits the first packaging run.
+
+
+## 124. Session update — 2026-11-09 (remove remaining ChatScreen remote tests)
+
+- Follow-up inspection found the ChatScreen test file still retained a final remote-only reasoning/server-payload and remote-vision test section after the earlier edit. Removed that complete remote-only section and the stale `api/servers` import.
+- Retained the local ChatScreen tests, including local/HF model origin reasoning controls, message sending/stopping, and gallery attachment/capability behaviour where backed by local model state.
+- The new CI run on the latest main commit is pending; no claims are made yet about the updated Jest result.
+- Packaging prohibition remains unchanged: no APK/AAB, native compilation, or packaging workflow until all non-packaging issues are resolved and the user explicitly authorizes it.
