@@ -71,6 +71,8 @@ jobs:
   # Job for linting, type checking, unit testing
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      RNLLAMA_SKIP_POSTINSTALL: '1'
     steps:
       # Step 1: Check out the repository
       - name: Check out code

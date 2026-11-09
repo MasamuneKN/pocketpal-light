@@ -33,6 +33,8 @@ jobs:
   configure:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    env:
+      RNLLAMA_SKIP_POSTINSTALL: '1'
 
     steps:
       - name: Check out repository
@@ -80,7 +82,6 @@ jobs:
       - name: Create Android .env file
         run: |
           cat > .env <<'EOL'
-          FIREBASE_FUNCTIONS_URL=https://disabled.invalid
           APP_URL=pocketpal://app
           EOL
 
