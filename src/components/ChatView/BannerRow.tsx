@@ -10,7 +10,7 @@ import {AlertIcon} from '../../assets/icons';
 import {useTheme} from '../../hooks/useTheme';
 import {chatSessionStore, modelStore} from '../../store';
 import {L10nContext} from '../../utils';
-import {MessageType, ModelOrigin} from '../../utils/types';
+import {MessageType} from '../../utils/types';
 import {resolveBannerVariant} from '../../utils/bannerVariantResolver';
 import {talentRegistry} from '../../services/talents';
 import {t} from '../../locales';
@@ -100,15 +100,13 @@ export const BannerRow: React.FC<BannerRowProps> = observer(
       },
     };
 
-    const isRemote = modelStore.activeModel?.origin === ModelOrigin.REMOTE;
-
     const effectiveNCtx = modelStore.activeModelCaps.effectiveContextLength;
 
     const {variant, heavyTalentName, ratio} = resolveBannerVariant(
       chatSessionStore.lastCompletionResult,
       {
         effectiveNCtx,
-        isRemote,
+        isRemote: false,
         htmlPreviewCount,
         activeModelId: modelStore.activeModelId,
         dismissed: chatSessionStore.dismissedBannerVariants,
@@ -205,17 +203,11 @@ export const BannerRow: React.FC<BannerRowProps> = observer(
       ? (talentNames[heavyTalentName as keyof typeof talentNames] ??
         heavyTalentName)
       : undefined;
-    // Remote wins over every local variant: the escalated and heavy-talent
-    // copies both carry the "increase the context size" advice, but a remote
-    // model has no in-app context control, so remote always gets the single
-    // remote copy (no increase clause) regardless of failure count / talent.
-    const fullText = isRemote
-      ? l10n.chat.contextFullRemote
-      : heavyTalentLabel
-        ? t(l10n.chat.contextFullHeavyTalent, {talent: heavyTalentLabel})
-        : chatSessionStore.consecutiveFullFailures >= 2
-          ? l10n.chat.contextFullEscalated
-          : l10n.chat.contextFull;
+    const fullText = heavyTalentLabel
+      ? t(l10n.chat.contextFullHeavyTalent, {talent: heavyTalentLabel})
+      : chatSessionStore.consecutiveFullFailures >= 2
+        ? l10n.chat.contextFullEscalated
+        : l10n.chat.contextFull;
 
     return (
       <View

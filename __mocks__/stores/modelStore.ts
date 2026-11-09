@@ -3,14 +3,11 @@ import {computed, makeAutoObservable, observable} from 'mobx';
 import {modelsList} from '../../jest/fixtures/models';
 
 import {downloadManager} from '../services/downloads';
-import {mockServerStore} from './serverStore';
 
 import {
   Model,
   ContextInitParams,
-  RemoteSessionBinding,
 } from '../../src/utils/types';
-import type {Samplers} from '../../src/utils/samplerParams';
 import type {ErrorState} from '../../src/utils/errors';
 import {LlamaContext} from 'llama.rn';
 import type {AppStateStatus} from 'react-native';
@@ -27,7 +24,6 @@ import {
   effectiveDraftModeOf,
 } from '../../src/store/draftResolution';
 import {resolveModelCaps} from '../../src/utils/modelCaps';
-import {samplerDefaultsFor} from '../../src/utils/remoteCaps';
 import type {
   CapabilityEnv,
   ModelCapabilityView,
@@ -47,7 +43,6 @@ class MockModelStore {
   engine: CompletionEngine | undefined = undefined;
   isMultimodalActive: boolean = false;
   activeContextSettings: ContextInitParams | undefined = undefined;
-  activeRemoteBinding: RemoteSessionBinding | undefined = undefined;
 
   // Memory calibration variables
   availableMemoryCeiling: number | undefined = 5 * 1e9; // 5GB ceiling
@@ -69,7 +64,6 @@ class MockModelStore {
   resetModels: jest.Mock;
   initContext: jest.Mock;
   selectModel: jest.Mock;
-  setRemoteModel: jest.Mock;
   lastUsedModelId: any;
   checkSpaceAndDownload: jest.Mock;
   getDownloadProgress: jest.Mock;
@@ -107,7 +101,6 @@ class MockModelStore {
   enterBenchmarkMode: jest.Mock;
   exitBenchmarkMode: jest.Mock;
   recordReasoningObserved: jest.Mock;
-  reprobeRemoteCapsAfterCompletion: jest.Mock;
   setReasoningOverride: jest.Mock;
   acquireGeneration: jest.Mock;
   tryAcquireGeneration: jest.Mock;
@@ -134,8 +127,6 @@ class MockModelStore {
       resetModels: false,
       initContext: false,
       selectModel: false,
-      setRemoteModel: false,
-      reprobeRemoteCapsAfterCompletion: false,
       checkSpaceAndDownload: false,
       getDownloadProgress: false,
       manualReleaseContext: false,
@@ -204,8 +195,6 @@ class MockModelStore {
     this.resetModels = jest.fn();
     this.initContext = jest.fn().mockResolvedValue(Promise.resolve());
     this.selectModel = jest.fn().mockResolvedValue(Promise.resolve());
-    this.setRemoteModel = jest.fn().mockResolvedValue(Promise.resolve());
-    this.reprobeRemoteCapsAfterCompletion = jest.fn();
     this.checkSpaceAndDownload = jest.fn().mockResolvedValue(undefined);
     this.getDownloadProgress = jest.fn();
     this.manualReleaseContext = jest.fn();
@@ -345,9 +334,6 @@ class MockModelStore {
   // capability chain and stay reactive to store mutations.
   private get capabilityEnv(): CapabilityEnv {
     return {
-      remoteCaps: mockServerStore.remoteCaps,
-      listCaps: mockServerStore.listCaps,
-      binding: this.activeRemoteBinding,
       isMultimodalActive: this.isMultimodalActive,
       activeContextSettings: this.activeContextSettings,
       activeModelId: this.activeModelId,
@@ -361,13 +347,6 @@ class MockModelStore {
     return this.capsFor(this.activeModel);
   }
 
-  get activeSamplerDefaults(): Samplers | undefined {
-    return samplerDefaultsFor(
-      this.activeModel,
-      mockServerStore.remoteCaps,
-      this.activeRemoteBinding,
-    );
-  }
 
   get displayModels(): Model[] {
     // Filter out projection models for display purposes
