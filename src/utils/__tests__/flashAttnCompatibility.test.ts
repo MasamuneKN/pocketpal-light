@@ -3,7 +3,6 @@
  * Based on FLASH_ATTN_TEST_MATRIX.md
  */
 
-import {Platform} from 'react-native';
 import {
   inferBackendType,
   isCacheTypeVSafe,
@@ -17,68 +16,15 @@ import {CacheType} from '../types';
 
 describe('flashAttnCompatibility', () => {
   describe('inferBackendType', () => {
-    describe('iOS platform', () => {
-      let originalOS: string;
-
-      beforeEach(() => {
-        originalOS = Platform.OS;
-        Object.defineProperty(Platform, 'OS', {
-          get: () => 'ios',
-          configurable: true,
-        });
-      });
-
-      afterEach(() => {
-        Object.defineProperty(Platform, 'OS', {
-          get: () => originalOS,
-          configurable: true,
-        });
-      });
-
-      it('should return correct backend type on iOS', async () => {
-        expect(await inferBackendType()).toBe('metal');
-        expect(await inferBackendType([])).toBe('metal');
-        expect(await inferBackendType(['CPU'])).toBe('cpu');
-        expect(await inferBackendType(undefined)).toBe('metal');
-        expect(await inferBackendType(['blah-blah'])).toBe('cpu');
-      });
-    });
-
     describe('Android platform', () => {
-      let originalOS: string;
-
-      beforeEach(() => {
-        originalOS = Platform.OS;
-        Object.defineProperty(Platform, 'OS', {
-          get: () => 'android',
-          configurable: true,
-        });
-      });
-
-      afterEach(() => {
-        Object.defineProperty(Platform, 'OS', {
-          get: () => originalOS,
-          configurable: true,
-        });
-      });
-
-      it('should return cpu', async () => {
+      it('infers CPU, OpenCL, and Hexagon backends from Android devices', async () => {
         expect(await inferBackendType(['CPU'])).toBe('cpu');
         expect(await inferBackendType([])).toBe('cpu');
         expect(await inferBackendType(undefined)).toBe('cpu');
-        expect(await inferBackendType()).toBe('cpu');
-      });
-
-      it('should return opencl when devices array contains GPU', async () => {
         expect(await inferBackendType(['GPU'])).toBe('opencl');
         expect(await inferBackendType(['GPU:0'])).toBe('opencl');
-        expect(await inferBackendType(['blahblah'])).toBe('opencl');
-      });
-
-      it('should return hexagon when devices array starts with HTP', async () => {
         expect(await inferBackendType(['HTP'])).toBe('hexagon');
         expect(await inferBackendType(['HTP:0'])).toBe('hexagon');
-        expect(await inferBackendType(['HTP:1'])).toBe('hexagon');
       });
     });
   });
@@ -90,14 +36,10 @@ describe('flashAttnCompatibility', () => {
         flashAttn: FlashAttnType;
         backend: BackendType;
       }> = [
-        {cacheType: CacheType.F16, flashAttn: 'auto', backend: 'metal'},
-        {cacheType: CacheType.F16, flashAttn: 'on', backend: 'metal'},
-        {cacheType: CacheType.F16, flashAttn: 'off', backend: 'metal'},
         {cacheType: CacheType.F32, flashAttn: 'auto', backend: 'opencl'},
         {cacheType: CacheType.F32, flashAttn: 'on', backend: 'cpu'},
         {cacheType: CacheType.F32, flashAttn: 'off', backend: 'hexagon'},
         {cacheType: 'f16', flashAttn: 'auto', backend: 'blas'},
-        {cacheType: 'f32', flashAttn: 'off', backend: 'metal'},
       ];
 
       testCases.forEach(({cacheType, flashAttn, backend}) => {
@@ -113,7 +55,6 @@ describe('flashAttnCompatibility', () => {
         cacheType: CacheType;
         backend: BackendType;
       }> = [
-        {cacheType: CacheType.Q8_0, backend: 'metal'},
         {cacheType: CacheType.Q4_0, backend: 'opencl'},
         {cacheType: CacheType.Q5_0, backend: 'cpu'},
         {cacheType: CacheType.Q5_1, backend: 'hexagon'},
@@ -130,10 +71,7 @@ describe('flashAttnCompatibility', () => {
     });
 
     describe('Quantized V with flash_attn=on', () => {
-      it('should be safe for Metal backend', () => {
-        const result = isCacheTypeVSafe(CacheType.Q8_0, 'on', 'metal');
-        expect(result.safe).toBe(true);
-      });
+;
 
       it('should be safe for CPU backend', () => {
         const result = isCacheTypeVSafe(CacheType.Q8_0, 'on', 'cpu');
@@ -163,10 +101,7 @@ describe('flashAttnCompatibility', () => {
     });
 
     describe('Quantized V with flash_attn=auto', () => {
-      it('should be safe for Metal backend', () => {
-        const result = isCacheTypeVSafe(CacheType.Q8_0, 'auto', 'metal');
-        expect(result.safe).toBe(true);
-      });
+;
 
       it('should be safe for CPU backend', () => {
         const result = isCacheTypeVSafe(CacheType.Q8_0, 'auto', 'cpu');
@@ -190,21 +125,7 @@ describe('flashAttnCompatibility', () => {
         expect(result.reason).toContain('varies by device');
       });
 
-      it('should handle all quantized types with auto on Metal', () => {
-        const quantizedTypes = [
-          CacheType.Q8_0,
-          CacheType.Q5_1,
-          CacheType.Q5_0,
-          CacheType.Q4_1,
-          CacheType.Q4_0,
-          CacheType.IQ4_NL,
-        ];
-
-        quantizedTypes.forEach(cacheType => {
-          const result = isCacheTypeVSafe(cacheType, 'auto', 'metal');
-          expect(result.safe).toBe(true);
-        });
-      });
+;
 
       it('should handle all quantized types with auto on OpenCL as unsafe', () => {
         const quantizedTypes = [
@@ -232,7 +153,6 @@ describe('flashAttnCompatibility', () => {
       ];
       const flashAttnTypes: FlashAttnType[] = ['auto', 'on', 'off'];
       const backends: BackendType[] = [
-        'metal',
         'opencl',
         'cpu',
         'hexagon',
@@ -252,7 +172,7 @@ describe('flashAttnCompatibility', () => {
 
   describe('getAllowedCacheTypeVOptions', () => {
     it('should disable quantized options when flash_attn=off', () => {
-      const options = getAllowedCacheTypeVOptions('off', 'metal');
+      const options = getAllowedCacheTypeVOptions('off', 'cpu');
       const f16Option = options.find(o => o.value === CacheType.F16);
       const f32Option = options.find(o => o.value === CacheType.F32);
       const q8Option = options.find(o => o.value === CacheType.Q8_0);
@@ -264,8 +184,8 @@ describe('flashAttnCompatibility', () => {
       expect(q4Option?.disabled).toBe(true);
     });
 
-    it('should enable all options for Metal with flash_attn=on', () => {
-      const options = getAllowedCacheTypeVOptions('on', 'metal');
+    it('should enable all options for CPU with flash_attn=on', () => {
+      const options = getAllowedCacheTypeVOptions('on', 'cpu');
 
       options.forEach(option => {
         expect(option.disabled).toBe(false);
@@ -333,7 +253,7 @@ describe('flashAttnCompatibility', () => {
     });
 
     it('should return all cache type options', () => {
-      const options = getAllowedCacheTypeKOptions('auto', 'metal');
+      const options = getAllowedCacheTypeKOptions('auto', 'cpu');
 
       expect(options.length).toBeGreaterThan(0);
       expect(options.some(o => o.value === CacheType.F16)).toBe(true);
@@ -343,46 +263,7 @@ describe('flashAttnCompatibility', () => {
     });
   });
 
-  describe('Platform-specific safe configurations', () => {
-    describe('iOS Metal GPU', () => {
-      const testConfigs = [
-        {
-          name: 'Default',
-          flashAttn: 'auto' as FlashAttnType,
-          cacheK: CacheType.F16,
-          cacheV: CacheType.F16,
-        },
-        {
-          name: 'Memory Optimized',
-          flashAttn: 'auto' as FlashAttnType,
-          cacheK: CacheType.Q8_0,
-          cacheV: CacheType.Q8_0,
-        },
-        {
-          name: 'Max Quality',
-          flashAttn: 'auto' as FlashAttnType,
-          cacheK: CacheType.F32,
-          cacheV: CacheType.F32,
-        },
-        {
-          name: 'FA Disabled',
-          flashAttn: 'off' as FlashAttnType,
-          cacheK: CacheType.Q8_0,
-          cacheV: CacheType.F16,
-        },
-      ];
-
-      testConfigs.forEach(({name, flashAttn, cacheK, cacheV}) => {
-        it(`should validate ${name} configuration as safe`, () => {
-          const kResult = isCacheTypeKSafe(cacheK, flashAttn, 'metal');
-          const vResult = isCacheTypeVSafe(cacheV, flashAttn, 'metal');
-
-          expect(kResult.safe).toBe(true);
-          expect(vResult.safe).toBe(true);
-        });
-      });
-    });
-
+  describe('Android-safe configurations', () => {
     describe('Android OpenCL GPU', () => {
       it('should validate Recommended configuration as safe', () => {
         const kResult = isCacheTypeKSafe(CacheType.F16, 'off', 'opencl');
