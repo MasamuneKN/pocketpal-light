@@ -5,18 +5,11 @@ import {render, fireEvent} from '../../../../jest/test-utils';
 
 import {HeaderRight} from '../HeaderRight';
 
-import {chatSessionStore, modelStore, uiStore} from '../../../store';
+import {chatSessionStore, modelStore} from '../../../store';
 import {defaultCompletionSettings} from '../../../store/ChatSessionStore';
 import {L10nContext} from '../../../utils';
 import {modelsList} from '../../../../jest/fixtures/models';
 import {l10n} from '../../../locales';
-
-jest.mock('../../UsageStats', () => ({
-  UsageStats: jest.fn(() => {
-    const {View} = require('react-native');
-    return <View testID="usage-stats" />;
-  }),
-}));
 
 jest.mock(
   '../../ChatGenerationSettingsSheet/ChatGenerationSettingsSheet',
@@ -42,22 +35,6 @@ describe('HeaderRight', () => {
     jest.clearAllMocks();
     chatSessionStore.sessions = [];
     chatSessionStore.activeSessionId = null;
-  });
-
-  it('renders without UsageStats when displayMemUsage is false', () => {
-    uiStore.displayMemUsage = false;
-    const {queryByTestId} = renderWithI18n(<HeaderRight />);
-    expect(queryByTestId('usage-stats')).toBeNull();
-    expect(queryByTestId('reset-button')).toBeTruthy();
-    expect(queryByTestId('menu-button')).toBeTruthy();
-  });
-
-  it('renders UsageStats when displayMemUsage is true', () => {
-    uiStore.displayMemUsage = true;
-    const {queryByTestId} = renderWithI18n(<HeaderRight />);
-    expect(queryByTestId('usage-stats')).toBeTruthy();
-    expect(queryByTestId('reset-button')).toBeTruthy();
-    expect(queryByTestId('menu-button')).toBeTruthy();
   });
 
   it('calls resetActiveSession when reset button is pressed', () => {
