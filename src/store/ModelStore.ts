@@ -9,6 +9,7 @@ import {comparer, computed, makeAutoObservable, runInAction, toJS} from 'mobx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ContextParams, LlamaContext, initLlama} from 'llama.rn';
 import {
+  CompletionParams,
   CompletionEngine,
   toApiCompletionParams,
 } from '../utils/completionTypes';
@@ -201,15 +202,13 @@ class ModelStore {
   constructor() {
     makeAutoObservable<
       ModelStore,
-      'postCompletionProbeFor' | 'generationSlot' | 'isReleasingContext'
+      'generationSlot' | 'isReleasingContext'
     >(this, {
-      postCompletionProbeFor: false,
       generationSlot: false,
       isReleasingContext: false,
       isGenerationBusy: false,
       activeModel: computed,
       activeModelCaps: computed({equals: comparer.structural}),
-      activeSamplerDefaults: computed,
       contextId: computed,
       memoryEstimateSettings: computed,
       activeDownloads: computed,
@@ -1111,7 +1110,7 @@ class ModelStore {
       // inactive → background: release if enabled
       if (
         this.isAutoReleaseEnabled &&
-        this.activeModelId &&
+        this.activeModelId
       ) {
         console.log('Inactive → Background: Auto-releasing context');
         this.markAutoReleased(this.activeModelId);
@@ -1122,7 +1121,6 @@ class ModelStore {
       if (
         this.isAutoReleaseEnabled &&
         this.activeModelId &&
-        this.activeModel?.origin !== ModelOrigin.REMOTE
       ) {
         console.log('Active → Background: Auto-releasing context');
         this.markAutoReleased(this.activeModelId);
@@ -2399,7 +2397,6 @@ class ModelStore {
       runInAction(() => {
         this.context = undefined;
         this.engine = undefined;
-        this.activeRemoteBinding = undefined;
         this.activeContextSettings = undefined;
         this.loadedModelBytes = undefined;
         // Ensure multimodal state is cleared even if something went wrong above
