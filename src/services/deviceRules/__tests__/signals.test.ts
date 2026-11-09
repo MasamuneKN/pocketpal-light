@@ -66,6 +66,4 @@ describe('readDeviceSignals', () => {
 
     expect(signals).toEqual({ramBytes: 8 * 1e9});
   });
-
-);
 });
