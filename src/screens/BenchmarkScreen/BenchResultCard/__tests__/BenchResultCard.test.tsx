@@ -24,7 +24,6 @@ describe('BenchResultCard', () => {
     modelName: 'Test Model',
     filename: 'test-model.gguf',
     uuid: 'test-uuid',
-    oid: 'model-oid', // This is needed for sharing
     initSettings: {
       version: '2.0',
       n_ctx: 2048,
