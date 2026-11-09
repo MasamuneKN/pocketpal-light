@@ -341,7 +341,7 @@ describe('BenchmarkScreen', () => {
 
     it('should delete individual result', async () => {
       // Add results to store
-      benchmarkStore.results = [mockResult, mockSubmittedResult];
+      benchmarkStore.results = [mockResult, cloneDeep(mockResult)];
 
       const {getAllByTestId, getAllByText} = render(<BenchmarkScreen />);
 
