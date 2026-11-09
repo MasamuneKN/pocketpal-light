@@ -1,5 +1,5 @@
 import React, {useState, useContext, useEffect} from 'react';
-import {FlatList, RefreshControl, Platform, Alert, View} from 'react-native';
+import {FlatList, RefreshControl, Alert, View} from 'react-native';
 
 import {reaction, computed} from 'mobx';
 import {v4 as uuidv4} from 'uuid';
@@ -135,7 +135,7 @@ export const ModelsScreen: React.FC = observer(() => {
     }
 
     pick({
-      type: Platform.OS === 'ios' ? 'public.data' : types.allFiles,
+      type: types.allFiles,
     })
       .then(async res => {
         let [file] = res;
