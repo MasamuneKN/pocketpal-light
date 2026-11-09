@@ -2,10 +2,6 @@ export const HF_DOMAIN = 'https://huggingface.co';
 export const HF_API_BASE = `${HF_DOMAIN}/api/models`;
 
 export const REPO_URL = 'https://github.com/a-ghorbani/pocketpal-ai';
-export const APPLE_EULA_URL =
-  'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-export const APPLE_MEDIA_TERMS_URL =
-  'https://www.apple.com/legal/internet-services/itunes/us/terms.html';
 
 export const urls = {
   // API URLs
