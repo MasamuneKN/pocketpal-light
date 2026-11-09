@@ -127,46 +127,6 @@ export const createStyles = (theme: Theme) =>
       marginTop: 16,
       color: theme.colors.error,
     },
-    dialogList: {
-      marginVertical: 10,
-      paddingLeft: 8,
-    },
-    dialogSection: {
-      marginTop: 16,
-      marginBottom: 8,
-      fontWeight: '600',
-    },
-    link: {
-      textDecorationLine: 'underline',
-    },
-    detailsButton: {
-      marginTop: 16,
-      alignSelf: 'flex-start',
-    },
-    detailsContainer: {
-      backgroundColor: theme.colors.surfaceVariant,
-      borderRadius: 8,
-      padding: 12,
-      marginTop: 8,
-    },
-    codeBlock: {
-      fontFamily: Platform.select({ios: 'Menlo', android: 'monospace'}),
-      fontSize: 11,
-    },
-    checkboxContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 24,
-      paddingTop: 16,
-      borderTopWidth: 1,
-      borderTopColor: theme.colors.surfaceVariant,
-    },
-    checkboxLabel: {
-      color: theme.colors.onSurfaceVariant,
-      fontSize: 12,
-      marginLeft: 12,
-      flex: 1,
-    },
     maxValueHint: {
       color: theme.colors.onSurfaceVariant,
       fontStyle: 'italic',
