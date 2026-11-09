@@ -393,7 +393,7 @@ describe('BenchmarkScreen', () => {
 
     it('should clear all results', async () => {
       // Add results to store
-      benchmarkStore.results = [mockResult, mockSubmittedResult];
+      benchmarkStore.results = [mockResult, cloneDeep(mockResult)];
 
       const {getByTestId} = render(<BenchmarkScreen />);
 
