@@ -26,10 +26,6 @@ jest.mock('../../services/downloads', () => ({
   },
 }));
 
-jest.mock('../../services/deviceRules/rules', () => ({
-  fetchRules: jest.fn().mockResolvedValue(null),
-}));
-
 const flush = async () => {
   for (let i = 0; i < 20; i += 1) {
     await new Promise(resolve => setImmediate(resolve));
