@@ -91,22 +91,6 @@ function listTtfNames(dir) {
   );
 }
 
-function plistTtfNames(plistPath) {
-  if (!fs.existsSync(plistPath)) {
-    return new Set();
-  }
-  const src = fs.readFileSync(plistPath, 'utf-8');
-  // Naive: extract every <string>X.ttf</string> entry. UIAppFonts is the
-  // only place .ttf appears in a <string>; this is fine.
-  const out = new Set();
-  const re = /<string>([^<]+\.ttf)<\/string>/g;
-  let m;
-  while ((m = re.exec(src)) !== null) {
-    out.add(m[1].replace(/\.ttf$/, ''));
-  }
-  return out;
-}
-
 /**
  * Read a TrueType `cmap` and return the set of covered codepoints.
  * Handles subtable formats 4 and 12, which is everything our TTFs use.
