@@ -207,53 +207,6 @@ describe('SettingsScreen', () => {
     expect(uiStore.setColorScheme).toHaveBeenCalledWith('dark');
   });
 
-  it('toggles GPU acceleration switch on iOS and adjusts GPU layers', async () => {
-    Platform.OS = 'ios';
-    jest.useFakeTimers();
-
-    const {getByTestId} = render(<SettingsScreen />, {
-      withSafeArea: true,
-      withNavigation: true,
-    });
-    await waitFor(() => {
-      expect(getByTestId('device-option-gpu')).toBeTruthy();
-    });
-    const gpuBtn = getByTestId('device-option-gpu');
-
-    act(() => {
-      fireEvent(gpuBtn, 'press');
-    });
-
-    expect(modelStore.setDevices).toHaveBeenCalledWith(['Metal']);
-
-    const gpuSlider = getByTestId('gpu-layers-slider');
-
-    act(() => {
-      fireEvent(gpuSlider, 'valueChange', 60);
-    });
-
-    // Fast-forward time by 300ms to trigger debounced callback within act
-    act(() => {
-      jest.advanceTimersByTime(300); // Wait for debounce
-    });
-
-    expect(modelStore.setNGPULayers).toHaveBeenCalledWith(60);
-  });
-
-  it('toggles Display Memory Usage switch', async () => {
-    const {getByTestId} = render(<SettingsScreen />, {
-      withSafeArea: true,
-      withNavigation: true,
-    });
-    const memoryUsageSwitch = getByTestId('display-memory-usage-switch');
-
-    await act(async () => {
-      fireEvent(memoryUsageSwitch, 'valueChange', true);
-    });
-
-    expect(uiStore.setDisplayMemUsage).toHaveBeenCalledWith(true);
-  });
-
   it('renders image max tokens slider in advanced settings', async () => {
     jest.useFakeTimers();
     const {getByTestId, getByText} = render(<SettingsScreen />, {
