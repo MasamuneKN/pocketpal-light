@@ -1,6 +1,6 @@
 import {dispatchAutomationDeepLink} from './deepLink';
 import {ROUTES} from '../utils/navigationConstants';
-import type {DeepLinkParams} from '../services/DeepLinkService';
+import type {DeepLinkParams} from '../utils/deepLinkTypes';
 
 const makeParams = (url: string): DeepLinkParams => {
   const parsed = new URL(url);
