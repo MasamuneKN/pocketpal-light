@@ -48,7 +48,7 @@ describe('resolveReasoningCapability', () => {
     const m = localModel();
     m.supportsThinking = false; // detection said no
     m.reasoning = cap({isReasoning: 'yes', source: 'user'});
-    expect(resolveReasoningCapability(m, {})).toMatchObject({
+    expect(resolveReasoningCapability(m)).toMatchObject({
       isReasoning: 'yes',
       source: 'user',
     });

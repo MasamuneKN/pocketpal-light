@@ -2550,12 +2550,6 @@ PODS:
   - simdjson (3.9.4)
   - SocketRocket (0.7.1):
     - ReactNativeDependencies
-  - VisionCamera (4.7.2):
-    - VisionCamera/Core (= 4.7.2)
-    - VisionCamera/React (= 4.7.2)
-  - VisionCamera/Core (4.7.2)
-  - VisionCamera/React (4.7.2):
-    - React-Core
   - WatermelonDB (0.28.0):
     - React
     - simdjson
@@ -2734,7 +2728,6 @@ DEPENDENCIES:
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - "simdjson (from `../node_modules/@nozbe/simdjson`)"
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
-  - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - "WatermelonDB (from `../node_modules/@nozbe/watermelondb`)"
   - whisper-rn (from `../node_modules/whisper.rn`)
   - Yoga (from `build/rncore-facades/Yoga`)
@@ -2994,8 +2987,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@nozbe/simdjson"
   SocketRocket:
     :path: build/rndeps-facades/SocketRocket
-  VisionCamera:
-    :path: "../node_modules/react-native-vision-camera"
   WatermelonDB:
     :path: "../node_modules/@nozbe/watermelondb"
   whisper-rn:
@@ -3134,7 +3125,6 @@ SPEC CHECKSUMS:
   RNWorklets: 941265f848d4f2a906a0ed4ba64e6671cf54d34e
   simdjson: 7bb9e33d87737cec966e7b427773c67baa4458fe
   SocketRocket: 37aec555668fb852ec12e3c0de59a86ca58f0871
-  VisionCamera: 30b358b807324c692064f78385e9a732ce1bebfe
   WatermelonDB: 75e467adbaf2cb2809780fb3eda7ce4964e11778
   whisper-rn: 19c8e9f7e968c2f9dfddf77ff364f0340925d76b
   Yoga: d1c536142c5ff8ec8cd856ab2a7c227a1d875c8e
