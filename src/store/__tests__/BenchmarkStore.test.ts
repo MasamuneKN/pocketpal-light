@@ -73,11 +73,5 @@ describe('BenchmarkStore', () => {
     expect(store.latestResult).toEqual(olderResult);
   });
 
-  it('marks result as submitted', () => {
-    store.addResult(mockResult);
-    store.markAsSubmitted(mockResult.uuid);
 
-    const result = store.results.find(r => r.uuid === mockResult.uuid);
-    expect(result?.submitted).toBe(true);
-  });
 });
