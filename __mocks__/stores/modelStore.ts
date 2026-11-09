@@ -4,10 +4,7 @@ import {modelsList} from '../../jest/fixtures/models';
 
 import {downloadManager} from '../services/downloads';
 
-import {
-  Model,
-  ContextInitParams,
-} from '../../src/utils/types';
+import {Model, ContextInitParams} from '../../src/utils/types';
 import type {ErrorState} from '../../src/utils/errors';
 import {LlamaContext} from 'llama.rn';
 import type {AppStateStatus} from 'react-native';
@@ -346,7 +343,6 @@ class MockModelStore {
   get activeModelCaps(): ModelCapabilityView {
     return this.capsFor(this.activeModel);
   }
-
 
   get displayModels(): Model[] {
     // Filter out projection models for display purposes
