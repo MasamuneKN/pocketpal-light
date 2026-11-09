@@ -1964,7 +1964,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Fix commits: `ca071502` and `2cb7da9e` for test structure; `7b34711c` for formatting. The next CI/formatter results must be checked against the latest main SHA before claiming the lint gate is clear.
 - No APK/AAB packaging, signing, or native compilation was started. Continue to honor the user's prohibition until all non-packaging issues are resolved.
 
-
 ## 123. Session update — 2026-11-09 (CI static checks pass; Jest cleanup)
 
 ### Verified CI result
@@ -1995,7 +1994,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - These latest test edits have not yet completed CI. Re-run formatter and CI from the newest main commit; inspect the remaining failures, especially the large ModelStore suite and local ChatScreen/settings tests.
 - Do not remove retained local inference, model download, local storage/persistence, gallery, or benchmark tests to reduce failure counts. Fix test fixtures/mocks or production regressions instead.
 - Keep APK/AAB packaging and native compilation prohibited until all non-packaging issues are resolved and the user explicitly permits the first packaging run.
-
 
 ## 124. Session update — 2026-11-09 (remove remaining ChatScreen remote tests)
 

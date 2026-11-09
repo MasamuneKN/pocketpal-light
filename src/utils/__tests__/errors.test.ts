@@ -48,7 +48,6 @@ describe('errors.ts', () => {
       expect(error.message).toBe('Server is down');
       expect(error instanceof Error).toBe(true);
     });
-
   });
 
   describe('createErrorState', () => {

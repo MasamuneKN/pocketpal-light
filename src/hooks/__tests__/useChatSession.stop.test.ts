@@ -649,4 +649,3 @@ describe('useChatSession: the turn a Stop leaves in the chat', () => {
     expect(nextPromptRoles(beforeStart)).toEqual(['user', 'assistant', 'user']);
   });
 });
-
