@@ -74,7 +74,7 @@ describe('resolveReasoningCapability', () => {
 
   it('legacy fallback: neither reasoning nor supportsThinking → unknown', () => {
     const m = localModel();
-    expect(resolveReasoningCapability(m, {})).toMatchObject({
+    expect(resolveReasoningCapability(m)).toMatchObject({
       isReasoning: 'unknown',
       source: 'unknown',
     });

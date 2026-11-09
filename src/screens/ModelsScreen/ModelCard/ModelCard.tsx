@@ -60,6 +60,7 @@ import {
   EyeIcon,
   ChatIcon,
   XIcon,
+  TrashIcon,
   ChevronSelectorVerticalIcon,
   ChevronSelectorExpandedVerticalIcon,
 } from '../../../assets/icons';
@@ -126,6 +127,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
     const isDownloaded = model.isDownloaded;
     const isDownloading = modelStore.isDownloading(model.id);
     const isHfModel = model.origin === ModelOrigin.HF;
+    const modelCaps = modelStore.capsFor(model);
     const cardId = model.filename || model.id;
 
     // Check projection model status for downloaded vision models
@@ -840,7 +842,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                   )}
 
                   {/* Author */}
-                  {model.author && && (
+                  {model.author && (
                     <View style={styles.technicalDetailCard}>
                       <Text style={styles.technicalDetailLabel}>
                         {l10n.models.modelCard.labels.author}

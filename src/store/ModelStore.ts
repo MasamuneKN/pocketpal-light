@@ -3086,8 +3086,8 @@ class ModelStore {
 
   /**
    * Learn-from-stream entry point. The first time a model actually emits
-   * reasoning, flip axis-1 to learned 'yes'. Idempotent and monotonic; never overrides a user
-   * declaration (handled by the per-store writers).
+   * reasoning, flip axis-1 to learned 'yes'. Idempotent and monotonic; never
+   * overrides a user declaration (handled by the per-store writers).
    */
   recordReasoningObserved = (modelId: string): void => {
     const localModel = this.models.find(m => m.id === modelId);
