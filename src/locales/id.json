@@ -498,15 +498,6 @@
       "vision": "Visi",
       "mtp": "Spekulatif (MTP)",
       "mtpDraft": "Draf spekulatif"
-    },
-    "hubRun": {
-      "title": "Unduh Model",
-      "resolving": "Memuat detail model…",
-      "cancel": "Batal",
-      "retry": "Coba Lagi",
-      "invalidLinkTitle": "Tautan Tidak Valid",
-      "invalidLinkMessage": "Tautan Hugging Face ini tidak ada atau memiliki model atau file yang tidak valid.",
-      "resolveError": "Gagal memuat detail model. Periksa koneksi Anda dan coba lagi."
     }
   },
   "completionParams": {
@@ -1033,7 +1024,12 @@
         "total": "Total: ",
         "usage": "Penggunaan: "
       },
-      "byteSizes": ["Byte", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Byte",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
