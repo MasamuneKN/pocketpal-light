@@ -406,15 +406,6 @@
       },
       "modelUpdatedJustNowShort": "hace un momento"
     },
-    "hubRun": {
-      "title": "Descargar modelo",
-      "resolving": "Cargando detalles del modelo…",
-      "cancel": "Cancelar",
-      "retry": "Reintentar",
-      "invalidLinkTitle": "Enlace no válido",
-      "invalidLinkMessage": "Este enlace de Hugging Face no se encuentra o tiene un modelo o archivo no válido.",
-      "resolveError": "No se pudieron cargar los detalles del modelo. Comprueba tu conexión e inténtalo de nuevo."
-    },
     "modelCard": {
       "accessibility": {
         "memoryWarning": "Advertencia de memoria",
@@ -1054,7 +1045,12 @@
         "total": "Total: ",
         "usage": "Uso: "
       },
-      "byteSizes": ["Bytes", "KB", "MB", "GB"]
+      "byteSizes": [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "chatView": {
       "menuItems": {
