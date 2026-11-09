@@ -1,13 +1,11 @@
-import {Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 import NativeHardwareInfo from '../../specs/NativeHardwareInfo';
 
 import {DeviceSignals} from './types';
 
-// Conservative RAM floor used when the native total-memory read fails. It maps
-// to the lowest band on both platforms, so the classifier degrades to the low
-// tier (a non-empty preset list) rather than producing an empty result.
+// Conservative RAM floor used when the native total-memory read fails, so
+// the Android classifier degrades to the low tier rather than returning empty.
 const RAM_FLOOR_BYTES = 1 * 1024 * 1024 * 1024;
 
 // /proc/cpuinfo reports the ARMv8.2 dot-product feature as "asimddp", but device
@@ -31,14 +29,6 @@ export async function readDeviceSignals(): Promise<DeviceSignals> {
     ramBytes = RAM_FLOOR_BYTES;
   }
 
-  if (Platform.OS === 'ios') {
-    try {
-      const machine = await DeviceInfo.getDeviceId();
-      return {ramBytes, machine};
-    } catch {
-      return {ramBytes};
-    }
-  }
 
   try {
     const cpu = await NativeHardwareInfo.getCPUInfo();
