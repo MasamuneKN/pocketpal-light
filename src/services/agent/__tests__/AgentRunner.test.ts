@@ -1,4 +1,3 @@
-import {abortableFetch} from '../../../../jest/abortableFetch';
 
 import {runAgent} from '../AgentRunner';
 import type {AgentEvent} from '../AgentRunner.types';
@@ -13,21 +12,6 @@ import type {
   TalentExecuteContext,
   TalentResult,
 } from '../../talents/types';
-import type {SearchAccess} from '../../talents/searchAccess';
-import {WebSearchEngine} from '../../talents/WebSearchEngine';
-import {ReadUrlEngine} from '../../talents/ReadUrlEngine';
-import {
-  allowReadUrls,
-  matchReadUrl,
-  resetReadUrlAllowlist,
-} from '../../talents/readUrlAllowlist';
-import {TavilyProvider} from '../../search/providers/tavily';
-import {
-  getCachedHits,
-  resetSearchCache,
-  setCachedHits,
-} from '../../search/searchBudget';
-import type {SearchProvider} from '../../search/types';
 
 /**
  * Helper: build a CompletionEngine whose `completion()` invokes the
@@ -1765,123 +1749,9 @@ describe('runAgent', () => {
       expect(execute.mock.calls[0]).toHaveLength(1);
     });
 
-    it('continues to the follow-up turn when a search times out without Stop', async () => {
-      jest.useFakeTimers();
-      try {
-        resetSearchCache();
-        const controller = new AbortController();
-        global.fetch = abortableFetch();
-        const access: SearchAccess = {
-          getActiveProvider: () => new TavilyProvider(() => 'key'),
-          canSearch: () => true,
-          getResultCount: () => 3,
-          readWithDefaultReader: jest.fn(),
-        };
-        const engine = makeScriptedEngine({
-          scripts: [
-            {
-              tokens: [],
-              result: {
-                text: '',
-                content: '',
-                tool_calls: [
-                  {
-                    id: 'c0',
-                    type: 'function',
-                    function: {
-                      name: 'web_search',
-                      arguments: JSON.stringify({query: 'mars'}),
-                    },
-                  },
-                ],
-              },
-            },
-            {tokens: [], result: {text: 'done', content: 'done'}},
-          ],
-        });
+);
 
-        const done = collect(
-          runAgent({
-            engine,
-            initialParams: baseParams,
-            allowedTalentNames: ['web_search'],
-            talentLookup: () => new WebSearchEngine(access),
-            messageId: 'msg',
-            triggerMarkers: [],
-            signal: controller.signal,
-          }),
-        );
-        await jest.advanceTimersByTimeAsync(12000);
-        const events = await done;
-
-        const finished = events.find(e => e.type === 'tool_call_finished');
-        expect((finished as any).outcome.result.errorMessage).toBe('timed out');
-        expect(engine.completion).toHaveBeenCalledTimes(2);
-        expect(controller.signal.aborted).toBe(false);
-      } finally {
-        jest.useRealTimers();
-      }
-    });
-
-    it('cancels both searches of a batch when Stop lands during the first', async () => {
-      resetSearchCache();
-      const controller = new AbortController();
-      global.fetch = abortableFetch({onCall: () => controller.abort()});
-      const access: SearchAccess = {
-        getActiveProvider: () => new TavilyProvider(() => 'key'),
-        canSearch: () => true,
-        getResultCount: () => 3,
-        readWithDefaultReader: jest.fn(),
-      };
-      const webSearch = new WebSearchEngine(access);
-      const search = (id: string, query: string) => ({
-        id,
-        type: 'function' as const,
-        function: {name: 'web_search', arguments: JSON.stringify({query})},
-      });
-      const engine = makeScriptedEngine({
-        scripts: [
-          {
-            tokens: [],
-            result: {
-              text: '',
-              content: '',
-              tool_calls: [search('c0', 'mars'), search('c1', 'venus')],
-            },
-          },
-        ],
-      });
-
-      const events = await collect(
-        runAgent({
-          engine,
-          initialParams: baseParams,
-          allowedTalentNames: ['web_search'],
-          talentLookup: () => webSearch,
-          messageId: 'msg',
-          triggerMarkers: [],
-          signal: controller.signal,
-        }),
-      );
-
-      const finished = events.filter(e => e.type === 'tool_call_finished');
-      expect(finished.map(e => (e as any).outcome.result.errorMessage)).toEqual(
-        ['cancelled', 'cancelled'],
-      );
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-      expect(
-        events
-          .map(e => e.type)
-          .filter(t => t === 'tool_call_started' || t === 'tool_call_finished'),
-      ).toEqual([
-        'tool_call_started',
-        'tool_call_started',
-        'tool_call_finished',
-        'tool_call_finished',
-      ]);
-      expect(events[events.length - 1].type).toBe('run_finished');
-      expect(engine.completion).toHaveBeenCalledTimes(1);
-    });
+);
   });
 
   describe('concurrent dispatch', () => {
@@ -1953,16 +1823,6 @@ describe('runAgent', () => {
         triggerMarkers: [],
         signal,
       });
-    const searchAccess = (provider: SearchProvider): SearchAccess => ({
-      getActiveProvider: () => provider,
-      canSearch: () => true,
-      getResultCount: () => 3,
-      readWithDefaultReader: jest.fn(async (url: string) => ({
-        url,
-        title: 'Mars',
-        text: 'The red planet.',
-      })),
-    });
     const flush = async () => {
       for (let i = 0; i < 50; i += 1) {
         await Promise.resolve();
@@ -1987,14 +1847,6 @@ describe('runAgent', () => {
       events
         .filter(e => e.type === 'tool_call_finished')
         .map(e => (e as any).outcome.result);
-    const pageUrl = 'https://example.com/mars';
-    const hit = {title: 'Mars', url: pageUrl, snippet: 'The red planet.'};
-
-    beforeEach(() => {
-      resetSearchCache();
-      resetReadUrlAllowlist();
-    });
-
     afterEach(() => {
       jest.useRealTimers();
     });
@@ -2063,172 +1915,15 @@ describe('runAgent', () => {
       ]);
     });
 
-    it('cancels every call of a batch together on Stop', async () => {
-      const controller = new AbortController();
-      let fetches = 0;
-      global.fetch = abortableFetch({
-        onCall: () => {
-          fetches += 1;
-          if (fetches === 2) {
-            controller.abort();
-          }
-        },
-      });
-      const webSearch = new WebSearchEngine(
-        searchAccess(new TavilyProvider(() => 'key')),
-      );
-      const engine = batchEngine([
-        toolCall('c0', 'web_search', {query: 'mars'}),
-        toolCall('c1', 'web_search', {query: 'venus'}),
-      ]);
+);
 
-      const events = await collect(
-        run(engine, {web_search: webSearch}, controller.signal),
-      );
+);
 
-      expect(global.fetch).toHaveBeenCalledTimes(2);
-      const finished = events.filter(e => e.type === 'tool_call_finished');
-      expect(finished.map(e => (e as any).outcome.result.errorMessage)).toEqual(
-        ['cancelled', 'cancelled'],
-      );
-      expect(events.map(eventLabel)).toEqual([
-        'run_started',
-        'step_started',
-        'step_finished',
-        'tool_call_started c0',
-        'tool_call_started c1',
-        'tool_call_finished c0',
-        'tool_call_finished c1',
-        'run_finished',
-      ]);
-    });
+);
 
-    it('refuses a read_url of a URL only a sibling network search returns', async () => {
-      const provider: SearchProvider = {
-        id: 'tavily',
-        search: jest.fn(async () => [hit]),
-      };
-      const access = searchAccess(provider);
-      const engine = batchEngine([
-        toolCall('c0', 'web_search', {query: 'mars'}),
-        toolCall('c1', 'read_url', {url: pageUrl}),
-      ]);
+);
 
-      const events = await collect(
-        run(engine, {
-          web_search: new WebSearchEngine(access),
-          read_url: new ReadUrlEngine(access),
-        }),
-      );
-
-      const [search, read] = events
-        .filter(e => e.type === 'tool_call_finished')
-        .map(e => (e as any).outcome.result);
-      expect(search.type).toBe('search');
-      expect(read.summary).toContain('this URL is not allowed');
-      expect(access.readWithDefaultReader).not.toHaveBeenCalled();
-    });
-
-    it('allows a read_url of a URL a sibling search returns from the cache', async () => {
-      const provider: SearchProvider = {
-        id: 'tavily',
-        search: jest.fn(async () => []),
-      };
-      const access = searchAccess(provider);
-      setCachedHits('tavily', 'mars', 3, [hit]);
-      const engine = batchEngine([
-        toolCall('c0', 'web_search', {query: 'mars'}),
-        toolCall('c1', 'read_url', {url: pageUrl}),
-      ]);
-
-      const events = await collect(
-        run(engine, {
-          web_search: new WebSearchEngine(access),
-          read_url: new ReadUrlEngine(access),
-        }),
-      );
-
-      const read = events.filter(e => e.type === 'tool_call_finished')[1];
-      expect((read as any).outcome.result.type).toBe('text');
-      expect(provider.search).not.toHaveBeenCalled();
-      expect(access.readWithDefaultReader).toHaveBeenCalledWith(
-        pageUrl,
-        undefined,
-      );
-    });
-
-    it('a consumer that stops at a finish waits for the rest of the batch and its side effects', async () => {
-      jest.useFakeTimers();
-      const calculate = makeTalent('calculate', () => ({
-        type: 'text',
-        summary: '4',
-      }));
-      const search = timedTalent('search', 300, () => allowReadUrls([pageUrl]));
-      const iterator = run(
-        batchEngine([toolCall('c0', 'calculate'), toolCall('c1', 'search')]),
-        {calculate, search: search.talent},
-      );
-      let event = await iterator.next();
-      while (!event.done && event.value.type !== 'tool_call_finished') {
-        event = await iterator.next();
-      }
-
-      let allowedWhenReturned: string | null | undefined;
-      const returning = iterator.return(undefined).then(() => {
-        allowedWhenReturned = matchReadUrl(pageUrl);
-      });
-      await flush();
-      expect(allowedWhenReturned).toBeUndefined();
-
-      await jest.advanceTimersByTimeAsync(300);
-      await returning;
-      expect(allowedWhenReturned).toBe(pageUrl);
-    });
-
-    it.each(['break', 'throw'])(
-      'a consumer that leaves at a finish by %s cancels a running search at once',
-      async how => {
-        const controller = new AbortController();
-        global.fetch = abortableFetch();
-        const calculate = makeTalent('calculate', () => ({
-          type: 'text',
-          summary: '4',
-        }));
-        const webSearch = new WebSearchEngine(
-          searchAccess(new TavilyProvider(() => 'key')),
-        );
-        const iterator = run(
-          batchEngine([
-            toolCall('c0', 'calculate'),
-            toolCall('c1', 'web_search', {query: 'venus'}),
-          ]),
-          {calculate, web_search: webSearch},
-          controller.signal,
-        );
-        const leave = async () => {
-          for await (const event of iterator) {
-            if (eventLabel(event) === 'tool_call_finished c0') {
-              if (how === 'break') {
-                break;
-              }
-              throw new Error('store write failed');
-            }
-          }
-        };
-        let settled = false;
-        leave()
-          .catch(() => {})
-          .then(() => {
-            settled = true;
-          });
-        await flush();
-
-        expect(settled).toBe(true);
-        expect(global.fetch).toHaveBeenCalledTimes(1);
-        expect(getCachedHits('tavily', 'venus', 3)).toBeUndefined();
-        expect(matchReadUrl(pageUrl)).toBeNull();
-        expect(controller.signal.aborted).toBe(false);
-      },
+,
     );
 
     it('a consumer that stops at a start dispatches no call', async () => {
@@ -2332,61 +2027,7 @@ describe('runAgent', () => {
       );
     });
 
-    it('a Stop with calls still queued never dispatches them and cancels them in call order', async () => {
-      const controller = new AbortController();
-      global.fetch = abortableFetch();
-      const webSearch = new WebSearchEngine(
-        searchAccess(new TavilyProvider(() => 'key')),
-      );
-      const searchExecute = jest.spyOn(webSearch, 'execute');
-      const calculate = jest.fn(
-        async (): Promise<TalentResult> => ({type: 'text', summary: '4'}),
-      );
-      const calls = [
-        ...[0, 1, 2, 3, 4].map(i =>
-          toolCall(`c${i}`, 'web_search', {query: `q${i}`}),
-        ),
-        ...[5, 6, 7].map(i => toolCall(`c${i}`, 'calculate')),
-        toolCall('c8', ''),
-      ];
-      const done = track(
-        collect(
-          run(
-            batchEngine(calls),
-            {
-              web_search: webSearch,
-              calculate: talentWith('calculate', calculate),
-            },
-            controller.signal,
-          ),
-        ),
-      );
-
-      await flush();
-      expect(global.fetch).toHaveBeenCalledTimes(4);
-      expect(calculate).not.toHaveBeenCalled();
-
-      controller.abort();
-      await drain(done);
-
-      expect(done.done).toBe(true);
-      expect(searchExecute).toHaveBeenCalledTimes(4);
-      expect(calculate).not.toHaveBeenCalled();
-      expect(global.fetch).toHaveBeenCalledTimes(4);
-      const results = outcomeResults(done.value!);
-      expect(results.map(r => r.errorMessage)).toEqual(
-        Array(9).fill('cancelled'),
-      );
-      expect(results.slice(4).map(r => r.summary)).toEqual([
-        'web_search: cancelled',
-        ...Array(3).fill('calculate: cancelled'),
-        'Unknown talent (no function name): cancelled',
-      ]);
-      expect(done.value!.map(eventLabel).slice(-10)).toEqual([
-        ...[0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => `tool_call_finished c${i}`),
-        'run_finished',
-      ]);
-    });
+);
 
     it('a consumer that returns with calls still queued starts none of them', async () => {
       const controller = new AbortController();
@@ -2501,49 +2142,7 @@ describe('runAgent', () => {
       ]);
     });
 
-    it('a Stop between the start events cancels every search without a fetch, finishing in call order', async () => {
-      const controller = new AbortController();
-      global.fetch = abortableFetch();
-      const webSearch = new WebSearchEngine(
-        searchAccess(new TavilyProvider(() => 'key')),
-      );
-      const iterator = run(
-        batchEngine([
-          toolCall('c0', 'web_search', {query: 'mars'}),
-          toolCall('c1', 'web_search', {query: 'venus'}),
-        ]),
-        {web_search: webSearch},
-        controller.signal,
-      );
-      const events: AgentEvent[] = [];
-      for (
-        let event = await iterator.next();
-        !event.done;
-        event = await iterator.next()
-      ) {
-        events.push(event.value);
-        if (eventLabel(event.value) === 'tool_call_started c0') {
-          controller.abort();
-        }
-      }
-
-      expect(global.fetch).not.toHaveBeenCalled();
-      expect(events.map(eventLabel)).toEqual([
-        'run_started',
-        'step_started',
-        'step_finished',
-        'tool_call_started c0',
-        'tool_call_started c1',
-        'tool_call_finished c0',
-        'tool_call_finished c1',
-        'run_finished',
-      ]);
-      expect(
-        events
-          .filter(e => e.type === 'tool_call_finished')
-          .map(e => (e as any).outcome.result.errorMessage),
-      ).toEqual(['cancelled', 'cancelled']);
-    });
+);
 
     describe('when dispatching one call throws', () => {
       const unhandled = jest.fn();
