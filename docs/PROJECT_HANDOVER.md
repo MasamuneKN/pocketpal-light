@@ -1963,3 +1963,35 @@ The user has now explicitly authorized running the tests and actions considered 
 - Removed the remaining orphaned closing statements in `src/services/agent/__tests__/AgentRunner.test.ts` and `src/store/__tests__/ModelStore.test.ts`, preserving the surrounding test suites. Formatted the long assertion in `src/services/deviceRules/__tests__/bundledRules.test.ts`.
 - Fix commits: `ca071502` and `2cb7da9e` for test structure; `7b34711c` for formatting. The next CI/formatter results must be checked against the latest main SHA before claiming the lint gate is clear.
 - No APK/AAB packaging, signing, or native compilation was started. Continue to honor the user's prohibition until all non-packaging issues are resolved.
+
+
+## 123. Session update — 2026-11-09 (CI static checks pass; Jest cleanup)
+
+### Verified CI result
+
+- CI run **42614662768** on commit `942c0df5c492754a9eda9b45a14d9d0eb7109541` completed with ESLint **passed** and TypeScript **passed**. Jest failed: **18/261 suites failed; 243 passed; 103/3,853 tests failed; 3,750 passed; 310 snapshots passed**.
+- Android build and release dependency audit jobs were skipped. No APK/AAB packaging or native build was run.
+- The formatter workflow completed successfully on the related commits.
+
+### Failure clusters identified
+
+- Stale tests imported removed modules: `api/servers`, `services/deviceRules/rules`, `api/openai`, and `utils/network`; a removed server-wire fixture was also referenced.
+- Obsolete remote inference tests expected server request errors, remote model discovery, server-side reasoning payloads, and server-reported timings. These are outside the confirmed Lite scope (only model downloads may use the network).
+- One keyboard test asserted iOS behaviour in an Android-only project; one local-model-path test exercised iOS container paths.
+- Retained local tests were also failing because test setup still referenced the removed `serverStore` export. These are being corrected rather than discarded.
+
+### Changes committed after that CI run
+
+- Removed nonexistent device-rules mocks from local-path and generation-lease suites; removed the iOS-only stale-container path test while retaining local model path persistence/recovery coverage.
+- Removed the retired remote-router stop test while retaining local stop/drain tests.
+- Removed the removed `serverStore.remoteReasoning` setup from the local reasoning-wire suite.
+- Removed the remote server finish-chunk fixture test from AssistantTurnFooter coverage; retained local timing and copy behaviour tests.
+- Removed the obsolete AppCheckError assertion; retained supported error-state and NetworkError/ServerError coverage.
+- Removed the iOS keyboard gesture assertion; retained Android keyboard-dismiss behaviour coverage.
+- Removed general internet-connectivity and remote OpenAI model-list tests, as those modules/features are not part of Lite. Restored the ModelOrigin fixture import in ChatScreen tests where local/HF model cases still need it.
+
+### Verification boundary and next steps
+
+- These latest test edits have not yet completed CI. Re-run formatter and CI from the newest main commit; inspect the remaining failures, especially the large ModelStore suite and local ChatScreen/settings tests.
+- Do not remove retained local inference, model download, local storage/persistence, gallery, or benchmark tests to reduce failure counts. Fix test fixtures/mocks or production regressions instead.
+- Keep APK/AAB packaging and native compilation prohibited until all non-packaging issues are resolved and the user explicitly permits the first packaging run.
