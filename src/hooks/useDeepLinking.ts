@@ -1,22 +1,33 @@
 /**
- * useDeepLinking Hook
- *
- * Handles deep link navigation from iOS Shortcuts
- * Must be called from a component inside NavigationContainer
+ * Android deep-link handling for chat links and E2E automation routes.
  */
 
-import {useEffect, useCallback} from 'react';
+import {useCallback, useEffect} from 'react';
 import {Alert, Linking} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {deepLinkService, DeepLinkParams} from '../services/DeepLinkService';
-import {isHubLink, parseHubRunURL} from '../services/hubRunLink';
-import {deepLinkStore, uiStore} from '../store';
-import {ROUTES} from '../utils/navigationConstants';
 
-/**
- * Hook for handling deep link navigation
- * Call this once in a component inside NavigationContainer
- */
+import {deepLinkStore} from '../store';
+import {ROUTES} from '../utils/navigationConstants';
+import type {DeepLinkParams} from '../utils/deepLinkTypes';
+
+const parseDeepLink = (urlString: string): DeepLinkParams | null => {
+  try {
+    const url = new URL(urlString);
+    const queryParams: Record<string, string> = {};
+    url.searchParams.forEach((value, key) => {
+      queryParams[key] = value;
+    });
+    return {
+      url: urlString,
+      scheme: url.protocol.replace(':', ''),
+      host: url.hostname,
+      queryParams,
+    };
+  } catch {
+    return null;
+  }
+};
+
 export const useDeepLinking = () => {
   const navigation = useNavigation();
 
@@ -39,30 +50,14 @@ export const useDeepLinking = () => {
     [navigation],
   );
 
-  // Validates a raw hub/run URL and, if valid, parks it for the sheet host to
-  // present. Shared by the iOS native-emitter and Android prod Linking paths.
-  // An invalid link surfaces a message and writes nothing (validation precedes
-  // side effects).
-  const handleHubRunLink = useCallback((url: string) => {
-    const request = parseHubRunURL(url);
-    if (!request) {
-      Alert.alert(
-        uiStore.l10n.models.hubRun.invalidLinkTitle,
-        uiStore.l10n.models.hubRun.invalidLinkMessage,
-        [{text: uiStore.l10n.common.ok}],
-      );
-      return;
-    }
-    deepLinkStore.setPendingHubRun(request);
-  }, []);
-
   const handleDeepLink = useCallback(
-    async (params: DeepLinkParams) => {
-      console.log('Handling deep link:', params);
+    async (url: string) => {
+      const params = parseDeepLink(url);
+      if (!params) {
+        return;
+      }
 
-      // Automation-bridge dispatch (E2E-only). DCE-stripped in prod because
-      // __E2E__ inlines to false and the require() inside the gate is never
-      // reached. See src/__automation__/deepLink.ts.
+      // Automation dispatch is compiled out of production builds.
       if (__E2E__) {
         const {dispatchAutomationDeepLink} = require('../__automation__');
         if (await dispatchAutomationDeepLink(params, navigation)) {
@@ -70,95 +65,38 @@ export const useDeepLinking = () => {
         }
       }
 
-      // Handle chat deep links
-      if (params.host === 'chat' && params.queryParams) {
-        const {message} = params.queryParams;
-        await handleChatDeepLink(message);
-      }
-
-      // Handle hub/run download deep links (iOS native-emitter path). Only the
-      // exact hub/run route is handled; unknown hub paths are ignored silently,
-      // matching the prod Linking path.
-      if (isHubLink(params.url)) {
-        handleHubRunLink(params.url);
+      if (params.host === 'chat') {
+        await handleChatDeepLink(params.queryParams?.message);
       }
     },
-    [handleChatDeepLink, handleHubRunLink, navigation],
+    [handleChatDeepLink, navigation],
   );
 
   useEffect(() => {
-    // Initialize deep link service
-    deepLinkService.initialize();
+    let mounted = true;
 
-    // Add deep link handler
-    const removeListener = deepLinkService.addListener(handleDeepLink);
-
-    // Cleanup on unmount
-    return () => {
-      removeListener();
-      deepLinkService.cleanup();
-    };
-  }, [handleDeepLink]);
-
-  // Prod, always-on delivery for the hub/run route. iOS arrives via the native
-  // emitter above; Android prod has no native deep-link bridge, so this RN
-  // Linking path (cold getInitialURL + warm 'url' event) is the only delivery.
-  // Gated by isHubLink so non-hub URLs (chat, e2e/benchmark, memory) and unknown
-  // hub paths are ignored silently — only the exact hub/run route reaches
-  // handleHubRunLink, matching the native emitter path. A malformed hub/run
-  // payload still alerts.
-  useEffect(() => {
     Linking.getInitialURL()
       .then(url => {
-        if (url && isHubLink(url)) {
-          handleHubRunLink(url);
+        if (mounted && url) {
+          void handleDeepLink(url);
         }
       })
       .catch(() => {
-        // getInitialURL rejects on some surfaces; the warm listener still runs.
+        // Initial URL lookup can fail on some Android launch surfaces.
       });
 
-    // addEventListener is at the RN native bridge edge; contain a synchronous
-    // throw so it can't tear down the rest of the hook's lifecycle.
-    let sub: {remove: () => void} | null = null;
-    try {
-      sub = Linking.addEventListener('url', ({url}) => {
-        if (url && isHubLink(url)) {
-          handleHubRunLink(url);
-        }
-      });
-    } catch {
-      sub = null;
-    }
+    const subscription = Linking.addEventListener('url', ({url}) => {
+      void handleDeepLink(url);
+    });
 
     return () => {
-      sub?.remove();
+      mounted = false;
+      subscription.remove();
     };
-  }, [handleHubRunLink]);
+  }, [handleDeepLink]);
 };
 
-/**
- * Hook for the hub/run landing-sheet host. Reads the parked request and clears
- * it once the sheet is dismissed (single-writer clear / consumed-once).
- */
-export const useHubRunSheet = () => {
-  return {
-    pendingHubRun: deepLinkStore.pendingHubRun,
-    clearPendingHubRun: () => {
-      deepLinkStore.clearPendingHubRun();
-    },
-  };
-};
-
-/**
- * Hook for accessing pending message state
- * Can be called from any component (doesn't require navigation)
- */
-export const usePendingMessage = () => {
-  return {
-    pendingMessage: deepLinkStore.pendingMessage,
-    clearPendingMessage: () => {
-      deepLinkStore.clearPendingMessage();
-    },
-  };
-};
+export const usePendingMessage = () => ({
+  pendingMessage: deepLinkStore.pendingMessage,
+  clearPendingMessage: () => deepLinkStore.clearPendingMessage(),
+});
