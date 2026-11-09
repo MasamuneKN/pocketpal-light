@@ -72,7 +72,6 @@ import {ChatPalModelPickerSheet} from '../ChatPalModelPickerSheet';
 import {ChatHeader} from '../ChatHeader';
 import {ChatEmptyPlaceholder} from '../ChatEmptyPlaceholder';
 import {
-  AlertIcon,
   CopyIcon,
   GridIcon,
   PencilLineIcon,
