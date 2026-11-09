@@ -2774,6 +2774,8 @@ describe('ModelStore', () => {
       modelStore.contextInitParams = {
         ...modelStore.contextInitParams,
         no_gpu_devices: false,
+        // A non-CPU device selection is required to preserve GPU layers.
+        devices: ['GPU'],
       };
 
       modelStore.setNoGpuDevices(true);
