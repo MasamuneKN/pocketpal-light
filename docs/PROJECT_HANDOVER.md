@@ -1899,7 +1899,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Android-only tree audit found no iOS project/source/config files. React Native CLI's transitive development-only doctor dependency still contains Apple/iOS platform tooling in `yarn.lock`; Fastlane's Android release toolchain includes generic Xcode-related Ruby dependencies. Neither is an app runtime dependency or included in the Android APK. They are retained to avoid breaking the React Native CLI and Android Fastlane release toolchain; there is no iOS target, project, workflow, or package task.
 - No APK/AAB, native compilation, signing, or packaging was performed. The user's prohibition remains active.
 
-
 ## 116. Enforce Android-only tree and restore model-download type contract — 2026-11-09
 
 - User reiterated the release target is Android only: no iOS app project, configuration, workflow, runtime dependency, or iOS build output is part of PocketPal Lite.
