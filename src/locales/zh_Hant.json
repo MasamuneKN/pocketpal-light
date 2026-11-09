@@ -334,7 +334,12 @@
       "confirmReset": "確認重置"
     },
     "usageStats": {
-      "byteSizes": ["位元組", "KB", "MB", "GB"],
+      "byteSizes": [
+        "位元組",
+        "KB",
+        "MB",
+        "GB"
+      ],
       "tooltip": {
         "usage": "使用率： ",
         "total": "總計： ",
@@ -1053,15 +1058,6 @@
       "cannotDeleteInUse": "此投影模型用於下載的 LLM 模型：",
       "dependentModels": "依賴模型：",
       "visionWillBeDisabled": "這些模型的視覺能力將被停用。"
-    },
-    "hubRun": {
-      "title": "下載模型",
-      "resolving": "載入模型詳情…",
-      "cancel": "取消",
-      "retry": "重試",
-      "invalidLinkTitle": "無效的連結",
-      "invalidLinkMessage": "此 Hugging Face 連結缺失，或模型/檔案無效。",
-      "resolveError": "無法載入模型詳情。請檢查您的網路連線並重試。"
     }
   },
   "screenTitles": {
