@@ -2257,8 +2257,6 @@ describe('ModelStore', () => {
     });
 
 
-    });
-
     it('eject during the release wins over the reload', async () => {
       holdReleaseOfA();
 
@@ -2296,8 +2294,6 @@ describe('ModelStore', () => {
       expect(modelStore.activeModelId).toBeUndefined();
     });
 
-
-    });
   });
 
   describe('benchmark mode', () => {
