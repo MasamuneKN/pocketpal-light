@@ -1,13 +1,8 @@
 import React from 'react';
-import {Linking, Alert} from 'react-native';
-import {fireEvent, render, act, waitFor} from '../../../../../jest/test-utils';
+import {Alert} from 'react-native';
+import {fireEvent, render} from '../../../../../jest/test-utils';
 import {BenchResultCard} from '../BenchResultCard';
 import {BenchmarkResult, CacheType} from '../../../../utils/types';
-import {
-  NetworkError,
-  AppCheckError,
-  ServerError,
-} from '../../../../utils/errors';
 
 // Mock Linking - need to spy on the actual Linking object
 const mockOpenURL = jest.fn().mockImplementation(() => Promise.resolve());
@@ -59,22 +54,9 @@ describe('BenchResultCard', () => {
     },
   };
 
-  const mockSubmittedResult = {
-    ...mockResult,
-    submitted: true,
-  };
-
-  const mockLocalModelResult = {
-    ...mockResult,
-    oid: undefined, // Local models don't have an OID
-  };
-
   const mockOnDelete = jest.fn();
-  const mockOnShare = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockOnShare.mockResolvedValue(undefined);
   });
 
   it('renders benchmark result data correctly', () => {
@@ -82,7 +64,6 @@ describe('BenchResultCard', () => {
       <BenchResultCard
         result={mockResult}
         onDelete={mockOnDelete}
-        onShare={mockOnShare}
       />,
     );
 
@@ -152,206 +133,6 @@ describe('BenchResultCard', () => {
     fireEvent.press(deleteButton);
 
     expect(mockOnDelete).toHaveBeenCalledWith(mockResult.timestamp);
-  });
-
-  it('shows submitted state correctly', () => {
-    const {getByText} = render(
-      <BenchResultCard
-        result={mockSubmittedResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    expect(getByText(/✓ Shared to/)).toBeTruthy();
-    expect(getByText(/AI Phone Leaderboard ↗/)).toBeTruthy();
-  });
-
-  it('disables sharing for local models', () => {
-    const {getByText} = render(
-      <BenchResultCard
-        result={mockLocalModelResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    expect(getByText('Cannot share')).toBeTruthy();
-  });
-
-  it('opens leaderboard when link is clicked', () => {
-    const {getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const leaderboardLink = getByText('View leaderboard ↗');
-    fireEvent.press(leaderboardLink);
-
-    expect(Linking.openURL).toHaveBeenCalledWith(
-      'https://huggingface.co/spaces/a-ghorbani/ai-phone-leaderboard',
-    );
-  });
-
-  it('submits benchmark data when submit button is pressed', async () => {
-    const {getByTestId} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const submitButton = getByTestId('submit-benchmark-button');
-    await act(async () => {
-      fireEvent.press(submitButton);
-    });
-
-    expect(mockOnShare).toHaveBeenCalledWith(mockResult);
-  });
-
-  it('handles network errors', async () => {
-    mockOnShare.mockRejectedValueOnce(
-      new NetworkError('No internet connection. Please connect and try again.'),
-    );
-
-    const {getByTestId, getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const submitButton = getByTestId('submit-benchmark-button');
-    await act(async () => {
-      fireEvent.press(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(getByText(/📶.*No internet connection/)).toBeTruthy();
-      expect(getByText('Check connection & retry')).toBeTruthy();
-    });
-  });
-
-  it('handles app check errors', async () => {
-    mockOnShare.mockRejectedValueOnce(
-      new AppCheckError('App verification failed.'),
-    );
-
-    const {getByTestId, getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const submitButton = getByTestId('submit-benchmark-button');
-    await act(async () => {
-      fireEvent.press(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(getByText(/🔒.*App verification failed/)).toBeTruthy();
-      expect(getByText('Retry submission')).toBeTruthy();
-    });
-  });
-
-  it('handles server errors', async () => {
-    mockOnShare.mockRejectedValueOnce(
-      new ServerError('Our servers are experiencing issues.'),
-    );
-
-    const {getByTestId, getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const submitButton = getByTestId('submit-benchmark-button');
-    await act(async () => {
-      fireEvent.press(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(getByText(/🖥️.*Our servers are experiencing issues/)).toBeTruthy();
-      expect(getByText('Try again later')).toBeTruthy();
-    });
-  });
-
-  it('handles unknown errors', async () => {
-    mockOnShare.mockRejectedValueOnce(new Error('Unknown error occurred'));
-
-    const {getByTestId, getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const submitButton = getByTestId('submit-benchmark-button');
-    await act(async () => {
-      fireEvent.press(submitButton);
-    });
-
-    await waitFor(() => {
-      expect(getByText(/❌.*Unknown error occurred/)).toBeTruthy();
-      expect(getByText('Retry')).toBeTruthy();
-    });
-  });
-
-  it('allows retrying after a network error', async () => {
-    mockOnShare.mockRejectedValueOnce(new NetworkError('Network error'));
-
-    const {getByTestId, getByText} = render(
-      <BenchResultCard
-        result={mockResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    // First attempt - triggers error
-    const submitButton = getByTestId('submit-benchmark-button');
-    await act(async () => {
-      fireEvent.press(submitButton);
-    });
-
-    // Clear the mock so the retry will succeed
-    mockOnShare.mockClear();
-    mockOnShare.mockResolvedValueOnce(undefined);
-
-    // Retry
-    await waitFor(() => {
-      const retryButton = getByText('Check connection & retry');
-      fireEvent.press(retryButton);
-    });
-
-    expect(mockOnShare).toHaveBeenCalledWith(mockResult);
-  });
-
-  it('opens leaderboard when link is clicked on submitted results', () => {
-    const {getByText} = render(
-      <BenchResultCard
-        result={mockSubmittedResult}
-        onDelete={mockOnDelete}
-        onShare={mockOnShare}
-      />,
-    );
-
-    const leaderboardText = getByText(/AI Phone Leaderboard ↗/);
-    fireEvent.press(leaderboardText);
-
-    expect(Linking.openURL).toHaveBeenCalledWith(
-      'https://huggingface.co/spaces/a-ghorbani/ai-phone-leaderboard',
-    );
   });
 
   it('renders without initSettings or peakMemoryUsage', () => {
