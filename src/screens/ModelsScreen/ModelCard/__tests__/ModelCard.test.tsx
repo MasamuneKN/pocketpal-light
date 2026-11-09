@@ -1,7 +1,6 @@
 import React from 'react';
 import {Linking, Alert} from 'react-native';
 
-
 import {render, fireEvent, waitFor, act} from '../../../../../jest/test-utils';
 import {
   basicModel,
