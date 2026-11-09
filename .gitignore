@@ -1,27 +1,5 @@
-# OSX
-#
+# OS metadata
 .DS_Store
-
-# Xcode
-#
-build/
-*.pbxuser
-!default.pbxuser
-*.mode1v3
-!default.mode1v3
-*.mode2v3
-!default.mode2v3
-*.perspectivev3
-!default.perspectivev3
-xcuserdata
-*.xccheckout
-*.moved-aside
-DerivedData
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
-ios/dist
 
 # Android/IntelliJ
 #
@@ -59,8 +37,7 @@ package-lock.json
 # Bundle artifact
 *.jsbundle
 
-# Ruby / CocoaPods
-**/Pods/
+# Ruby / Bundler
 /vendor/bundle/
 
 # Temporary files created by Metro to check the health of the file watcher
@@ -71,17 +48,10 @@ package-lock.json
 .reassure/
 .env
 
-# Firebase config files (prod + all flavor-specific overrides)
-android/app/**/google-services.json
-ios/GoogleService-Info.plist
-
 # Environment files
 .env
 .env.*
 !.env.example
-
-# environment config
-ios/Config/Env.xcconfig
 
 # Android native libraries (should not be committed)
 **/libggml-htp*.so
