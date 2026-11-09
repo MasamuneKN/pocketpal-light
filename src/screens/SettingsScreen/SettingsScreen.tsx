@@ -520,7 +520,7 @@ export const SettingsScreen: React.FC = observer(() => {
                     <SegmentedButtons
                       value={
                         modelStore.contextInitParams.flash_attn_type ??
-                        (Platform.OS === 'ios' ? 'auto' : 'off')
+                        'off'
                       }
                       onValueChange={value =>
                         modelStore.setFlashAttnType(
