@@ -5,7 +5,7 @@
 
 export type Tier = 'low' | 'mid' | 'high' | 'flagship';
 
-export type SocClass = string; // 'budget'|'mid'|'flagship' (Android) | 'entry'|'mid'|'flagship' (iOS)
+export type SocClass = string; // 'budget'|'mid'|'flagship'
 
 export interface RamBand {
   id: string;
@@ -16,15 +16,6 @@ export interface TierMatrixEntry {
   ramBand: string;
   socClass: SocClass;
   tier: Tier;
-}
-
-export interface DeviceFamilyRule {
-  match: {
-    idPrefix?: string;
-    idMajorMin?: number;
-    minRamBytes?: number;
-  };
-  class: SocClass;
 }
 
 export interface CpuHeuristicRule {
@@ -39,10 +30,6 @@ export interface CpuHeuristicRule {
 export interface Classifier {
   ramBands: RamBand[];
   tierMatrix: TierMatrixEntry[];
-  // iOS
-  deviceIdToChip?: Record<string, string>;
-  chipToClass?: Record<string, SocClass>;
-  deviceFamilyFallback?: DeviceFamilyRule[];
   // Android
   socModelToClass?: Record<string, SocClass>;
   hardwareToClass?: Record<string, SocClass>;
@@ -94,7 +81,6 @@ export interface DeviceRules {
 
 export interface DeviceSignals {
   ramBytes: number;
-  machine?: string; // iOS utsname.machine (RNDeviceInfo.getDeviceId)
   socModel?: string; // Android Build.SOC_MODEL
   hardware?: string; // Android Build.HARDWARE
   cpuFeatures?: string[]; // i8mm / sve2 / dotprod
