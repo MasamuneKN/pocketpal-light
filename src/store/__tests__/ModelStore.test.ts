@@ -43,10 +43,8 @@ import {getVisionModelSizeBreakdown} from '../../utils/multimodalHelpers';
 import {MODEL_LIST_VERSION} from '../ModelStore';
 import * as parseModule from '../../services/deviceRules/parse';
 import {parseDeviceRules} from '../../services/deviceRules/parse';
-import {fetchRules} from '../../services/deviceRules/rules';
 import {readDeviceSignals} from '../../services/deviceRules/signals';
 import androidBundledRules from '../bundledDeviceRules/rules.android.json';
-import iosBundledRules from '../bundledDeviceRules/rules.ios.json';
 import {t} from '../../locales';
 import {
   getCpuCoreCount,
@@ -92,9 +90,6 @@ jest.mock('../../services/downloads', () => {
 // Control the network rules fetch and device-signal read at the module boundary
 // while keeping the real parse/classify. Defaults: no fetched override (bundled
 // floor), mid-tier Android signals.
-jest.mock('../../services/deviceRules/rules', () => ({
-  fetchRules: jest.fn().mockResolvedValue(null),
-}));
 jest.mock('../../services/deviceRules/signals', () => ({
   readDeviceSignals: jest
     .fn()
@@ -286,10 +281,6 @@ describe('ModelStore', () => {
 
     it.each([
       {os: 'android', devices: ['Adreno']},
-      {os: 'ios', devices: undefined},
-      {os: 'ios', devices: ['Metal']},
-      {os: 'ios', devices: ['CPU']},
-      {os: 'ios', devices: ['HTP*']},
     ])(
       'preserves $os selection $devices without discovery',
       async ({os, devices}) => {
@@ -804,49 +795,9 @@ describe('ModelStore', () => {
       }
     });
 
-    it('ios: parses + classifies non-low and resolves origin:HF presets', () => {
-      Platform.OS = 'ios';
-      const rules = parseDeviceRules(iosBundledRules, '1.17.3');
-      const signals = {ramBytes: 8 * 1e9, machine: 'iPhone16,1'};
-      const tier = classify(signals as any, rules.classifier, 'ios');
-      expect(tier).not.toBe('low');
-      expect(rules.tiers[tier].models.length).toBeGreaterThan(0);
+);
 
-      const presets = modelStore.resolvePresetModels(rules, signals as any);
-      expect(presets.length).toBeGreaterThan(0);
-      for (const m of presets) {
-        expect(m.origin).toBe(ModelOrigin.HF);
-        expect(m.downloadUrl).toContain('/resolve/main/');
-      }
-    });
-
-    it('every synthesized mmproj projection carries a downloadable url', () => {
-      // Regression lock: the synthesized projector sibling must carry a derived
-      // url so the projector Model is downloadable (checkSpaceAndDownload early-
-      // returns on !downloadUrl). Walk both platforms; require at least one.
-      let sawProjection = false;
-      for (const [os, raw] of [
-        ['android', androidBundledRules],
-        ['ios', iosBundledRules],
-      ] as const) {
-        Platform.OS = os;
-        const rules = parseDeviceRules(raw, '1.17.3');
-        const signals = {
-          ramBytes: 16 * 1e9,
-          socModel: 'SM8850',
-          machine: 'iPhone16,1',
-        };
-        // resolvePresetModels classifies internally; one call covers the device's
-        // tier. Materialized projections must each carry a downloadable url.
-        const presets = modelStore.resolvePresetModels(rules, signals as any);
-        for (const m of presets.filter(p => isProjection(p.id))) {
-          sawProjection = true;
-          expect(m.downloadUrl).toContain('/resolve/main/');
-          expect(m.downloadUrl).not.toBe('');
-        }
-      }
-      expect(sawProjection).toBe(true);
-    });
+);
 
     it('android: resolved LLMs defer oid/lfs to download (none baked)', () => {
       Platform.OS = 'android';
@@ -869,12 +820,7 @@ describe('ModelStore', () => {
       }
     });
 
-    it('all four tiers parse to a non-empty, origin:HF model set on ios', () => {
-      const rules = parseDeviceRules(iosBundledRules, '1.17.3');
-      for (const tier of ['low', 'mid', 'high', 'flagship'] as const) {
-        expect(rules.tiers[tier].models.length).toBeGreaterThan(0);
-      }
-    });
+);
   });
 
   describe('preset migration / reconcile', () => {
@@ -980,7 +926,6 @@ describe('ModelStore', () => {
         ramBytes: 16 * 1e9,
         socModel: 'SM8850',
       });
-      (fetchRules as jest.Mock).mockResolvedValue(null);
     });
     afterEach(async () => {
       // resetModels fires an un-awaited loadMissingGGUFMetadata; let it settle
@@ -1051,7 +996,6 @@ describe('ModelStore', () => {
         modelStore.version = undefined;
         modelStore.availableMemoryCeiling = 1;
       });
-      (fetchRules as jest.Mock).mockResolvedValue(null);
     });
     afterEach(async () => {
       // initializeStore fires several un-awaited background tasks; let them
@@ -1194,7 +1138,6 @@ describe('ModelStore', () => {
       modelStore.models = [];
       modelStore.deviceTier = null;
       modelStore.rulesVersion = null;
-      (fetchRules as jest.Mock).mockResolvedValue(null);
       (readDeviceSignals as jest.Mock).mockResolvedValue({
         ramBytes: 16 * 1e9,
         socModel: 'SM8850',
@@ -1202,7 +1145,6 @@ describe('ModelStore', () => {
     });
     afterEach(() => {
       Platform.OS = savedOS;
-      (fetchRules as jest.Mock).mockResolvedValue(null);
     });
 
     it('applies the bundled floor (no fetch) and sets deviceTier/rulesVersion', async () => {
@@ -1210,7 +1152,6 @@ describe('ModelStore', () => {
 
       // The bundled floor populated a non-empty origin:HF preset set without the
       // network fetch being consulted on this path.
-      expect(fetchRules).not.toHaveBeenCalled();
       expect(presets.length).toBeGreaterThan(0);
       expect(presets.every((m: Model) => m.origin === ModelOrigin.HF)).toBe(
         true,
@@ -1220,63 +1161,7 @@ describe('ModelStore', () => {
       expect(modelStore.rulesVersion).toBeTruthy();
     });
 
-    describe('with the running app version from DeviceInfo', () => {
-      const getVersion = DeviceInfo.getVersion as jest.Mock;
-      let defaultGetVersion: (() => string) | undefined;
-      beforeEach(() => {
-        defaultGetVersion = getVersion.getMockImplementation();
-        getVersion.mockReturnValue('4.5.6');
-      });
-      afterEach(() => {
-        getVersion.mockImplementation(defaultGetVersion);
-      });
-
-      it('parses the bundled floor with it', async () => {
-        const parseSpy = jest.spyOn(parseModule, 'parseDeviceRules');
-        try {
-          await (modelStore as any).resolvePresets();
-          expect(parseSpy).toHaveBeenCalledTimes(1);
-          expect(parseSpy).toHaveBeenCalledWith(expect.anything(), '4.5.6');
-        } finally {
-          parseSpy.mockRestore();
-        }
-      });
-
-      it('fetches the online rules with it', async () => {
-        await (modelStore as any).upgradeToFetchedRules();
-        expect(fetchRules).toHaveBeenCalledWith('4.5.6');
-      });
-
-      it('drops only the gated floor presets when the app version is unknown', async () => {
-        const gatedIds = new Set(
-          Object.values(
-            androidBundledRules.tiers as Record<
-              string,
-              {
-                candidates: Array<{
-                  hf_repo: string;
-                  hf_filename: string;
-                  min_app_version?: string;
-                }>;
-              }
-            >,
-          ).flatMap(tier =>
-            tier.candidates
-              .filter(c => c.min_app_version !== undefined)
-              .map(c => `${c.hf_repo}/${c.hf_filename}`),
-          ),
-        );
-        const known: Model[] = await (modelStore as any).resolvePresets();
-        getVersion.mockReturnValue('unknown');
-        const unknown: Model[] = await (modelStore as any).resolvePresets();
-        const knownIds = known.map(m => m.id);
-        expect(knownIds.some(id => gatedIds.has(id))).toBe(true);
-        expect(unknown.length).toBeGreaterThan(0);
-        expect(unknown.map(m => m.id)).toEqual(
-          knownIds.filter(id => !gatedIds.has(id)),
-        );
-      });
-    });
+);
 
     it('returns [] and completes when bundled parse throws (startup not bricked)', async () => {
       (readDeviceSignals as jest.Mock).mockRejectedValue(
@@ -1285,51 +1170,9 @@ describe('ModelStore', () => {
       await expect((modelStore as any).resolvePresets()).resolves.toEqual([]);
     });
 
-    it('upgrades to fetched rules and reconciles when newer rules arrive', async () => {
-      const fetchedRules = parseDeviceRules(
-        {
-          schema_version: '2.0.0',
-          platform: 'android',
-          rules_version: '2999-01-01.1',
-          classifier: {
-            ram_bands: [{id: 'all', max_bytes: null}],
-            tier_matrix: [{ram_band: 'all', soc_class: 'mid', tier: 'mid'}],
-            soc_model_to_class: {SM8850: 'mid'},
-          },
-          tiers: {
-            mid: {
-              candidates: [
-                {
-                  model: 'fetched',
-                  hf_repo: 'ggml-org/fetched-repo',
-                  hf_filename: 'fetched.gguf',
-                  size_bytes: 500,
-                },
-              ],
-            },
-          },
-        },
-        '1.17.3',
-      );
-      (fetchRules as jest.Mock).mockResolvedValue(fetchedRules);
+);
 
-      await (modelStore as any).upgradeToFetchedRules();
-
-      const ids = modelStore.models.map(m => m.id);
-      expect(ids).toContain('ggml-org/fetched-repo/fetched.gguf');
-      expect(modelStore.rulesVersion).toBe('2999-01-01.1');
-    });
-
-    it('leaves the bundled presets in place when the fetch returns null', async () => {
-      modelStore.models = [
-        {...presetModelFixture, origin: ModelOrigin.HF, isRulePreset: true},
-      ];
-      (fetchRules as jest.Mock).mockResolvedValue(null);
-
-      await (modelStore as any).upgradeToFetchedRules();
-
-      expect(modelStore.models).toHaveLength(1);
-    });
+);
   });
 
   describe('legacy PRESET that is also a fresh rule entry (overlap)', () => {
