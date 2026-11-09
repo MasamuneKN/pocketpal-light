@@ -48,8 +48,6 @@ export class UIStore {
 
   displayMemUsage = false;
 
-  iOSBackgroundDownloading = true;
-
   // Warning state for chat-related warnings (like multimodal warnings)
   chatWarning: ErrorState | null = null;
 
@@ -120,9 +118,6 @@ export class UIStore {
       ],
       storage: AsyncStorage,
     });
-
-    // backwards compatibility. Removed this from the ui settings screen.
-    this.iOSBackgroundDownloading = true;
   }
 
   setValue<T extends keyof typeof this.pageStates>(
@@ -169,12 +164,6 @@ export class UIStore {
   setDisplayMemUsage(value: boolean) {
     runInAction(() => {
       this.displayMemUsage = value;
-    });
-  }
-
-  setiOSBackgroundDownloading(value: boolean) {
-    runInAction(() => {
-      this.iOSBackgroundDownloading = value;
     });
   }
 
