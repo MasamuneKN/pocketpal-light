@@ -153,34 +153,6 @@ target 'PocketPal' do
     :script => %("${SRCROOT}/#{from_srcroot.(metallib_script)}" --whisper "${SRCROOT}/#{from_srcroot.(whisper_cpp_dir)}" ) +
       whisper_metal_kernels.join(' ')
 
-  # # Required for Firebase with New Architecture
-  # pod 'Firebase',         :modular_headers => true
-  # pod 'FirebaseCore',     :modular_headers => true
-  # pod 'FirebaseAppCheck', :modular_headers => true
-  # pod 'GoogleUtilities',  :modular_headers => true
-
-  # # Native module for @react-native-firebase/app-check
-  # pod 'RNFBAppCheck', :path => '../node_modules/@react-native-firebase/app-check'
-
-  target 'PocketPalTests' do
-    inherit! :search_paths
-    # Pods for testing
-  end
-
-  # Uncomment this line if you're not using auto-linking or if auto-linking causes trouble
-  # pod 'WatermelonDB', path: '../node_modules/@nozbe/watermelondb'
-  
-  # WatermelonDB dependency, should not be needed on modern React Native
-  # (please file an issue if this causes issues for you)
-  # pod 'React-jsi', path: '../node_modules/react-native/ReactCommon/jsi', modular_headers: true
-  
-  # WatermelonDB dependency
-  pod 'simdjson', path: '../node_modules/@nozbe/simdjson', modular_headers: true
-
-  # Mustache template rendering for iOS Shortcuts
-  pod 'GRMustache.swift'
-
-  # Force llama-rn and whisper-rn to build as static libraries. Both vendor a
   # ggml fork whose headers share filenames (ggml.h, ggml-cpu.h, ...); under
   # use_frameworks! the framework header-copy phases otherwise collide
   # ("Multiple commands produce .../Headers/ggml-*.h"). Static linkage skips
