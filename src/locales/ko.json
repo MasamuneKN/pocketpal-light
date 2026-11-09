@@ -515,7 +515,12 @@
         "total": "총 용량: ",
         "usage": "점유율: "
       },
-      "byteSizes": ["바이트", "KB", "MB", "GB"]
+      "byteSizes": [
+        "바이트",
+        "KB",
+        "MB",
+        "GB"
+      ]
     },
     "exportUtils": {
       "fileSaved": "파일 저장됨",
@@ -1053,15 +1058,6 @@
       "cannotDeleteInUse": "이 프로젝션 모델은 다운로드된 LLM 모델에서 사용됩니다:",
       "dependentModels": "종속된 모델:",
       "visionWillBeDisabled": "이 모델들의 시각 기능이 비활성화됩니다."
-    },
-    "hubRun": {
-      "title": "모델 다운로드",
-      "resolving": "모델 정보 불러오는 중…",
-      "cancel": "취소",
-      "retry": "다시 시도",
-      "invalidLinkTitle": "유효하지 않은 링크",
-      "invalidLinkMessage": "이 Hugging Face 링크에 모델이나 파일이 없거나 유효하지 않습니다.",
-      "resolveError": "모델 정보를 불러올 수 없습니다. 연결 상태를 확인하고 다시 시도해 주세요."
     }
   },
   "screenTitles": {
