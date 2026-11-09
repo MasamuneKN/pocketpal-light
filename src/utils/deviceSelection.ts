@@ -3,7 +3,6 @@
  * Provides platform-specific device options and quantization validation
  */
 
-import {Platform} from 'react-native';
 import {getBackendDevicesInfo, NativeBackendDeviceInfo} from 'llama.rn';
 
 /**
@@ -19,7 +18,7 @@ export interface DeviceOption {
   valid_flash_attn_types: Array<'auto' | 'on' | 'off'>; // All valid flash attention values for this device
   tag?: 'Recommended' | 'Fastest' | 'Stable' | 'Compatible' | 'Experimental';
   experimental?: boolean;
-  platform: 'ios' | 'android' | 'both';
+  platform: 'android';
   deviceInfo?: NativeBackendDeviceInfo; // Original device info from llama.rn
 }
 
@@ -53,14 +52,12 @@ export async function resolveDeviceSelection(selection: {
   // Android has no Auto option: absent/empty devices are displayed as CPU.
   // Resolve persisted defaults and old CPU selections that retained GPU layers.
   if (
-    Platform.OS === 'android' &&
     (!snapshot.devices?.length ||
       (snapshot.devices.length === 1 && snapshot.devices[0] === 'CPU'))
   ) {
     return {devices: ['CPU'], n_gpu_layers: 0};
   }
   if (
-    Platform.OS !== 'android' ||
     !snapshot.devices?.some(name => name.startsWith('HTP'))
   ) {
     return snapshot;
@@ -78,52 +75,6 @@ export async function resolveDeviceSelection(selection: {
  */
 export async function getDeviceOptions(): Promise<DeviceOption[]> {
   const options: DeviceOption[] = [];
-
-  if (Platform.OS === 'ios') {
-    // iOS: Three clear options
-
-    // Option 1: Auto (devices: undefined, lets llama.cpp choose)
-    // Metal supports all flash attention types
-    options.push({
-      id: 'auto',
-      label: 'Auto',
-      description: 'Automatically selects Metal GPU (Recommended)',
-      devices: undefined,
-      n_gpu_layers: 99,
-      default_flash_attn_type: 'auto',
-      valid_flash_attn_types: ['auto', 'on', 'off'],
-      tag: 'Recommended',
-      platform: 'ios',
-    });
-
-    // Option 2: Metal GPU (explicit devices: ['Metal'])
-    // Metal supports all flash attention types
-    options.push({
-      id: 'gpu',
-      label: 'Metal',
-      description: 'Explicitly use Metal GPU acceleration',
-      devices: ['Metal'],
-      n_gpu_layers: 99,
-      default_flash_attn_type: 'auto',
-      valid_flash_attn_types: ['auto', 'on', 'off'],
-      platform: 'ios',
-    });
-
-    // Option 3: CPU only (n_gpu_layers: 0)
-    // CPU supports all flash attention types
-    options.push({
-      id: 'cpu',
-      label: 'CPU',
-      description: 'CPU only (slower, for testing or compatibility)',
-      devices: ['CPU'],
-      n_gpu_layers: 0,
-      default_flash_attn_type: 'auto',
-      valid_flash_attn_types: ['auto', 'on', 'off'],
-      platform: 'ios',
-    });
-
-    return options;
-  }
 
   // Android: Build options based on available devices
   const devices = await getAvailableDevices();
@@ -238,13 +189,8 @@ export function validateModelQuantizationForDevice(
     return {valid: true};
   }
 
-  // iOS Metal: All quantizations supported
-  if (Platform.OS === 'ios' && deviceOption.id !== 'cpu') {
-    return {valid: true};
-  }
-
   // Android: Check OpenCL compatibility
-  if (Platform.OS === 'android') {
+  {
     // If using GPU (OpenCL) or Auto (which may use OpenCL)
     const mayUseOpenCL =
       deviceOption.id === 'gpu' ||
@@ -285,20 +231,12 @@ export function getDefaultDeviceConfig(): {
   n_gpu_layers: number;
   default_flash_attn_type: 'auto' | 'on' | 'off';
 } {
-  if (Platform.OS === 'ios') {
-    return {
-      devices: undefined, // Auto-select Metal
-      n_gpu_layers: 99,
-      default_flash_attn_type: 'auto',
-    };
-  } else {
-    // Android: Default to CPU for reliability
-    return {
-      devices: ['CPU'],
-      n_gpu_layers: 0,
-      default_flash_attn_type: 'off',
-    };
-  }
+  // Android: Default to CPU for reliability.
+  return {
+    devices: ['CPU'],
+    n_gpu_layers: 0,
+    default_flash_attn_type: 'off',
+  };
 }
 
 /**
@@ -323,10 +261,6 @@ export async function isGpuAvailable(): Promise<boolean> {
 export async function getRecommendedDeviceId(): Promise<
   'auto' | 'gpu' | 'hexagon' | 'cpu'
 > {
-  // iOS: Always auto (Metal)
-  if (Platform.OS === 'ios') {
-    return 'auto';
-  }
 
   // Android: Always recommend CPU for reliability
   // Users can manually choose GPU or Hexagon if they want to experiment
