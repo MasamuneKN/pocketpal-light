@@ -112,6 +112,9 @@ class MockModelStore {
   constructor() {
     makeAutoObservable(this, {
       engine: observable.ref,
+      // Keep the benchmark screen's loading state explicitly observable in tests.
+      isContextLoading: observable,
+      loadingModel: observable,
       refreshDownloadStatuses: false,
       retryDownload: false,
       clearDownloadError: false,
