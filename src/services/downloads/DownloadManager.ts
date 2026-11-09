@@ -10,7 +10,7 @@ import {
 } from './types';
 
 import {Model} from '../../utils/types';
-import {formatBytes, hasEnoughSpace, hfUserAgent} from '../../utils';
+import {formatBytes, hasEnoughSpace} from '../../utils';
 import {ensureNotificationPermission} from '../../utils/androidPermission';
 import {uiStore} from '../../store';
 import NativeDownloadModule from '../../specs/NativeDownloadModule';
