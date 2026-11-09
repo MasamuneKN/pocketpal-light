@@ -797,8 +797,6 @@ describe('ModelStore', () => {
 
 );
 
-);
-
     it('android: resolved LLMs defer oid/lfs to download (none baked)', () => {
       Platform.OS = 'android';
       const rules = parseDeviceRules(androidBundledRules, '1.17.3');
@@ -1159,16 +1157,12 @@ describe('ModelStore', () => {
       expect(modelStore.rulesVersion).toBeTruthy();
     });
 
-);
-
     it('returns [] and completes when bundled parse throws (startup not bricked)', async () => {
       (readDeviceSignals as jest.Mock).mockRejectedValue(
         new Error('signals exploded'),
       );
       await expect((modelStore as any).resolvePresets()).resolves.toEqual([]);
     });
-
-);
   });
 
   describe('legacy PRESET that is also a fresh rule entry (overlap)', () => {
@@ -4591,8 +4585,6 @@ describe('ModelStore', () => {
 
       consoleErrorSpy.mockRestore();
     });
-
-);
 
     it('should include system message when provided', async () => {
       const mockContext = {
