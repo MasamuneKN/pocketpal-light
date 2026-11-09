@@ -48,11 +48,7 @@ describe('chat', () => {
       {withSafeArea: true, withNavigation: true, withBottomSheetProvider: true},
     );
 
-    const button = getByTestId('message-image').parent;
-    expect(button).toBeDefined();
-    if (button) {
-      fireEvent.press(button);
-    }
+    fireEvent.press(getByTestId('message-image'));
     const closeButton = getByText('✕');
     expect(closeButton).toBeDefined();
   });

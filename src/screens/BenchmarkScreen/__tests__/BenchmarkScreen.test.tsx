@@ -59,12 +59,7 @@ describe('BenchmarkScreen', () => {
       });
 
       // Verify loading indicator is removed
-      await waitFor(
-        () => {
-          expect(queryByTestId('loading-indicator-model-init')).toBeNull();
-        },
-        {timeout: 5000},
-      );
+      expect(queryByTestId('loading-indicator-model-init')).toBeNull();
     });
 
     it('should show model selector with available models', () => {
