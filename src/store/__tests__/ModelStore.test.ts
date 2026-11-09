@@ -3392,17 +3392,7 @@ describe('ModelStore', () => {
     });
 
     describe('capability resolution', () => {
-      afterEach(() => {
-        runInAction(() => {
-          serverStore.servers = [];
-          serverStore.userSelectedModels = [];
-          serverStore.remoteCaps = {};
-          modelStore.models = [];
-          modelStore.activeModelId = undefined;
-          modelStore.activeRemoteBinding = undefined;
-          modelStore.isMultimodalActive = false;
-        });
-      });
+
 
 
       });
