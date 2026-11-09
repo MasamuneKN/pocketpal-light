@@ -870,7 +870,7 @@ export const useChatSession = (
         chatSessionStore.recordCompletionSnapshot({
           used: modelStore.activeModelCaps.effectiveContextLength,
           contextFull: true,
-          isRemote: modelStore.activeModel?.origin === ModelOrigin.REMOTE,
+          isRemote: false,
         });
       } else {
         await addSystemMessage(`${l10n.chat.completionFailed}${errorMessage}`);

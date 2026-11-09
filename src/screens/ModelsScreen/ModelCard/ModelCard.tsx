@@ -34,7 +34,7 @@ import {useStorageCheck} from '../../../hooks/useStorageCheck';
 
 import {createStyles} from './styles';
 
-import {modelStore, serverStore, uiStore} from '../../../store';
+import {modelStore, uiStore} from '../../../store';
 import {t} from '../../../locales';
 
 import {
@@ -55,7 +55,6 @@ import {
 
 import {
   LinkExternalIcon,
-  TrashIcon,
   SettingsIcon,
   CpuChipIcon,
   EyeIcon,
@@ -72,7 +71,6 @@ interface ModelCardProps {
   activeModelId?: string;
   onFocus?: () => void;
   onOpenSettings?: () => void;
-  onOpenServerDetails?: (serverId: string) => void;
 }
 
 // Enable LayoutAnimation on Android
@@ -84,7 +82,7 @@ if (
 }
 
 export const ModelCard: React.FC<ModelCardProps> = observer(
-  ({model, activeModelId, onOpenSettings, onOpenServerDetails}) => {
+  ({model, activeModelId, onOpenSettings}) => {
     const l10n = React.useContext(L10nContext);
     const theme = useTheme();
     const styles = createStyles(theme);
@@ -128,16 +126,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
     const isDownloaded = model.isDownloaded;
     const isDownloading = modelStore.isDownloading(model.id);
     const isHfModel = model.origin === ModelOrigin.HF;
-    const isRemoteModel = model.origin === ModelOrigin.REMOTE;
     const cardId = model.filename || model.id;
-
-    const modelCaps = modelStore.capsFor(model);
-    const visionLabel =
-      modelCaps.vision === 'yes'
-        ? l10n.models.modelCard.labels.visionSupported
-        : modelCaps.vision === 'no'
-          ? l10n.models.modelCard.labels.visionNotSupported
-          : l10n.models.modelCard.labels.visionUnknown;
 
     // Check projection model status for downloaded vision models
     const projectionModelStatus = modelStore.getProjectionModelStatus(model);
@@ -149,14 +138,14 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
 
     // Check integrity when model is downloaded (skip remote models — no local file)
     useEffect(() => {
-      if (isDownloaded && !isRemoteModel) {
+      if (isDownloaded) {
         checkModelFileIntegrity(model).then(({errorMessage}) => {
           setIntegrityError(errorMessage);
         });
       } else {
         setIntegrityError(null);
       }
-    }, [isDownloaded, isRemoteModel, model]);
+    }, [isDownloaded, model]);
 
     const handleDelete = useCallback(() => {
       if (model.isDownloaded) {
@@ -346,91 +335,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
       setIsExpanded(!isExpanded);
     }, [isExpanded]);
 
-    const handleRemoteDelete = useCallback(() => {
-      if (!model.serverId || !model.remoteModelId) {
-        return;
-      }
-      const sName = model.serverName || 'Remote';
-      Alert.alert(
-        l10n.common.delete,
-        t(l10n.settings.removeRemoteModel, {
-          modelName: model.name,
-          serverName: sName,
-        }),
-        [
-          {text: l10n.common.cancel, style: 'cancel'},
-          {
-            text: l10n.common.delete,
-            style: 'destructive',
-            onPress: () => {
-              if (isActiveModel) {
-                modelStore.manualReleaseContext();
-              }
-              serverStore.removeUserSelectedModel(
-                model.serverId!,
-                model.remoteModelId!,
-              );
-              serverStore.removeServerIfOrphaned(model.serverId!);
-            },
-          },
-        ],
-      );
-    }, [model, l10n, isActiveModel]);
-
     const renderActionButtons = () => {
-      // Remote models: load/offload + settings (reasoning override) + delete
-      if (isRemoteModel) {
-        return (
-          <View style={styles.actionButtonsRow}>
-            {renderModelLoadButton()}
-            <TouchableOpacity
-              testID="settings-button"
-              onPress={onOpenSettings}
-              style={styles.iconButton}
-              accessibilityRole="button"
-              accessibilityLabel={l10n.models.modelCard.buttons.settings}>
-              <SettingsIcon
-                width={16}
-                height={16}
-                stroke={theme.colors.onSurfaceVariant}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              testID="delete-button"
-              onPress={handleRemoteDelete}
-              style={styles.iconButton}
-              accessibilityRole="button"
-              accessibilityLabel={l10n.common.delete}>
-              <TrashIcon width={16} height={16} stroke={theme.colors.error} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              testID="expand-details-button"
-              onPress={toggleExpanded}
-              style={styles.iconButton}
-              accessibilityRole="button"
-              accessibilityLabel={
-                isExpanded
-                  ? l10n.models.modelCard.accessibility.collapseDetails
-                  : l10n.models.modelCard.accessibility.expandDetails
-              }>
-              {isExpanded ? (
-                <ChevronSelectorExpandedVerticalIcon
-                  width={16}
-                  height={16}
-                  stroke={theme.colors.onSurfaceVariant}
-                />
-              ) : (
-                <ChevronSelectorVerticalIcon
-                  width={16}
-                  height={16}
-                  stroke={theme.colors.onSurfaceVariant}
-                />
-              )}
-            </TouchableOpacity>
-          </View>
-        );
-      }
-
       if (isDownloading) {
         // Downloading state - show cancel button
         return (
@@ -693,13 +598,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
           <View style={styles.compactHeader}>
             <View style={styles.headerContent}>
               <View style={styles.headerLeft}>
-                <View
-                  style={styles.modelTypeIcon}
-                  {...(isRemoteModel && {
-                    accessible: true,
-                    accessibilityLabel: `${l10n.models.modelCard.labels.vision}: ${visionLabel}`,
-                    testID: `model-card-vision-${cardId}`,
-                  })}>
+                <View style={styles.modelTypeIcon}>
                   {getModelTypeIcon()}
                 </View>
                 <Text
@@ -711,36 +610,16 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                 </Text>
               </View>
               <View style={styles.headerRight}>
-                {isRemoteModel ? (
-                  <TouchableOpacity
-                    testID="server-link"
-                    onPress={() => {
-                      if (model.serverId && onOpenServerDetails) {
-                        onOpenServerDetails(model.serverId);
-                      }
-                    }}
-                    style={styles.serverLink}>
-                    <Icon
-                      source="cloud-outline"
-                      size={12}
-                      color={theme.colors.primary}
-                    />
-                    <Text style={styles.serverLinkText}>
-                      {model.serverName || 'Remote'}
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <View style={styles.sizeInfo}>
-                    <CpuChipIcon
-                      width={10}
-                      height={10}
-                      stroke={theme.colors.onSurfaceVariant}
-                    />
-                    <Text style={styles.sizeInfoText}>
-                      {getModelSizeString(model, isActiveModel, l10n)}
-                    </Text>
-                  </View>
-                )}
+                <View style={styles.sizeInfo}>
+                  <CpuChipIcon
+                    width={10}
+                    height={10}
+                    stroke={theme.colors.onSurfaceVariant}
+                  />
+                  <Text style={styles.sizeInfoText}>
+                    {getModelSizeString(model, isActiveModel, l10n)}
+                  </Text>
+                </View>
                 {getStatusDot()}
               </View>
             </View>
@@ -749,7 +628,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
           {/* Content */}
           <View style={styles.cardContent}>
             {/* Storage Error Display */}
-            {!isRemoteModel && !storageOk && !isDownloaded && (
+            {!storageOk && !isDownloaded && (
               <HelperText
                 testID="storage-error-text"
                 type="error"
@@ -761,8 +640,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
             )}
 
             {/* Display warnings */}
-            {!isRemoteModel &&
-              (shortMemoryWarning || multimodalWarning) &&
+            {(shortMemoryWarning || multimodalWarning) &&
               isDownloaded && (
                 <TouchableRipple
                   testID="memory-warning-button"
@@ -782,7 +660,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                 </TouchableRipple>
               )}
 
-            {!isRemoteModel && integrityError && (
+            {integrityError && (
               <TouchableRipple
                 testID="integrity-warning-button"
                 style={styles.warningContainer}>
@@ -833,7 +711,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                 </View>
 
                 {/* Memory Requirement */}
-                {model.isDownloaded && !isRemoteModel && (
+                {model.isDownloaded && (
                   <MemoryRequirement
                     model={model}
                     projectionModel={projectionModelForCheck}
@@ -962,7 +840,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                   )}
 
                   {/* Author */}
-                  {model.author && !isRemoteModel && (
+                  {model.author && && (
                     <View style={styles.technicalDetailCard}>
                       <Text style={styles.technicalDetailLabel}>
                         {l10n.models.modelCard.labels.author}
@@ -973,21 +851,7 @@ export const ModelCard: React.FC<ModelCardProps> = observer(
                     </View>
                   )}
 
-                  {/* Vision */}
-                  {isRemoteModel && (
-                    <View
-                      style={styles.technicalDetailCard}
-                      testID={`model-card-vision-capability-${cardId}`}
-                      accessible={true}
-                      accessibilityLabel={`${l10n.models.modelCard.labels.vision}: ${visionLabel}`}>
-                      <Text style={styles.technicalDetailLabel}>
-                        {l10n.models.modelCard.labels.vision}
-                      </Text>
-                      <Text style={styles.technicalDetailValue}>
-                        {visionLabel}
-                      </Text>
-                    </View>
-                  )}
+
                 </View>
 
                 {/* Projection model warning */}
