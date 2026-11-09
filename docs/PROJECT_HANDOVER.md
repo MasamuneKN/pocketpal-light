@@ -1867,3 +1867,13 @@ The user has now explicitly authorized running the tests and actions considered 
 - No change was made because the project decision says local/offline and removes cloud sign-in/PalsHub, but does not explicitly say whether user-triggered feedback, content/error reports, and benchmark sharing must also be retired. Do not silently break those UI paths or leave them appearing functional while deleting only their environment variable.
 - Product decision needed before changing this surface: retain these as optional online-only extras, or remove their UI/API/App Check dependencies as part of a stricter fully local-only build. This does not block local inference or gallery storage technically, but it affects the strictness of the offline-only scope.
 - No APK/AAB, native compilation, signing, or packaging was performed.
+
+
+## 113. Confirm strict online-feature boundary — 2026-11-09
+
+- User explicitly confirmed: **the only online feature retained in PocketPal Lite is model downloading; all other online features may be removed.** Treat model catalog/search and model-file downloads as the only permitted network-dependent product workflows. All inference, chat, model management after download, persistence, benchmark calculation/history, and gallery workflows must remain local.
+- Remove Firebase-backed feedback submission, content reporting, model-load-error reporting, benchmark sharing/submission, Firebase App Check, and any associated UI, API, native modules, configuration, environment variables, dependencies, tests, and mocks when no longer needed. Do not remove local benchmark execution, result display, or locally stored history merely because they share the Benchmark screen with the online share action.
+- Preserve the Hugging Face model discovery/download endpoints and any network access strictly required to retrieve model metadata/files. Audit other network-capable code against this boundary; do not assume a library is online-only from its name alone.
+- The prior Section 112 product-decision blocker is resolved by this explicit instruction. No implementation changes have yet been made for this decision as of this note.
+- Live `main` before this note: `774bc348489131f6217f0ef6dbc1b4bcaabc6c7d`. Formatting workflow [42565013351](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42565013351) completed with failure at its formatting-commit step; formatting itself succeeded, and a later automated formatting commit is now present on main. Do not treat that failed run as a source/test failure.
+- No APK/AAB, native compilation, signing, or packaging was performed. The user's prohibition remains active.
