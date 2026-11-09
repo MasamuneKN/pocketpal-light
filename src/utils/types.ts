@@ -749,7 +749,6 @@ export interface BenchmarkResult {
   initSettings?: ContextInitParams | LegacyContextInitParams;
 }
 
-
 export enum CacheType {
   F16 = 'f16',
   F32 = 'f32',

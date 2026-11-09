@@ -27,4 +27,3 @@ export const mockResult: BenchmarkResult = {
   },
   wallTimeMs: 10000,
 };
-

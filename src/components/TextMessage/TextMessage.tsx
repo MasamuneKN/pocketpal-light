@@ -1,13 +1,6 @@
 import * as React from 'react';
-import {
-  Text,
-  View,
-  Image,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
+import {Text, View, Image, TouchableOpacity, Modal} from 'react-native';
 import {IconButton} from 'react-native-paper';
-
 
 import {useTheme} from '../../hooks/useTheme';
 
@@ -15,10 +8,7 @@ import {styles} from './styles';
 import {MarkdownView} from '../MarkdownView';
 
 import {AgentStep, MessageType} from '../../utils/types';
-import {
-  getUserName,
-  UserContext,
-} from '../../utils';
+import {getUserName, UserContext} from '../../utils';
 import {visibleStepContent} from '../../utils/chat';
 
 export interface TextMessageProps {

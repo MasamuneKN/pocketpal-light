@@ -20,12 +20,13 @@ import {MessageType} from '../../utils/types';
 import {excludeDerivedMessageProps, UserContext} from '../../utils';
 import {visibleStepContent} from '../../utils/chat';
 
-
-const oneOf = (
-  renderer: ((...args: any[]) => React.ReactNode) | undefined,
-  fallback: React.ReactNode,
-) => (...args: any[]): React.ReactNode =>
-  renderer ? renderer(...args) : fallback;
+const oneOf =
+  (
+    renderer: ((...args: any[]) => React.ReactNode) | undefined,
+    fallback: React.ReactNode,
+  ) =>
+  (...args: any[]): React.ReactNode =>
+    renderer ? renderer(...args) : fallback;
 
 const hapticOptions = {
   enableVibrateFallback: true,
