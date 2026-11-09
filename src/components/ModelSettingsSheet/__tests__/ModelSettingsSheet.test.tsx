@@ -409,5 +409,4 @@ describe('ModelSettingsSheet', () => {
       expect(modelStore.setReasoningOverride).not.toHaveBeenCalled();
     });
   });
-
 });

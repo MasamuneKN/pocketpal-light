@@ -78,7 +78,6 @@ describe('PalGenerationSettingsSheet', () => {
 
       expect(getByTestId('sheet')).toBeTruthy();
       expect(getByTestId('completion-settings')).toBeTruthy();
-
     });
 
     it('does not render when not visible', () => {

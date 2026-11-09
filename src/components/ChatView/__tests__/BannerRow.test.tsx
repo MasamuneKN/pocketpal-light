@@ -178,7 +178,6 @@ describe('BannerRow', () => {
     });
     const {getByText} = renderBanner();
     expect(getByText(l10n.en.chat.contextFullEscalated)).toBeTruthy();
-
   });
 
   it('keeps the escalated copy for a local model at the escalated failure count', () => {
@@ -193,11 +192,6 @@ describe('BannerRow', () => {
     const {getByText, queryByText} = renderBanner();
     expect(getByText(l10n.en.chat.contextFullEscalated)).toBeTruthy();
     expect(queryByText(l10n.en.chat.contextFullRemote)).toBeNull();
-
-
-
-
-
   });
 
   it('keeps the device context-full copy for a local model', () => {
@@ -234,7 +228,6 @@ describe('BannerRow', () => {
     // banner would render at all.
     expect(getByTestId('context-warning-banner')).toBeTruthy();
     expect(getByTestId('banner-percent')).toHaveTextContent('81%');
-
   });
 
   it('suppresses context-* banners when no model is loaded', () => {

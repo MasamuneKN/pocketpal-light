@@ -101,7 +101,6 @@ describe('CompletionSettings', () => {
     expect(queryByText('PENALTY LAST_N')).toBeNull();
   });
 
-
   it('handles slider changes', async () => {
     const mockOnChange = jest.fn();
     const {getByTestId} = render(

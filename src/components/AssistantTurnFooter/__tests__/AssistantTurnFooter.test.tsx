@@ -148,8 +148,6 @@ describe('AssistantTurnFooter', () => {
         'footer-timing',
       ).props.children,
     ).toBe('6ms/token, 170.35 tokens/sec, 150ms TTFT');
-
-
   });
 
   it('renders copy button when copyable, even if timings absent (abort path)', () => {
