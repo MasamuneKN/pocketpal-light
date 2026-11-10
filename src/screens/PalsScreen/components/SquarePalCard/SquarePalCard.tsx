@@ -6,7 +6,6 @@ import {Text, Card, IconButton} from 'react-native-paper';
 
 import {
   ChatIcon,
-  CameraIcon,
   TrashIcon,
   ShareIcon,
 } from '../../../../assets/icons';
@@ -20,7 +19,6 @@ import {exportPal} from '../../../../utils/exportUtils';
 import {activatePalWithModel} from '../../../../utils/activatePal';
 import {getContrastColor} from '../../../../utils/colorUtils';
 import {getFullThumbnailUri} from '../../../../utils/imageUtils';
-import {hasVideoCapability} from '../../../../utils/pal-capabilities';
 
 interface SquarePalCardProps {
   pal: Pal;
@@ -101,7 +99,7 @@ export const SquarePalCard: React.FC<SquarePalCardProps> = observer(
       pal.description ||
       generateParameterSummary(pal) ||
       cleanSystemPrompt(pal.systemPrompt) ||
-      (hasVideoCapability(pal) ? 'Video AI Assistant' : 'AI Assistant');
+      'AI Assistant';
     const colors =
       Array.isArray(pal.color) && pal.color.length >= 2
         ? pal.color
@@ -138,19 +136,11 @@ export const SquarePalCard: React.FC<SquarePalCardProps> = observer(
                 <TouchableOpacity
                   style={styles.chatButton}
                   onPress={handleStartChat}>
-                  {hasVideoCapability(pal) ? (
-                    <CameraIcon
-                      stroke={theme.colors.primary}
-                      width={18}
-                      height={18}
-                    />
-                  ) : (
-                    <ChatIcon
-                      stroke={theme.colors.primary}
-                      width={18}
-                      height={18}
-                    />
-                  )}
+                  <ChatIcon
+                    stroke={theme.colors.primary}
+                    width={18}
+                    height={18}
+                  />
                 </TouchableOpacity>
               </View>
               <View style={styles.content}>
