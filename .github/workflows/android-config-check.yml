@@ -19,7 +19,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'patches/**'
-      - 'scripts/android-payload-manifest.json'
+      - 'scripts/android-payload-manifest.yml'
       - '.github/workflows/android-config-check.yml'
 
 permissions:
@@ -58,11 +58,11 @@ jobs:
 
       - name: Install Android components
         run: |
-          sdkmanager --install \
-            "platform-tools" \
-            "platforms;android-37.0" \
-            "build-tools;37.0.0" \
-            "ndk;27.3.13750724" \
+          sdkmanager --install \\
+            "platform-tools" \\
+            "platforms;android-37.0" \\
+            "build-tools;37.0.0" \\
+            "ndk;27.3.13750724" \\
             "cmake;3.22.1"
 
           # Android 17 SDK is published as android-37.0, while this project
@@ -88,9 +88,18 @@ jobs:
       - name: Validate Android payload manifest
         run: node scripts/verify-android-payload.js --print-variants
 
-      # This task configures Gradle projects only. It does not compile native
-      # code or invoke any APK/AAB packaging task.
-      - name: Validate Android Gradle configuration (no packaging)
+      # Configure only: no C/C++ compilation and no APK/AAB packaging.
+      - name: Validate Android Gradle configuration
         run: |
           cd android
           ./gradlew help --no-daemon --stacktrace
+
+      # Discover exact native compile task paths before defining a native-only
+      # job. Listing tasks does not execute compilation or packaging.
+      - name: Inventory native compilation tasks (no compilation)
+        run: |
+          set -euo pipefail
+          cd android
+          ./gradlew tasks --all --no-daemon --console=plain | tee ../android-native-task-inventory.txt
+          echo "Candidate native tasks:"
+          grep -Ei 'externalNativeBuild|buildCMake|configureCMake|cmake.*(prodRelease|release)|compile.*Native' ../android-native-task-inventory.txt || true
