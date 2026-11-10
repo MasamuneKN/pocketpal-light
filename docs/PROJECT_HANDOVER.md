@@ -2110,7 +2110,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - Updated `src/screens/PalsScreen/components/SquarePalCard/SquarePalCard.tsx` in commit `3041340269e86d5bdff6c0c88141903d34d1e942` (`fix(ui): remove stale video icon from local pal card`). The local Pal card now consistently uses the chat icon and its generic fallback description; removed the video-capability-specific camera icon branch. This removes a camera/video-specific visual path from the Lite UI while preserving the chat action.
 - Next: wait for CI and formatter/validation on the latest main commit. If green, ask for a fresh manual APK workflow run on that exact commit; packaging cannot be triggered by the connected GitHub tool. If TypeScript or Metro finds further stale capture references, fix each actual consumer rather than restoring unavailable assets. Do not call release ready until APK audits and physical-device checks pass.
 
-
 ## 138. Session update — 2026-11-11 (video-card tests corrected; preflight CI green)
 
 - Latest code commit before this handover update: `2afcccd323e3dcbb44238dcc1f7d165b7e09049e` (`test(lite): cover retired video metadata on chat card`). Updated `SquarePalCard.test.tsx` so legacy video capability metadata must not change the generic fallback label or replace the chat icon. The test suite no longer imports or expects the removed `CameraIcon`.
