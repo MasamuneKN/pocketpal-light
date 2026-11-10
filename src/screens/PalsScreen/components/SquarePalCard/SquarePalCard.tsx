@@ -4,11 +4,7 @@ import {observer} from 'mobx-react-lite';
 import {useNavigation} from '@react-navigation/native';
 import {Text, Card, IconButton} from 'react-native-paper';
 
-import {
-  ChatIcon,
-  TrashIcon,
-  ShareIcon,
-} from '../../../../assets/icons';
+import {ChatIcon, TrashIcon, ShareIcon} from '../../../../assets/icons';
 import {useTheme} from '../../../../hooks';
 import {createStyles} from './styles';
 import type {Pal} from '../../../../types/pal';
