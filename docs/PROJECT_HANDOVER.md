@@ -2080,3 +2080,10 @@ The user has now explicitly authorized running the tests and actions considered 
 - Formatter/validation workflow [42830737569](https://github.com/MasamuneKN/pocketpal-light/actions/runs/42830737569) also passed on the same code commit.
 - No APK/AAB has been produced. Final packaged APK payload/ELF verification and physical-device checks (install/launch, model download, offline inference, gallery selection, and persistence) remain outstanding. Native compilation and generated-library inspection are now verified; they do not establish final package or device readiness.
 - Next: continue source/configuration and release-pipeline checks that do not produce an APK/AAB. When all non-packaging issues are resolved, obtain explicit authorization before the first APK/AAB packaging run, then verify the packaged payload and arrange device testing.
+
+## 134. Session update — 2026-11-10 (explicit APK ZIP alignment gate)
+
+- Static review of the manual APK workflow found that its payload verifier checks every packaged native library's ELF 16 KB PT_LOAD alignment/RELRO and required libraries/assets/symbols, but the workflow did not separately invoke Android `zipalign` in 16 KB verification mode.
+- Added a packaging-stage check to `.github/workflows/build-android.yml`: after `assembleProdRelease` and the existing payload audit, it runs Android Build Tools 37.0.0 `zipalign -c -P 16 -v 4` against the generated production APK. This verifies the APK ZIP entry alignment for 16 KB pages as a separate condition from ELF segment alignment.
+- Change committed as `0480c3963b4a92aec02ead575800af9f1997d4de` (`ci(android): verify APK 16 KB zip alignment`). This is a workflow-only change. It did not dispatch the manual workflow and did not create an APK/AAB; the new check remains unexecuted until an authorized packaging run.
+- Next: verify formatter/validation for this workflow change, then continue non-packaging checks. At the first authorized APK packaging run, both the ELF/payload verifier and the explicit ZIP alignment check must pass before treating the artifact as package-verified.
