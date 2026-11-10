@@ -285,7 +285,7 @@ describe('SquarePalCard', () => {
       expect(getByText(/coding assistant • TypeScript • concise/)).toBeTruthy();
     });
 
-    it('displays fallback text for video capability pals', () => {
+    it('displays the generic fallback for pals with retired video capability metadata', () => {
       const pal = createLocalPal({
         description: undefined,
         systemPrompt: undefined,
@@ -299,8 +299,8 @@ describe('SquarePalCard', () => {
         <SquarePalCard pal={pal} onPress={mockOnPress} isLocal={true} />,
       );
 
-      // When video capability is enabled, it shows "Video AI Assistant"
-      expect(getByText('Video AI Assistant')).toBeTruthy();
+      // Retired video capability metadata must not change the Lite card label.
+      expect(getByText('AI Assistant')).toBeTruthy();
     });
 
     it('displays generic fallback for pals with no content', () => {
@@ -334,26 +334,8 @@ describe('SquarePalCard', () => {
     });
   });
 
-  describe('Video Capability', () => {
-    it('shows camera icon for video-capable pals', () => {
-      const pal = createLocalPal({
-        capabilities: {
-          video: true,
-          multimodal: true,
-        },
-      });
-
-      const {UNSAFE_getAllByType} = render(
-        <SquarePalCard pal={pal} onPress={mockOnPress} isLocal={true} />,
-      );
-
-      const cameraIcons = UNSAFE_getAllByType(
-        require('../../../../../assets/icons').CameraIcon,
-      );
-      expect(cameraIcons.length).toBeGreaterThan(0);
-    });
-
-    it('shows chat icon for non-video pals', () => {
+  describe('Chat Icon', () => {
+    it('shows chat icon for local pals regardless of retired video capability metadata', () => {
       const pal = createLocalPal({capabilities: {}});
 
       const {UNSAFE_getAllByType} = render(
