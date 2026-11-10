@@ -50,7 +50,9 @@ describe('BenchmarkScreen', () => {
       modelStore.isContextLoading = true;
       modelStore.loadingModel = modelStore.models[0];
 
-      const {getByTestId, queryByTestId} = render(<BenchmarkScreen />);
+      const {getByTestId, queryByTestId, rerender} = render(
+        <BenchmarkScreen />,
+      );
       expect(getByTestId('loading-indicator-model-init')).toBeDefined();
 
       // Complete loading
@@ -61,7 +63,12 @@ describe('BenchmarkScreen', () => {
         });
       });
 
-      // Verify loading indicator is removed
+      // Re-render after the mock store update. The mock store is shared
+      // with the screen, but MobX observer notifications are not reliable
+      // across this test's module-mocked store boundary.
+      rerender(<BenchmarkScreen />);
+
+      // Verify the screen reflects the completed initialization state.
       await waitFor(() => {
         expect(queryByTestId('loading-indicator-model-init')).toBeNull();
       });
