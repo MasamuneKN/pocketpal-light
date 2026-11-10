@@ -148,6 +148,16 @@ jobs:
           fi
           node scripts/verify-android-payload.js --apk "$APK_PATH" --report android/android-payload-report.txt
 
+      - name: Verify APK ZIP alignment for 16 KB pages
+        run: |
+          set -euo pipefail
+          APK_PATH="$(find android/app/build/outputs/apk/prod/release -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::No production release APK was found for ZIP alignment verification."
+            exit 1
+          fi
+          "$ANDROID_HOME/build-tools/37.0.0/zipalign" -c -P 16 -v 4 "$APK_PATH"
+
       - name: Upload Android build diagnostics
         if: always()
         uses: actions/upload-artifact@v4
