@@ -9,6 +9,8 @@ on:
       - '.github/actions/setup-hexagon-sdk/**'
       - 'scripts/android-payload-manifest.json'
       - 'scripts/hexagon-sdk-consumed-paths.txt'
+      - 'scripts/audit-llama-native.js'
+      - 'scripts/verify-android-payload.js'
       - 'patches/**'
       - 'android/**'
       - 'package.json'
@@ -102,7 +104,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p native-output
-          find node_modules/llama.rn/android/build/intermediates -type f -name '*.so' -print -exec cp --parents {} native-output/ \;
+          find node_modules/llama.rn/android/build/intermediates -type f -name '*.so' -print -exec cp --parents {} native-output/ \\;
           COUNT=$(find native-output -type f -name '*.so' | wc -l)
           echo "Collected llama.rn shared libraries: $COUNT"
           if [ "$COUNT" -eq 0 ]; then
@@ -111,13 +113,19 @@ jobs:
           fi
           find native-output -type f -name '*.so' -print | sort > native-output/libraries.txt
 
+      - name: Audit generated native libraries (16 KB ELF and backend symbols)
+        run: |
+          set -euo pipefail
+          node scripts/audit-llama-native.js 2>&1 | tee native-output/native-audit.txt
+
       - name: Upload native compilation evidence (no APK/AAB)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pocketpal-llama-native-libraries
+          name: pocketpal-llama-native-audit
           path: |
-            native-output/**
+            native-output/libraries.txt
+            native-output/native-audit.txt
             android/native-compile.log
           if-no-files-found: warn
           retention-days: 7
