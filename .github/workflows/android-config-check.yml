@@ -58,11 +58,11 @@ jobs:
 
       - name: Install Android components
         run: |
-          sdkmanager --install \\
-            "platform-tools" \\
-            "platforms;android-37.0" \\
-            "build-tools;37.0.0" \\
-            "ndk;27.3.13750724" \\
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-37.0" \
+            "build-tools;37.0.0" \
+            "ndk;27.3.13750724" \
             "cmake;3.22.1"
 
           # Android 17 SDK is published as android-37.0, while this project
