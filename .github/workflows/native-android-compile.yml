@@ -1,0 +1,123 @@
+name: Compile Android Native Libraries (No APK)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/native-android-compile.yml'
+      - '.github/actions/setup-hexagon-sdk/**'
+      - 'scripts/android-payload-manifest.json'
+      - 'scripts/hexagon-sdk-consumed-paths.txt'
+      - 'patches/**'
+      - 'android/**'
+      - 'package.json'
+      - 'yarn.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pocketpal-native-compile-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile-llama-native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    env:
+      RNLLAMA_SKIP_POSTINSTALL: '1'
+      ORG_GRADLE_PROJECT_rnllamaBuildFromSource: 'true'
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.21.0'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android components
+        run: |
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-37.0" \
+            "build-tools;37.0.0" \
+            "ndk;27.3.13750724" \
+            "cmake;3.22.1"
+
+          if [ -d "$ANDROID_SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$ANDROID_SDK_ROOT/platforms/android-37" ]; then
+            ln -s android-37.0 "$ANDROID_SDK_ROOT/platforms/android-37"
+          fi
+
+      - name: Set up Yarn
+        run: |
+          corepack enable
+          corepack prepare yarn@1.22.22 --activate
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Validate Android payload manifest
+        run: node scripts/verify-android-payload.js --print-variants
+
+      - name: Derive rnllama variant allowlist
+        run: |
+          set -euo pipefail
+          VARIANTS=$(node scripts/verify-android-payload.js --print-variants)
+          echo "Declared llama.rn variants: $VARIANTS"
+          echo "ORG_GRADLE_PROJECT_rnllamaVariants=$VARIANTS" >> "$GITHUB_ENV"
+
+      - name: Set up the Hexagon SDK
+        uses: ./.github/actions/setup-hexagon-sdk
+
+      - name: Create Android .env file
+        run: |
+          cat > .env <<'EOL'
+          APP_URL=pocketpal://app
+          EOL
+
+      # This is the library module's external-native-build task, not an app
+      # assemble/bundle/package task. It compiles llama.rn only.
+      - name: Compile llama.rn release native libraries (no APK/AAB)
+        run: |
+          set -euo pipefail
+          cd android
+          ./gradlew :llama.rn:externalNativeBuildRelease --no-daemon --stacktrace --info 2>&1 | tee native-compile.log
+
+      - name: Collect generated llama.rn shared libraries
+        run: |
+          set -euo pipefail
+          mkdir -p native-output
+          find node_modules/llama.rn/android/build/intermediates -type f -name '*.so' -print -exec cp --parents {} native-output/ \;
+          COUNT=$(find native-output -type f -name '*.so' | wc -l)
+          echo "Collected llama.rn shared libraries: $COUNT"
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::The native Gradle task completed but no llama.rn shared libraries were found."
+            exit 1
+          fi
+          find native-output -type f -name '*.so' -print | sort > native-output/libraries.txt
+
+      - name: Upload native compilation evidence (no APK/AAB)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pocketpal-llama-native-libraries
+          path: |
+            native-output/**
+            android/native-compile.log
+          if-no-files-found: warn
+          retention-days: 7
