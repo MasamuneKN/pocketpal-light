@@ -2045,7 +2045,6 @@ The user has now explicitly authorized running the tests and actions considered 
 - The connected GitHub toolset available in this session exposes repository reads/writes and workflow-run inspection, but no workflow-dispatch or generic Actions-run trigger. Therefore no native build or APK/AAB packaging was started from this session; do not claim otherwise.
 - Next mandatory step: provide a controlled way to execute native compilation and inspect generated llama.rn libraries. Prefer a dedicated native-only workflow if it can compile the required llama.rn and app native targets without APK/AAB packaging. If the only practical route remains the existing release workflow, preserve the user's distinction between native verification and packaging and confirm the packaging boundary before invoking it. Once a final artifact is authorized and produced, run the existing payload verifier and then arrange real-device checks for install/launch, model download, offline inference, gallery selection, and persistence.
 
-
 ## 130. Session update — 2026-11-10 (Gradle native-task discovery)
 
 - Added a task-inventory step to `.github/workflows/android-config-check.yml`. After installing the pinned Android SDK/NDK/CMake and Yarn dependencies, it runs `./gradlew tasks --all` and prints candidate external-native/CMake task names. This lists tasks only; it does not execute native compilation or APK/AAB packaging.
