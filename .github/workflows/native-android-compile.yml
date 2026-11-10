@@ -104,7 +104,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p native-output
-          find node_modules/llama.rn/android/build/intermediates -type f -name '*.so' -print -exec cp --parents {} native-output/ \\;
+          while IFS= read -r -d '' file; do
+            cp --parents "$file" native-output/
+          done < <(find node_modules/llama.rn/android/build/intermediates -type f -name '*.so' -print0)
           COUNT=$(find native-output -type f -name '*.so' | wc -l)
           echo "Collected llama.rn shared libraries: $COUNT"
           if [ "$COUNT" -eq 0 ]; then
