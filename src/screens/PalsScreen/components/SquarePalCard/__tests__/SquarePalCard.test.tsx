@@ -336,7 +336,9 @@ describe('SquarePalCard', () => {
 
   describe('Chat Icon', () => {
     it('shows chat icon for local pals regardless of retired video capability metadata', () => {
-      const pal = createLocalPal({capabilities: {}});
+      const pal = createLocalPal({
+        capabilities: {video: true, multimodal: true},
+      });
 
       const {UNSAFE_getAllByType} = render(
         <SquarePalCard pal={pal} onPress={mockOnPress} isLocal={true} />,
