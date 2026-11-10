@@ -1,10 +1,10 @@
 # PocketPal Lite — Project Handover
 
-> **Last updated:** 2026-11-08
+> **Last updated:** 2026-11-10
 > **Repository:** [MasamuneKN/pocketpal-light](https://github.com/MasamuneKN/pocketpal-light)  
 > **Default branch:** `main`  
 > **Related branch:** `refactor/remove-unreachable-features`  
-> **Project status:** Active development. Full non-packaging CI passed on `c806860` (320/320 Jest suites; 6,036 tests passed, 2 skipped; 310 snapshots passed), including ESLint, TypeScript, and the Android release dependency/AAR audit (105 AARs; 34/34 native-library entries passed 16 KB ELF/RELRO checks). The Hexagon SDK integrity audit and formatting/validation also passed. CI pins Yarn 1.22.22 and enforces frozen lockfile installs; the SDK integrity audit watches its consumed-file list. Gallery images are now copied into persistent app Documents storage before their URIs are saved in chat history. Native compilation, APK/AAB packaging, final packaged-artifact ZIP alignment, and device verification remain outstanding.
+> **Project status:** Active development. Latest full non-packaging CI passed on code commit `6df539a3` (259/259 Jest suites; 3,836/3,836 tests; 310/310 snapshots), including lint, typecheck, and Android release dependency/AAR audit. The dependency audit resolved AGP 9.2.1 and inspected 105 release AARs; all 34 discovered native libraries passed 16 KB ELF load-segment and GNU_RELRO checks. The tracked repository tree contains no iOS project/configuration paths. Native compilation, generated `llama.rn` library inspection, final APK/AAB alignment and payload verification, and physical-device verification remain outstanding.
 
 This document is the durable project context for future contributors and ChatGPT sessions. Keep it updated after meaningful milestones. The Git repository is authoritative for code; verify live branch state, source files, and CI before making changes.
 
@@ -2027,3 +2027,12 @@ The user has now explicitly authorized running the tests and actions considered 
 - A recursive repository-tree inspection returned 1,851 tracked paths and no iOS directories, Podfiles, Xcode project/workspace paths, or podspecs. This confirms the tracked repository tree has no such iOS project/configuration artifacts; no dependency cleanup was made on this evidence alone.
 - No APK/AAB, native compilation, or packaging workflow was run. The build-android job was skipped. Keep the packaging prohibition in force until the remaining non-packaging checks are resolved and the user explicitly authorizes packaging.
 - Next: inspect remaining Android-only scope/configuration and verify that model downloads are the only intended online feature. Then perform any remaining source-level checks without native compilation. The final generated native libraries and packaged artifact still require validation at the first explicitly authorized build.
+
+## 128. Session update — 2026-11-10 (Android-only and online-feature source audit)
+
+- Reviewed the live source paths for network and inference behavior. The app's completion engine is `LocalCompletionEngine`, backed by `llama.rn`'s on-device `LlamaContext`; no remote completion provider is present in `src/api/completionEngines.ts`.
+- The configured external endpoint module contains only Hugging Face URLs: model catalogue, model tree, model specifications, and model-file resolution. The Hugging Face API calls in `src/api/hf.ts` support model discovery/metadata needed to select and download models. This is treated as part of the user's permitted model-download workflow, not as remote chat/inference.
+- `src/services/agent` and `src/services/talents` implement local agent/tool execution; the inspected code did not introduce a remote inference endpoint.
+- Recursive Git tree scan found no tracked iOS directories, Podfiles, Xcode projects/workspaces, or podspecs. The package manifest inspected earlier contains Android run/build scripts and no iOS build script. This is a repository/configuration check, not a claim that upstream multi-platform JavaScript packages contain no iOS source internally.
+- No code change was needed for this source audit. Main now includes the passing CI/audit and handover records through commit `e3439a4ba4477cfc8bc79e40b7dc74a85965f6a5`.
+- Remaining release boundary: dependency AARs passed the 16 KB ELF/RELRO checks, but the audit deliberately does not compile or inspect generated `llama.rn` native libraries or a final APK/AAB. Those checks, the final artifact payload checks, and real-device offline/model/gallery/persistence verification remain outstanding. Do not trigger native compilation or packaging until the user explicitly authorizes it.
