@@ -19,7 +19,7 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'patches/**'
-      - 'scripts/android-payload-manifest.yml'
+      - 'scripts/android-payload-manifest.json'
       - '.github/workflows/android-config-check.yml'
 
 permissions:
